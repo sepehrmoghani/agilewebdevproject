@@ -12,3 +12,4 @@ CITS3403 Agile Web Development Group Project
 If anyone else has any suggestions, please feel free to add.
 
 ## App Features
+Please enter all the app features here:

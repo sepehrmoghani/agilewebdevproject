@@ -10,3 +10,5 @@ CITS3403 Agile Web Development Group Project
   6. At the end, we will discuss merging branches with the main branch.
 
 If anyone else has any suggestions, please feel free to add.
+
+## App Features

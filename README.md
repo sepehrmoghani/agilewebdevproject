@@ -10,3 +10,19 @@ CITS3403 Agile Web Development Group Project
   6. At the end, we will discuss merging branches with the main branch.
 
 If anyone else has any suggestions, please feel free to add.
+
+## Dashboard Features That Should Be Added
+
+Must:
+  - Link back to the main page in the header
+  - Have a Proper layout for each content tab
+  - Have a functioning page that can upload and visualise data
+  - Have features that allow users to personalise their page through profile and settings tab
+
+
+
+
+Should:
+  - Better color palette 
+  - Able to be used on a small screen
+    - Using a menu button to hide the sidebar (if the screen is small, this should be on by default)

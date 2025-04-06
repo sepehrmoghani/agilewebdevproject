@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Dashboard.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+<body>
+
+                    <!-- Navigation Bar / Header 
+                        - Need "menu" icon / button so that it can contract the Sidebar
+                            - If on a phone the sidebar should be hidden by default
+                        - Add a icon of our website so it can go back to home page
+                        - Dashboard should also be in the header and already selected (on this page)
+                        - Probs need Shared Goals Page and Guide page
+                    -->
+<div class="header">
+    <h1>My Dashboard</h1>
+</div>      
+
+                    <!-- Sidebar buttons (on login it would start on "Summary") -->
+<div class="sidebar">
+  <button class="tab-button" onclick="showTab('Profile', this)"> 
+    <span class="material-symbols-outlined"> account_circle </span> Profile
+  </button>
+
+  <button class="tab-button" onclick="showTab('Summary', this)">
+    <span class="material-symbols-outlined"> trending_up </span> Summary
+  </button>
+
+  <button class="tab-button" onclick="showTab('Statistics', this)">
+    <span class="material-symbols-outlined"> analytics </span> Statistics
+  </button>
+
+  <button class="tab-button" onclick="showTab('Share', this)">
+    <span class="material-symbols-outlined"> share </span> Share
+  </button>
+
+  <button class="tab-button" onclick="showTab('Datasheets', this)">
+    <span class="material-symbols-outlined"> database </span> Datasheets
+  </button>
+
+  <button class="tab-button" onclick="showTab('Settings', this)">
+    <span class="material-symbols-outlined"> settings </span> Settings
+  </button>
+</div>
+
+
+                    <!-- Contents Page -->
+<div class="content">
+  <div id="Profile" class="tab-content">
+    <h1>Tab 1 Content</h1>
+    <p>Details for Tab 1...</p>
+  </div>
+
+  <div id="Summary" class="tab-content active-tab">
+    <h1>Tab 2 Content</h1>
+    <p>Details for Tab 2...</p>
+  </div>
+
+  <div id="Statistics" class="tab-content">
+    <h1>Tab 3 Content</h1>
+    <p>Details for Tab 3...</p>
+  </div>
+
+  <div id="Share" class="tab-content">
+    <h1>Tab 4 Content</h1>
+    <p>Details for Tab 4...</p>
+  </div>
+
+  <div id="Datasheets" class="tab-content">
+    <h1>Tab 5 Content</h1>
+    <p>Details for Tab 5...</p>
+  </div>
+  
+  <div id="Settings" class="tab-content">
+    <h1>Tab 6 Content</h1>
+    <p>Details for Tab 6...</p>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/Dashboard.js') }}"></script>
+</body>
+</html>

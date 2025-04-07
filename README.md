@@ -1,6 +1,25 @@
 # agilewebdevproject
 CITS3403 Agile Web Development Group Project
 
+
+## The list of core allowable technologies and libraries are the following:
+
+    HTML
+    CSS
+    One of Bootstrap/Tailwind/SemanticUI/Foundation (no others allowed).
+    JQuery
+    Flask
+    AJAX/Websockets
+    SQLite interfaced to via the SQLAlchemy package
+
+You may not use any other core technologies, this includes frameworks (e.g. React/Angular), database systems (e.g. MySQL), or advanced CSS frameworks (e.g. directly using SASS yourself). However, you may freely use any JavaScript or Python libraries that implement non-core functionality that is particular to your application, e.g. libraries that provide bindings for ChatGPT or displaying graphs is fine! Font and icon libraries are also fine.
+The creation of the web application should be done in a private GitHub repository that includes a README containing:
+
+    a description of the purpose of the application, explaining its design and use.
+    a table with with each row containing the i) UWA ID ii) name and iii) Github user name of the group members.
+    instructions for how to launch the application.
+    instructions for how to run the tests for the application.
+
 ## A few notes
   1. First clone the repository on your machine,
   2. Ensure to install venv on your machine, within the project enviornment

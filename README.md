@@ -1,3 +1,8 @@
+Owen: Authentication
+Sepehr: Transactions
+William: Budgeting and Goals
+Matthew: Dashboard and Analytics
+
 # agilewebdevproject
 CITS3403 Agile Web Development Group Project
 

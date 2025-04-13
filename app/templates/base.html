@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+
+<head>
+    {% block head %}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.png') }}">
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&family=Oooh+Baby&display=swap"
+        rel="stylesheet">
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    {% endblock %}
+</head>
+
+<body>
+    <header style="background-color: #f8f9fa; padding: 10px;">
+        <nav>
+            <ul style="list-style: none; display: flex; gap: 15px; margin: 0; padding: 0;">
+                <li><a href="{{ url_for('home') }}" style="text-decoration: none; color: #007bff;">Home</a></li>
+                <li><a href="{{ url_for('transactions.view_transactions') }}"
+                        style="text-decoration: none; color: #007bff;">Transactions</a></li>
+            </ul>
+        </nav>
+    </header>
+    {% block content %}
+
+    {% endblock %}
+</body>
+
+</html>

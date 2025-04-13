@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, DateField, FloatField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 
@@ -25,9 +26,17 @@ class User(db.Model, UserMixin):
         return str(self.id)
     
 
-class TransactionsForm(FlaskForm):
-    date = DateField(validators=[InputRequired()], format='%Y-%m-%d', render_kw={"placeholder": "Date"})
-    transaction_detail = StringField(validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "Transaction Detail"})
-    amount = FloatField(validators=[InputRequired()], render_kw={"placeholder": "Amount"})
-    balance = FloatField(validators=[InputRequired()], render_kw={"placeholder": "Balance"})
-    # submit = SubmitField("Send")
+class TransactionsForm(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Link to User
+    date = db.Column(db.Date, nullable=False)
+    transaction_detail = db.Column(db.String(50), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    balance = db.Column(db.Float, nullable=False)
+
+    user = db.relationship('User', backref='transactions')  # Relationship to User
+
+
+class CSVUploadForm(FlaskForm):
+    csv_file = FileField('Upload CSV', validators=[InputRequired(), FileAllowed(['csv'], 'CSV files only!')])
+    submit = SubmitField('Upload')

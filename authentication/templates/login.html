@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('auth.static', filename='css/login.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+
+<body>
+
+    <div id="page-wrapper">
+        <div id="header-wrapper">
+            <div id="header-title" role="button"> FINANCIAL TRACKER (Name Pending)</div>
+            <div id="header-right" class="header-right">
+                <a role="button" class="header-action" href="{{ url_for('auth.signup') }}">Sign up</a>
+                <a role="button" class="header-action active" href="{{ url_for('auth.login') }}">Log in</a>
+            </div>
+        </div>
+
+        <div id="content-wrapper">
+
+            <div id="login-wrapper" class="login-wrapper">
+                <div class="info-row heading">Log in</div>
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    {{ form.hidden_tag() }}
+                  
+                    <!-- Email input -->
+                    <div id="login-form-start" class="info-row">
+                      <div class="info-title subheading">{{ form.email.label }}</div>
+                      <div id="input-wrapper" class="input-wrapper">
+                        {{ form.email(class_="inputfield", placeholder_="What's your email?") }}
+                      </div>
+                    </div>
+                  
+                    <!-- Password input -->
+                    <div class="info-row">
+                      <div class="info-title-cols">
+                        <div class="info-title subheading">{{ form.password.label }}</div>
+                        <div id="login-forgot" class="link">Forgot your password?</div>
+                      </div>
+                      <div id="input-wrapper" class="input-wrapper">
+                        {{ form.password(class_="inputfield", placeholder_="What's your password?") }}
+                      </div>
+                    </div>
+                  
+                    <!-- Submit button & signup link -->
+                    <div id="login-footer" class="info-row info-footer">
+                      <div id="no-account" class="link">Don't have an account yet?</div>
+
+                        {{ form.submit(class_="button button-icon subsubheading icon-arrow-right-circle") }}
+
+                    </div>
+                  </form>
+                </div>
+            </div>
+
+        <div id="footer-wrapper">
+
+            <a role="button" href="{{ url_for('auth.privacy') }}">Privacy</a>
+            <a role="button" href="{{ url_for('auth.feedback') }}">Feedback</a> 
+        </div>
+        <div id="dialog-container"></div>
+    </div>
+
+
+</body>

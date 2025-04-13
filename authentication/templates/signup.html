@@ -12,7 +12,7 @@
 
     <div id="page-wrapper">
         <div id="header-wrapper">
-            <div id="header-title" role="button"> FINANCIAL TRACKER (Name Pending)</div>
+            <div id="header-title"> FINANCIAL TRACKER (Name Pending)</div>
             <div id="header-right" class="header-right">
                 <a role="button" class="header-action active" href="{{ url_for('auth.signup') }}">Sign up</a>
                 <a role="button" class="header-action" href="{{ url_for('auth.login') }}">Log in</a>
@@ -21,13 +21,13 @@
 
         <div id="content-wrapper">
 
-            <div id="login-wrapper" class="login-wrapper">
+            <div id="wrapper" class="wrapper">
                 <div class="info-row heading">Sign up</div>
                     <form method="POST" action="{{ url_for('auth.login') }}">
                         {{ form.hidden_tag() }}
 
                         <!-- Name Input -->
-                        <div id="login-form-start" class="info-row">
+                        <div id="form-start" class="info-row">
                             <div class="info-title subheading">Name</div>
                             <div id="input-wrapper" class="input-wrapper">
                                 {{ form.name(class_="inputfield", placeholder_="What's your name?") }}
@@ -35,7 +35,7 @@
                         </div>
 
                         <!-- Email input -->
-                        <div id="login-form-start" class="info-row">
+                        <div id="form-start" class="info-row">
                             <div class="info-title subheading">Email address</div>
                             <div id="input-wrapper" class="input-wrapper">
                                 {{ form.email(class_="inputfield", placeholder_="What's your email?") }}
@@ -61,7 +61,7 @@
                         </div>
 
                         <!-- Footer section with the signup link -->
-                        <div id="signup-footer" class="info-row info-footer">
+                        <div id="footer" class="info-row info-footer">
                             {{ form.submit(class_="button button-icon subsubheading icon-arrow-right-circle") }}
                         </div>
                     </form>

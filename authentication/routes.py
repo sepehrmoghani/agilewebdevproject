@@ -22,6 +22,10 @@ def signup():
     form = SignupForm()
     return render_template('signup.html', form=form)
 
+@auth_bp.route('/userprofile')
+def userprofile():
+    return render_template('userprofile.html')
+
 @auth_bp.route('/privacy')
 def privacy():
     return render_template('privacy.html')

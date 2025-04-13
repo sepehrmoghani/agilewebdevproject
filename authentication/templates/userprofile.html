@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('auth.static', filename='css/profile.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+
+<body>
+
+    <div id="page-wrapper">
+        <div id="header-wrapper">
+            <div id="header-title" role="button"> FINANCIAL TRACKER (Name Pending)</div>
+            <div id="header-right" class="header-right">
+                <a role="button" class="header-action" href="{{ url_for('auth.signup') }}">Sign up</a>
+                <a role="button" class="header-action active" href="{{ url_for('auth.login') }}">Log in</a>
+            </div>
+        </div>
+
+        <div id="content-wrapper">
+            <div id="profile-wrapper" class="profile-wrapper">
+              <h2 class="profile-heading">Your Profile</h2>
+          
+              <div class="profile-info">
+                <div class="info-group">
+                  <div class="info-label">Name</div>
+                  <div class="info-value">**username**</div>
+                </div>
+          
+                <div class="info-group">
+                  <div class="info-label">Email</div>
+                  <div class="info-value">**email**</div>
+                </div>
+          
+                <!-- Add more fields if needed -->
+              </div>
+            </div>
+        </div>
+
+        <div id="footer-wrapper">
+
+            <a role="button" href="{{ url_for('auth.privacy') }}">Privacy</a>
+            <a role="button" href="{{ url_for('auth.feedback') }}">Feedback</a> 
+        </div>
+        <div id="dialog-container"></div>
+    </div>
+
+
+</body>

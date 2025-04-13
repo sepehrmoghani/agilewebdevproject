@@ -17,6 +17,10 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+#header-title {
+    color: rgb(90, 90, 216);
+}
+
 .header-right {
     display: flex;
     gap: 20px;
@@ -39,7 +43,7 @@ body {
     flex: auto;
 }
 
-.login-wrapper {
+.wrapper {
     width: 100%;
     max-width: 600px;
     background-color: transparent;
@@ -72,8 +76,8 @@ body {
     text-decoration: none;
 }
 
-#login-form-start .input-wrapper,
-#login-password .input-wrapper {
+#form-start .input-wrapper,
+#password .input-wrapper {
     width: 100%;
 }
 
@@ -123,7 +127,7 @@ body {
 }
 
 
-#login-footer {
+#footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -131,15 +135,15 @@ body {
     gap: 100px;
 }
 
-#login-forgot, #no-account, 
-#login-footer .button .link {
+#forgot, #no-account, 
+#footer .button .link {
     text-align: center;
     font-size: 14px;
     cursor: pointer;
 }
 
 
-#signup-footer {
+#footer {
     text-align: center;
     font-size: 14px;
     cursor: pointer;
@@ -175,7 +179,7 @@ body {
     color: white;
 }
 
-#signup-button {
+#button {
     flex-shrink: 0; 
     width: auto; 
     padding: 5px 15px; 
@@ -189,7 +193,7 @@ body {
     transition: all 0.3s ease; 
 }
 
-#signup-button:hover {
+#button:hover {
     background-color: rgb(90, 90, 216);
     color: white;
 }

@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %} Budget {% endblock %}
+{% block nav_Budget %}active{% endblock %}
+
+{% block main %} 
+<h1 style="text-align: center;margin-top: 120px;"> Budgets </h1>
+
+<!-- Add Budget Button -->
+<div style="text-align: center;margin-top: 20px;">
+    <a class="button add" href="{{ url_for('budgeting_and_goals_bp.add_budget') }}">+ Add Budget</a>
+</div>
+
+<!-- Display Budget Table -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Limit</th>
+            <th>Period</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for budget in budgets %}
+        <tr>
+            <td>{{ budget.category }}</td>
+            <td>{{ budget.limit }}</td>
+            <td>{{ budget.period }}</td>
+            <td>
+                <a class="button" href="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget.id) }}">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

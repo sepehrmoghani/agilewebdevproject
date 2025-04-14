@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %} Budget {% endblock %}
+{% block nav_Budget %}active{% endblock %}
+
+{% block main %} 
+<h1 style="text-align: center;margin-top: 120px;"> Add Budget </h1>
+
+<form method="POST" action="{{ url_for('budgeting_and_goals_bp.add_budget') }}">
+    {{ form.hidden_tag() }}  <!-- Prevent CSRF attacks -->
+    
+    <div class="form-group">
+        {{ form.category.label }}
+        {{ form.category(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.limit.label }}
+        {{ form.limit(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.period.label }}
+        {{ form.period(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.submit(class="button") }}
+    </div>
+</form>
+
+{% endblock %}

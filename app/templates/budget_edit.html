@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block title %} Budget {% endblock %}
+{% block nav_Budget %}active{% endblock %}
+
+{% block main %} 
+<h1 style="text-align: center;margin-top: 120px;"> Edit Budget </h1>
+
+<form method="POST" action="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget_id) }}">
+    {{ form.hidden_tag() }}  <!-- Prevent CSRF attacks -->
+    
+    <div class="form-group">
+        {{ form.category.label }}
+        {{ form.category(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.limit.label }}
+        {{ form.limit(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.period.label }}
+        {{ form.period(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.submit(class="button") }}
+    </div>
+</form>
+
+<!-- Delete Button -->
+<form method="POST" action="{{ url_for('budgeting_and_goals_bp.delete_budget', id=budget_id) }}" onsubmit="return confirm('Are you sure you want to delete this budget?');">
+    <button type="submit" class="button delete">Delete Budget</button>
+</form>
+
+{% endblock %}

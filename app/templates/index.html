@@ -1,11 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Flask App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    <h1>Hello, Agile Web Dev Project Group!!</h1>
-</body>
-</html>
+{% extends "layout.html" %}
+{% block title %} Home {% endblock %}
+{% block nav_Home %}active{% endblock %}
+
+{% block main %} <h1 style="text-align: center;margin-top: 120px;"> Index.html </h1> {% endblock %}

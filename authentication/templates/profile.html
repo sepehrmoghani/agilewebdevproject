@@ -14,8 +14,7 @@
         <div id="header-wrapper">
             <div id="header-title" role="button"> FINANCIAL TRACKER (Name Pending)</div>
             <div id="header-right" class="header-right">
-                <a role="button" class="header-action" href="{{ url_for('auth.signup') }}">Sign up</a>
-                <a role="button" class="header-action active" href="{{ url_for('auth.login') }}">Log in</a>
+                <a role="button" class="header-action active" href="{{ url_for('auth.logout') }}">Log out</a>
             </div>
         </div>
 
@@ -26,12 +25,12 @@
               <div class="profile-info">
                 <div class="info-group">
                   <div class="info-label">Name</div>
-                  <div class="info-value">**username**</div>
+                  <div class="info-value"> {{ user['name'] }}</div>
                 </div>
           
                 <div class="info-group">
                   <div class="info-label">Email</div>
-                  <div class="info-value">**email**</div>
+                  <div class="info-value">{{ user['email'] }}</div>
                 </div>
           
                 <!-- Add more fields if needed -->

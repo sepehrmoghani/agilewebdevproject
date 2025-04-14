@@ -48,7 +48,7 @@
                   
                     <!-- Submit button & signup link -->
                     <div id="footer" class="info-row info-footer">
-                      <div id="no-account" class="link">Don't have an account yet?</div>
+                      <a id="no-account" class="link" href="{{ url_for('auth.signup') }}">Don't have an account yet?</a>
 
                         {{ form.submit(class_="button button-icon subsubheading icon-arrow-right-circle") }}
 
@@ -65,5 +65,14 @@
         <div id="dialog-container"></div>
     </div>
 
+    <script>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            alert("{{ message }}");
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </script>
 
 </body>

@@ -23,7 +23,7 @@
 
             <div id="wrapper" class="wrapper">
                 <div class="info-row heading">Sign up</div>
-                    <form method="POST" action="{{ url_for('auth.login') }}">
+                    <form method="POST" action="{{ url_for('auth.signup') }}">
                         {{ form.hidden_tag() }}
 
                         <!-- Name Input -->
@@ -57,6 +57,9 @@
                             </div>
                             <div id="input-wrapper" class="input-wrapper">
                                 {{ form.repassword(class_="inputfield", placeholder_="Please confirm.") }}
+                                {% for error in form.repassword.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}  
                             </div>
                         </div>
 
@@ -76,5 +79,14 @@
         <div id="dialog-container"></div>
     </div>
 
+    <script>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              alert("{{ message }}");
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </script>
 
 </body>

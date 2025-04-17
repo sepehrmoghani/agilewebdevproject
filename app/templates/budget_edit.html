@@ -5,6 +5,8 @@
 {% block main %} 
 <h1 style="text-align: center;margin-top: 120px;"> Edit Budget </h1>
 
+<div style="margin-top: 50px;"></div>
+
 <form method="POST" action="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget_id) }}">
     {{ form.hidden_tag() }}  <!-- Prevent CSRF attacks -->
     

@@ -22,9 +22,9 @@
     <tbody>
         {% for budget in budgets %}
         <tr>
-            <td>{{ budget.category }}</td>
-            <td>{{ budget.limit }}</td>
-            <td>{{ budget.period }}</td>
+            <td class="col_category">{{ budget.category }}</td>
+            <td class="col_limit">{{ "%.2f"|format(budget.limit) }}</td>
+            <td class="col_period">{{ budget.period }}</td>
             <td>
                 <a class="button" href="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget.id) }}">Edit</a>
             </td>
@@ -32,4 +32,5 @@
         {% endfor %}
     </tbody>
 </table>
+<script src="{{ url_for('static', filename='js/budgeting.js') }}"></script>
 {% endblock %}

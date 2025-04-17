@@ -42,7 +42,7 @@ nav a:hover {
   color: #9300ac;
 }
 
-/* Responsive */
+/* Responsive when the width of the page is under 600px */
 @media (max-width: 600px) {
   header {
     flex-direction: column;
@@ -69,67 +69,92 @@ nav a:hover {
   color: blue;
   font-size: 16px;
   cursor: pointer;
-  transition: all 1s ease; /* Transition effect */
+  transition: all 0.75s ease; 
+}
+
+.button.add {
+  border-color: green;
+  color: green;
+}
+
+.button.delete {
+  border-color: red;
+  color: red;
 }
 
 /* Hover effect */
 .button:hover {
   background-color: blue;
-  color: white; /* Change text color */
-  border-color: blue; /* Ensure border stays blue */
+  color: white;
+  border-color: blue;
 }
 
-.button.add {
-  padding: 10px 20px;
-  border: 2px solid green;
-  border-radius: 5px;
-  background-color: white;
-  color: green;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 1s ease; /* Transition effect */
-}
-
-/* Hover effect */
 .button.add:hover {
   background-color: green;
-  color: white; /* Change text color */
-  border-color: green; /* Ensure border stays blue */
+  color: white;
+  border-color: green;
 }
 
-.button.delete {
-  padding: 10px 20px;
-  border: 2px solid red;
-  border-radius: 5px;
-  background-color: white;
-  color: red;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 1s ease; /* Transition effect */
-}
-
-/* Hover effect */
 .button.delete:hover {
   background-color: red;
-  color: white; /* Change text color */
-  border-color: red; /* Ensure border stays blue */
+  color: white;
+  border-color: red;
 }
 
 /* Table styles */
 .table {
-  margin-top: 25px;
+  margin-top: 30px;
   margin-left: auto;
   margin-right: auto;
-  width: 60%; /* Optional: controls how wide the table is */
+  width: 80%;
+  border: 2px solid black;
+  border-collapse: collapse;
 }
 
-/* Add padding to the table cells */
 .table td, .table th {
-    padding: 12px 15px; /* Horizontal and vertical padding */
-    text-align: left;
+  padding: 12px 20px;
+  text-align: center;
+  border: 1px solid black;
 }
 
-/* Optional: Adjust row height */
 .table tr {
-    height: 50px; /* Adjust height for row spacing */
+  height: 60px;
+}
+
+.table .col_period, .table .col_limit, .table .col_current, .table .col_target, .table .col_deadline {
+  width: 150px;
+}
+
+.table .col_title, .table .col_time_left {
+  width: 200px;
+}
+
+/* The Edit Button */
+.table td:last-child {
+  border: none;
+  width: 5%;
+}
+
+
+/* Progress Bar */
+.progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50;
+  width: 0%;
+  transition: width 0.5s ease-in-out;
+}
+
+.progress-percent {
+  font-size: 0.9em;
+  margin-top: 4px;
+  display: inline-block;
 }

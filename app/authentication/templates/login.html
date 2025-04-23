@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login</title>
-  <link rel="stylesheet" href="{{ url_for('auth.static', filename='css/login.css') }}">
+  <link rel="stylesheet" href="{{ url_for('authentication.static', filename='css/login.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
 
@@ -14,8 +14,8 @@
         <div id="header-wrapper">
             <div id="header-title"> FINANCIAL TRACKER (Name Pending)</div>
             <div id="header-right" class="header-right">
-                <a role="button" class="header-action" href="{{ url_for('auth.signup') }}">Sign up</a>
-                <a role="button" class="header-action active" href="{{ url_for('auth.login') }}">Log in</a>
+                <a role="button" class="header-action" href="{{ url_for('authentication.signup') }}">Sign up</a>
+                <a role="button" class="header-action active" href="{{ url_for('authentication.login') }}">Log in</a>
             </div>
         </div>
 
@@ -24,7 +24,7 @@
             <div id="wrapper" class="wrapper">
                 <div class="info-row heading">Log in</div>
 
-                <form method="POST" action="{{ url_for('auth.login') }}">
+                <form method="POST" action="{{ url_for('authentication.login') }}">
                     {{ form.hidden_tag() }}
                   
                     <!-- Email input -->
@@ -48,7 +48,7 @@
                   
                     <!-- Submit button & signup link -->
                     <div id="footer" class="info-row info-footer">
-                      <a id="no-account" class="link" href="{{ url_for('auth.signup') }}">Don't have an account yet?</a>
+                      <a id="no-account" class="link" href="{{ url_for('authentication.signup') }}">Don't have an account yet?</a>
 
                         {{ form.submit(class_="button button-icon subsubheading icon-arrow-right-circle") }}
 
@@ -59,8 +59,8 @@
 
         <div id="footer-wrapper">
 
-            <a role="button" href="{{ url_for('auth.privacy') }}">Privacy</a>
-            <a role="button" href="{{ url_for('auth.feedback') }}">Feedback</a> 
+            <a role="button" href="{{ url_for('authentication.privacy') }}">Privacy</a>
+            <a role="button" href="{{ url_for('authentication.feedback') }}">Feedback</a> 
         </div>
         <div id="dialog-container"></div>
     </div>

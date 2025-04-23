@@ -6,24 +6,53 @@
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/budgeting_and_goals.css') }}" rel="stylesheet">
 
 </head>
 
 <body>
     <header>
-        <div class="logo">MySite</div>
-        <nav>
-            <a href="{{ url_for('index') }}" class="{% block nav_Home %}{% endblock %}">Home</a>
-            <a href="{{ url_for('budgeting_and_goals_bp.view_budget') }}" class="{% block nav_Budget %}{% endblock %}">Budget</a>
-            <a href="{{ url_for('budgeting_and_goals_bp.view_goals') }}" class="{% block nav_Goal %}{% endblock %}">Goal</a>
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-body" data-bs-theme="dark">
+          <div class="container-fluid">
+            <!-- Brand/Logo -->
+            <a class="navbar-brand text-white fw-bold" href="{{ url_for('index') }}">MySite</a>
+      
+            <!-- Hamburger button for smaller screens {When 990 px or lower} -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+      
+            <!-- Collapsible menu items -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                  <a class="nav-link {% block nav_Home %}{% endblock %}" href="{{ url_for('index') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {% block nav_Budget %}{% endblock %}" href="{{ url_for('budgeting_and_goals_bp.view_budget') }}">Budget</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {% block nav_Goal %}{% endblock %}" href="{{ url_for('budgeting_and_goals_bp.view_goals') }}">Goal</a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </nav>
-    </header>
+      </header>
+      
 
     <main>
         {% block main %}
         {% endblock %}
     </main>
 
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/budgeting_and_goals.js') }}"></script>
 </body>

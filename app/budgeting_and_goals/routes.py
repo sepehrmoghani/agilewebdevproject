@@ -3,10 +3,7 @@ from .forms import BudgetForm, GoalForm
 from instance.webforms import Budget, Goal, db
 
 budgeting_and_goals_bp = Blueprint(
-    'budgeting_and_goals_bp',
-    __name__,
-    template_folder='templates',
-    static_folder='static'
+    'budgeting_and_goals_bp', __name__, template_folder='templates', static_folder='static'
 )
 
 # Budgeting

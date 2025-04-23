@@ -6,11 +6,11 @@
 
 <!-- Add Goal Button -->
 <div style="text-align: center;margin-top: 20px;">
-    <a class="button add" href="{{ url_for('budgeting_and_goals_bp.add_goal') }}">+ Add Goal</a>
+    <a class="btn btn-success" href="{{ url_for('budgeting_and_goals_bp.add_goal') }}">+ Add Goal</a>
 </div>
 
 <!-- Display Goals Table -->
-<table class="table">
+<table class="table table-dark table-striped table-hover">
     <thead>
         <tr>
             <th>Title</th>
@@ -38,7 +38,7 @@
             <td class="col_deadline" data-deadline="{{ goal.deadline }}">{{ goal.deadline }}</td>
             <td class="col_time_left"></td>
             <td>
-                <a class="button" href="{{ url_for('budgeting_and_goals_bp.edit_goals', id=goal.id) }}">Edit</a>
+                <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_goals', id=goal.id) }}">Edit</a>
             </td>
         </tr>
         {% endfor %}

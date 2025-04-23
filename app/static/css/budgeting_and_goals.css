@@ -10,97 +10,6 @@ body {
   color: white;
 }
 
-header {
-  background-color: #848484;
-  box-shadow: 0 4px 4px rgb(106, 0, 255);
-  padding: 16px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a {
-  text-decoration: none;
-  margin: 0 15px;
-  color: #555;
-  font-size: 16px;
-  transition: color 0.3s ease;
-}
-
-nav a:hover {
-  color: #007bff;
-}
-
-.active {
-  border-bottom: 2px solid #9300ac;
-  color: #9300ac;
-}
-
-/* Responsive when the width of the page is under 600px */
-@media (max-width: 600px) {
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  nav {
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  nav a {
-    margin: 5px 10px 0 0;
-  }
-}
-
-/* Base button styles */
-.button {
-  padding: 10px 20px;
-  border: 2px solid blue;
-  border-radius: 5px;
-  background-color: white;
-  color: blue;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.75s ease; 
-}
-
-.button.add {
-  border-color: green;
-  color: green;
-}
-
-.button.delete {
-  border-color: red;
-  color: red;
-}
-
-/* Hover effect */
-.button:hover {
-  background-color: blue;
-  color: white;
-  border-color: blue;
-}
-
-.button.add:hover {
-  background-color: green;
-  color: white;
-  border-color: green;
-}
-
-.button.delete:hover {
-  background-color: red;
-  color: white;
-  border-color: red;
-}
-
 /* Table styles */
 .table {
   margin-top: 30px;
@@ -110,10 +19,10 @@ nav a:hover {
   border: 2px solid black;
   border-collapse: collapse;
 }
-
 .table td, .table th {
   padding: 12px 20px;
   text-align: center;
+  vertical-align: middle;
   border: 1px solid black;
 }
 
@@ -157,4 +66,10 @@ nav a:hover {
   font-size: 0.9em;
   margin-top: 4px;
   display: inline-block;
+}
+
+/* Make all placeholder text white */
+::placeholder {
+  color: white !important;
+  opacity: 1;
 }

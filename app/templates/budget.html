@@ -7,11 +7,11 @@
 
 <!-- Add Budget Button -->
 <div style="text-align: center;margin-top: 20px;">
-    <a class="button add" href="{{ url_for('budgeting_and_goals_bp.add_budget') }}">+ Add Budget</a>
+    <a class="btn btn-success" href="{{ url_for('budgeting_and_goals_bp.add_budget') }}">+ Add Budget</a>
 </div>
 
 <!-- Display Budget Table -->
-<table class="table">
+<table class="table table-dark table-striped table-hover">
     <thead>
         <tr>
             <th>Category</th>
@@ -26,7 +26,7 @@
             <td class="col_limit">{{ "%.2f"|format(budget.limit) }}</td>
             <td class="col_period">{{ budget.period }}</td>
             <td>
-                <a class="button" href="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget.id) }}">Edit</a>
+                <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget.id) }}">Edit</a>
             </td>
         </tr>
         {% endfor %}

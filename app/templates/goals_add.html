@@ -6,31 +6,43 @@
 
 <div style="margin-top: 50px;"></div>
 
-<form method="POST" action="{{ url_for('budgeting_and_goals_bp.add_goal') }}">
-    {{ form.hidden_tag() }}  <!-- Prevent CSRF attacks -->
-    
-    <div class="form-group">
-        {{ form.title.label }}
-        {{ form.title(class="form-control") }}
-    </div>
+<!-- A Card to hold the Add Goal Form -->
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card shadow text-bg-dark p-4" style="min-width: 350px;">
+        <form method="POST" action="{{ url_for('budgeting_and_goals_bp.add_goal') }}">
+            {{ form.hidden_tag() }}
 
-    <div class="form-group">
-        {{ form.target_amount.label }}
-        {{ form.target_amount(class="form-control") }}
-    </div>
+            <!-- Enter Goal Title -->
+            <div class="mb-3">
+                <label for="title" class="form-label">{{ form.title.label }}</label>
+                {{ form.title(class="form-control text-bg-secondary focus-ring focus-ring-light", aria_label="Goal title input") }}
+            </div>
 
-    <div class="form-group">
-        {{ form.current_amount.label }}
-        {{ form.current_amount(class="form-control") }}
-    </div>
+            <!-- Enter Target Amount (2d.p. Max) -->
+            <div class="mb-3">
+                <label for="target_amount" class="form-label">{{ form.target_amount.label }}</label>
+                {{ form.target_amount(class="form-control text-bg-secondary focus-ring focus-ring-light", aria_label="Target amount input") }}
+            </div>
 
-    <div class="form-group">
-        {{ form.deadline.label }}
-        {{ form.deadline(class="form-control") }}
-    </div>
+            <!-- Enter Current Amount (2d.p. Max) -->
+            <div class="mb-3">
+                <label for="current_amount" class="form-label">{{ form.current_amount.label }}</label>
+                {{ form.current_amount(class="form-control text-bg-secondary focus-ring focus-ring-light", aria_label="Current amount input") }}
+            </div>
 
-    <div class="form-group">
-        {{ form.submit(class="button") }}
+            <!-- Select Deadline (dd/mm/yyyy) -->
+            <div class="mb-3">
+                <label for="deadline" class="form-label">{{ form.deadline.label }}</label>
+                {{ form.deadline(class="form-control text-bg-secondary focus-ring focus-ring-light", aria_label="Deadline input") }}
+            </div>
+
+            <!-- Save Button -->
+            <div class="d-grid">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
     </div>
+</div>
+
     
 {% endblock %}

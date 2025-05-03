@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (timeDiffMs < 0) {
-      timeLeftCell.textContent = "Past due";
+      timeLeftCell.textContent = "Over due";
       return;
     }
 

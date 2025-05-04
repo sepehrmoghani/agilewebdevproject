@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('authentication.static', filename='css/login.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+
+<div class="container min-vh-100 d-flex justify-content-center align-items-center">
+  <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+
+    <h1 class="mb-4 text-center">Sign Up</h1>
+
+    <form method="POST" action="{{ url_for('authentication.signup') }}">
+      {{ form.hidden_tag() }}
+
+      <!-- First Name input -->
+      <div class="mb-3">
+        <label for="{{ form.first_name.id }}" class="form-label">First Name</label>
+        {{ form.first_name(class_="form-control", placeholder="What's your first name?", id=form.first_name.id) }}
+      </div>
+
+      <!-- Last Name input -->
+      <div class="mb-3">
+        <label for="{{ form.last_name.id }}" class="form-label">Last Name</label>
+        {{ form.last_name(class_="form-control", placeholder="What's your last name?", id=form.last_name.id) }}
+      </div>
+
+      <!-- Email input -->
+      <div class="mb-3">
+        <label for="{{ form.email.id }}" class="form-label">Email Address</label>
+        {{ form.email(class_="form-control", placeholder="What's your email?", id=form.email.id) }}
+      </div>
+
+      <!-- Password input -->
+      <div class="mb-3">
+        <label for="{{ form.password.id }}" class="form-label">Password</label>
+        {{ form.password(class_="form-control", placeholder="Create a password", id=form.password.id) }}
+      </div>
+
+      <!-- Confirm Password input -->
+      <div class="mb-3">
+        <label for="{{ form.repassword.id }}" class="form-label">Confirm Password</label>
+        {{ form.repassword(class_="form-control", placeholder="Please confirm your password", id=form.repassword.id) }}
+        
+        {% for error in form.repassword.errors %}
+          <div class="text-danger mt-1">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Submit button and log in link -->
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <a href="{{ url_for('authentication.login') }}" class="link">Already have an account?</a>
+        {{ form.submit(class_="btn btn-primary") }}
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<div id="footer-wrapper" class="mt-4 text-center">
+    <a role="button" href="{{ url_for('authentication.privacy') }}">Privacy</a>
+    <a role="button" href="{{ url_for('authentication.feedback') }}">Feedback</a>
+</div>
+<div id="dialog-container"></div>
+
+{% endblock %}

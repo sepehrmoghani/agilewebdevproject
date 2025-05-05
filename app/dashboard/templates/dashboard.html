@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Transaction List</h2>
+    <ul id="transactionList" class="list-group"></ul>
+</div>
+
+<script>
+    fetch('/dashboard/api/transactions')  <!-- Note the "/dashboard" prefix as you registered the blueprint -->
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById('transactionList');
+            data.forEach(tx => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item';
+                item.textContent = `ID: ${tx.id}, User ID: ${tx.user_id || 1}, Date: ${tx.date}, Detail: ${tx.description}, Amount: $${tx.amount}, Balance: $${tx.balance}`;
+                list.appendChild(item);
+            });
+        })
+        .catch(error => console.error('Error fetching transactions:', error));
+</script>
+{% endblock %}

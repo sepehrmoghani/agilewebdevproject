@@ -21,10 +21,12 @@ def create_app():
     from app.transactions import transactions_bp
     from app.authentication import authentication_bp
     from app.budgeting_and_goals import budgeting_and_goals_bp
+    from app.dashboard import dashboard_bp
 
     app.register_blueprint(transactions_bp, url_prefix='/transactions')
     app.register_blueprint(authentication_bp, url_prefix='/authentication')
     app.register_blueprint(budgeting_and_goals_bp, url_prefix='/budgeting_and_goals_bp')
+    app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
 
     configure_routes(app)
 

@@ -1,9 +1,9 @@
 from flask import Flask
-from forms import db
 from flask_migrate import Migrate
 from app.routes import configure_routes
-from app.transactions import transactions_bp
-from app.authentication import authentication_bp
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 migrate = Migrate()
 
@@ -18,8 +18,13 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
+    from app.transactions import transactions_bp
+    from app.authentication import authentication_bp
+    from app.budgeting_and_goals import budgeting_and_goals_bp
+
     app.register_blueprint(transactions_bp, url_prefix='/transactions')
     app.register_blueprint(authentication_bp, url_prefix='/authentication')
+    app.register_blueprint(budgeting_and_goals_bp, url_prefix='/budgeting_and_goals_bp')
 
     configure_routes(app)
 

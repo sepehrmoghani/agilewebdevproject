@@ -1,10 +1,7 @@
 from datetime import datetime
-from app import db
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from forms import User
-
+from app import db
+from app.authentication.forms import User
 
 #@login_manager.user_loader
 def load_user(user_id):

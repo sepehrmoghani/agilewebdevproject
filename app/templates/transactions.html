@@ -14,8 +14,38 @@
 </div>
 
 <div class="row">
+    <!-- Import Transactions Card -->
+    <div class="card col-sm-4 mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Import Transactions</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('transactions.upload_transactions') }}" enctype="multipart/form-data">
+                {{ upload_form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    {{ upload_form.csv_file.label(class="form-label") }}
+                    {% if upload_form.csv_file.errors %}
+                        {{ upload_form.csv_file(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in upload_form.csv_file.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ upload_form.csv_file(class="form-control") }}
+                    {% endif %}
+                    <div class="form-text">CSV must have columns: date, description, amount (optional: category)</div>
+                </div>
+                
+                <div class="gap-2">
+                    {{ upload_form.submit(class="btn btn-outline-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- Add Transaction Form -->
-    <div class="col-lg-4 mb-4">
+    <div class="col mb-4">
         <div class="card h-100">
             <div class="card-header">
                 <h5 class="mb-0">Add Transaction</h5>
@@ -98,47 +128,17 @@
                         {% endif %}
                     </div>
                     
-                    <div class="d-grid gap-2">
+                    <div class="gap-2">
                         {{ transaction_form.submit(class="btn btn-primary") }}
                     </div>
                 </form>
             </div>
         </div>
-        
-        <!-- Import Transactions Card -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0">Import Transactions</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('transactions.upload_transactions') }}" enctype="multipart/form-data">
-                    {{ upload_form.hidden_tag() }}
-                    
-                    <div class="mb-3">
-                        {{ upload_form.csv_file.label(class="form-label") }}
-                        {% if upload_form.csv_file.errors %}
-                            {{ upload_form.csv_file(class="form-control is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in upload_form.csv_file.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ upload_form.csv_file(class="form-control") }}
-                        {% endif %}
-                        <div class="form-text">CSV must have columns: date, description, amount (optional: category)</div>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        {{ upload_form.submit(class="btn btn-outline-primary") }}
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
-    
+</div>
+<div class="row">
     <!-- Transactions Table -->
-    <div class="col-lg-8 mb-4">
+    <div class="col">
         <div class="card h-100">
             <div class="card-header">
                 <h5 class="mb-0">Transaction History</h5>

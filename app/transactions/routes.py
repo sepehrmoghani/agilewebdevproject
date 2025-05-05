@@ -5,7 +5,8 @@ from flask import render_template, url_for, flash, redirect, request, jsonify, a
 #from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from .models import User, Transaction
-from forms import User, LoginForm, TransactionUploadForm, TransactionForm, db
+from app import db
+from .forms import TransactionUploadForm, TransactionForm
 
 # Create a Blueprint
 transactions_bp = Blueprint('transactions', __name__, template_folder='templates')

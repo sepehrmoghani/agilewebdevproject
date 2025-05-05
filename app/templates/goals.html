@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+
+<div class="container min-vh-100 d-flex justify-content-center align-items-center">
+    <div class="col">
+        <!-- Add Budget Button -->
+        <div class="mb-3">
+            <a class="btn btn-success" href="{{ url_for('budgeting_and_goals_bp.add_goal') }}">+ Add a Goal</a>
+        </div>
+        <!-- Budgets Table -->
+        <div class="row">
+            <!-- Transactions Table -->
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Goals</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="transactions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Current Amount</th>
+                                        <th>Progress</th>
+                                        <th>Target Amount</th>
+                                        <th>Deadline</th>
+                                        <th>Time Left</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for goal in goals %}
+                                    <tr>
+                                        <td class="col_title">{{ goal.title }}</td>
+                                        <td class="col_current">{{ "%.2f"|format(goal.current_amount) }}</td>
+                                        <td>
+                                            <div class="progress-bar-container" 
+                                                data-current="{{ goal.current_amount }}"
+                                                data-target="{{ goal.target_amount }}">
+                                                <div class="progress-bar"></div>
+                                            </div>
+                                            <span class="progress-percent"></span>
+                                        </td>
+                                        <td class="col_target">{{ "%.2f"|format(goal.target_amount) }}</td>
+                                        <td class="col_deadline" data-deadline="{{ goal.deadline }}">{{ goal.deadline }}</td>
+                                        <td class="col_time_left"></td>
+                                        <td>
+                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_goals', id=goal.id) }}">Edit</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/goals.js') }}"></script>
+{% endblock %}

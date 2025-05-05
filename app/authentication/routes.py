@@ -1,10 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from app.authentication import authentication_bp
-from forms import LoginForm
-from forms import SignupForm
-from forms import User, LoginInfo, db
+from .forms import LoginForm, SignupForm, User, LoginInfo
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
+from app import db
 
 loginInfo = {}
 

@@ -1,10 +1,12 @@
 from flask import Flask
-from forms import db
+from flask_sqlalchemy import SQLAlchemy
 from app.routes import configure_routes
 from .transactions import transactions_bp
 from .authentication import authentication_bp
-#from .budgeting_and_goals import budgeting_and_goals_bp
+from .budgeting_and_goals import budgeting_and_goals_bp
 #from .dashboard_and_analytics import dashboard_and_analytics_bp
+
+db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__, static_url_path='/static/css')
@@ -22,7 +24,7 @@ def create_app():
     # Register blueprints
     app.register_blueprint(transactions_bp, url_prefix='/transactions')
     app.register_blueprint(authentication_bp, url_prefix='/authentication')
-    #app.register_blueprint(budgeting_and_goals_bp, url_prefix='/budgeting_and_goals')
+    app.register_blueprint(budgeting_and_goals_bp, url_prefix='/budgeting_and_goals')
     #app.register_blueprint(dashboard_and_analytics_bp, url_prefix='/dashboard_and_analytics')
 
     # Configure routes

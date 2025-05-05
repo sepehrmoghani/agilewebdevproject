@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+
+<div class="container min-vh-100 d-flex justify-content-center align-items-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals_bp.view_budget') }}">Goals</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Add a Goal</li>
+            </ol>
+        </nav>
+
+        <h1 class="mb-4 text-center">Add a Goal</h1>
+
+        <form method="POST" action="{{ url_for('budgeting_and_goals_bp.add_goal') }}">
+            {{ form.hidden_tag() }}
+
+            <!-- Enter Goal Title -->
+            <div class="mb-3">
+                <label for="title" class="form-label">{{ form.title.label }}</label>
+                {{ form.title(class="form-control", aria_label="Goal title input") }}
+            </div>
+
+            <!-- Enter Target Amount (2d.p. Max) -->
+            <div class="mb-3">
+                <label for="target_amount" class="form-label">{{ form.target_amount.label }}</label>
+                {{ form.target_amount(class="form-control", aria_label="Target amount input") }}
+            </div>
+
+            <!-- Enter Current Amount (2d.p. Max) -->
+            <div class="mb-3">
+                <label for="current_amount" class="form-label">{{ form.current_amount.label }}</label>
+                {{ form.current_amount(class="form-control", aria_label="Current amount input") }}
+            </div>
+
+            <!-- Select Deadline (dd/mm/yyyy) -->
+            <div class="mb-3">
+                <label for="deadline" class="form-label">{{ form.deadline.label }}</label>
+                {{ form.deadline(class="form-control", aria_label="Deadline input") }}
+            </div>
+
+            <!-- Save Button -->
+            <div class="d-grid">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+    
+{% endblock %}

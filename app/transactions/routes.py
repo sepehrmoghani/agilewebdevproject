@@ -1,8 +1,7 @@
 import csv
 import io
-from flask import Blueprint
 from datetime import datetime
-from flask import render_template, url_for, flash, redirect, request, jsonify, abort
+from flask import render_template, url_for, flash, redirect, request, jsonify, abort, Blueprint
 #from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from .models import User, Transaction
@@ -139,7 +138,7 @@ def upload_transactions():
             flash('No file selected', 'danger')
     return redirect(url_for('transactions.transactions'))
 
-@transactions_bp.route('/get_transactions_data')
+@transactions_bp.route("/api/transactions")
 #@login_required
 def get_transactions_data():
     #transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()

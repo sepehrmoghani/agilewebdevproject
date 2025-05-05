@@ -51,7 +51,7 @@ def transactions():
     
     #transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
     transactions = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).all()
-    return render_template('transactions.html', title='Transactions', 
+    return render_template('transactions/transactions.html', title='Transactions', 
                            upload_form=upload_form, 
                            transaction_form=transaction_form,
                            transactions=transactions)

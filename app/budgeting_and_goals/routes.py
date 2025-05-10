@@ -1,12 +1,39 @@
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from .forms import BudgetForm, GoalForm
-from .models import Budget, Goal
+from .models import User, Budget, Goal
+from app.transactions.models import Transaction
 from app import db
 
 budgeting_and_goals_bp = Blueprint(
     'budgeting_and_goals_bp', __name__, template_folder='templates', static_folder='static'
 )
+
+#Budgeting Helper Functions
+def get_transactions_for_budget(user_id, category, period):
+    # Get today's date
+    today = datetime.now(timezone.utc).date()
+
+    # Calculate date range based on period
+    if period == 'weekly':
+        start_date = today - timedelta(days=7)
+    elif period == 'monthly':
+        start_date = today - timedelta(days=30)
+    elif period == 'yearly':
+        start_date = today - timedelta(days=365)
+    else:
+        # fallback to the earliest possible aware date
+        start_date = datetime(1, 1, 1, tzinfo=timezone.utc).date()
+
+    # Query matching transactions
+    transactions = Transaction.query.filter_by(
+        user_id=user_id,
+        category=category
+    ).filter(
+        Transaction.date >= datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc)
+    ).all()
+
+    return transactions
 
 # Budgeting
 @budgeting_and_goals_bp.route('/budget', methods=['GET'])
@@ -17,7 +44,23 @@ def view_budget():
     # Query the budgets created by the currently logged-in user
     user_budgets = Budget.query.filter_by(user_id=user_id).all()
     
-    return render_template('budgeting_and_goals/budget.html', form=form, budgets=user_budgets)
+    budget_summaries = []
+
+    for budget in user_budgets:
+        transactions = get_transactions_for_budget(user_id, budget.category, budget.period)
+        expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
+        income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
+
+        total_spent = expenses_total - income_total
+
+
+        budget_summaries.append({
+            'budget': budget,
+            'transactions': transactions,
+            'total_spent': total_spent
+        })
+        
+    return render_template('budgeting_and_goals/budget.html', form=form, summaries=budget_summaries)
 
 @budgeting_and_goals_bp.route('/budget/edit/<int:id>', methods=['GET', 'POST'])
 #@login_required

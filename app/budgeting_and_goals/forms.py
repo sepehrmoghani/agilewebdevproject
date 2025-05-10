@@ -4,8 +4,6 @@ from wtforms import StringField, SelectField, SubmitField, RadioField
 from wtforms.validators import InputRequired, Length, ValidationError
 from wtforms.fields import FloatField
 from wtforms import DateField
-from app.transactions.models import Transaction
-from app import db
 
 def two_decimal_places(form, field):
     if round(field.data, 2) != field.data:

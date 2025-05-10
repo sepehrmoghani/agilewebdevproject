@@ -24,18 +24,20 @@
                                 <thead>
                                     <tr>
                                         <th>Category</th>
+                                        <th>Current Amount</th>
                                         <th>Limit</th>
                                         <th>Period</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for budget in budgets %}
+                                    {% for summary in summaries %}
                                     <tr>
-                                        <td class="col_category">{{ budget.category }}</td>
-                                        <td class="col_limit">{{ "%.2f"|format(budget.limit) }}</td>
-                                        <td class="col_period">{{ budget.period }}</td>
+                                        <td>{{ summary.budget.category }}</td>
+                                        <td>{{ "%.2f"|format(summary.total_spent) }}</td>
+                                        <td>{{ "%.2f"|format(summary.budget.limit) }}</td>
+                                        <td>{{ summary.budget.period }}</td>
                                         <td>
-                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget.id) }}">Edit</a>
+                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_budget', id=summary.budget.id) }}">Edit</a>
                                         </td>
                                     </tr>
                                     {% endfor %}

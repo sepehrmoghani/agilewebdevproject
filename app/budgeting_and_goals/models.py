@@ -1,5 +1,10 @@
 from datetime import datetime, timezone
 from app import db
+from app.authentication.forms import User
+
+#@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)

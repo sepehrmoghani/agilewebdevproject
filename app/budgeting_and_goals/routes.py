@@ -1,3 +1,4 @@
+from datetime import date
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from .forms import BudgetForm, GoalForm
 from .models import Budget, Goal
@@ -108,9 +109,11 @@ def edit_goals(id):
     form = GoalForm(obj=goal)  # Pre-fill the form with the current goal values
 
     if form.validate_on_submit():  # Save the changes when form is submitted
+        
         goal.title = form.title.data
         goal.target_amount = form.target_amount.data
         goal.current_amount = form.current_amount.data
+        goal.start_date = form.start_date.data
         goal.deadline = form.deadline.data
 
         db.session.commit()
@@ -125,11 +128,13 @@ def add_goal():
     form = GoalForm()  # Create a new form for adding a goal
 
     if form.validate_on_submit():  # Validate form data when submitted
-        user_id = 1  # Placeholder for the logged-in user's ID
+        
+        user_id = 1
         new_goal = Goal(
             title=form.title.data,
             target_amount=form.target_amount.data,
             current_amount=form.current_amount.data,
+            start_date=form.start_date.data,
             deadline=form.deadline.data,
             user_id=user_id
         )

@@ -1,21 +1,15 @@
-{% extends "base.html" %}
-{% block title %}Edit Goals{% endblock %}
-{% block head %}
-{{ super() }}
-{% endblock %}
-{% block content %}
+{% extends "layout.html" %}
+{% block title %} Goals {% endblock %}
+{% block nav_Goal %}active{% endblock %}
 
+{% block main %}
+<h1 style="text-align: center;margin-top: 120px;"> Edit Goal </h1>
 
-<div class="container min-vh-100 d-flex justify-content-center align-items-center">
-    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
-        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals_bp.view_goals') }}">Goals</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Edit Goal</li>
-            </ol>
-        </nav>
-        
-        <h1 class="mb-4 text-center">Edit Goal</h1>
+<div style="margin-top: 50px;"></div>
+
+<!-- A Card to hold the Edit Goal Form -->
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card shadow text-bg-dark p-4" style="min-width: 350px;">
 
         <!-- Edit Goal Form -->
         <form method="POST" action="{{ url_for('budgeting_and_goals_bp.edit_goals', id=goal_id) }}">
@@ -24,33 +18,28 @@
             <!-- Enter Title -->
             <div class="mb-3">
                 <label for="title" class="form-label">{{ form.title.label }}</label>
-                {{ form.title(class="form-control", aria_label="Goal title input") }}
+                {{ form.title(class="form-control text-bg-secondary focus-ring focus-ring-light", aria_label="Goal title
+                input") }}
             </div>
 
             <!-- Target Amount (2d.p. Max) -->
             <div class="mb-3">
                 <label for="target_amount" class="form-label">{{ form.target_amount.label }}</label>
-                {{ form.target_amount(class="form-control",
+                {{ form.target_amount(class="form-control text-bg-secondary focus-ring focus-ring-light",
                 aria_label="Target amount input") }}
             </div>
 
             <!-- Current Amount (2d.p. Max) -->
             <div class="mb-3">
                 <label for="current_amount" class="form-label">{{ form.current_amount.label }}</label>
-                {{ form.current_amount(class="form-control",
+                {{ form.current_amount(class="form-control text-bg-secondary focus-ring focus-ring-light",
                 aria_label="Current amount input") }}
-            </div>
-
-            <!-- Start (dd/mm/yyyy) -->
-            <div class="mb-3">
-                <label for="start_date" class="form-label">{{ form.start_date.label }}</label>
-                {{ form.start_date(class="form-control", aria_label="Start input") }}
             </div>
 
             <!-- Deadline (dd/mm/yyyy) -->
             <div class="mb-3">
                 <label for="deadline" class="form-label">{{ form.deadline.label }}</label>
-                {{ form.deadline(class="form-control",
+                {{ form.deadline(class="form-control text-bg-secondary focus-ring focus-ring-light",
                 aria_label="Deadline input") }}
             </div>
 

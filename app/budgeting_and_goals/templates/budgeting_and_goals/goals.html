@@ -33,25 +33,25 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for goal in goals %}
-                                    <tr>
-                                        <td class="col_title">{{ goal.title }}</td>
-                                        <td class="col_current">{{ "%.2f"|format(goal.current_amount) }}</td>
-                                        <td>
-                                            <div class="progress-bar-container" 
-                                                data-current="{{ goal.current_amount }}"
-                                                data-target="{{ goal.target_amount }}">
-                                                <div class="progress-bar"></div>
-                                            </div>
-                                            <span class="progress-percent"></span>
-                                        </td>
-                                        <td class="col_target">{{ "%.2f"|format(goal.target_amount) }}</td>
-                                        <td class="col_deadline" data-deadline="{{ goal.deadline }}">{{ goal.deadline }}</td>
-                                        <td class="col_time_left"></td>
-                                        <td>
-                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_goals', id=goal.id) }}">Edit</a>
-                                        </td>
-                                    </tr>
+                                    {% for summary in summaries %}
+                                        <tr>
+                                            <td class="col_title">{{ summary.goal.title }}</td>
+                                            <td class="col_current">{{ "%.2f"|format(summary.total_amount) }}</td>
+                                            <td>
+                                                <div class="progress-bar-container" 
+                                                    data-current="{{ summary.total_amount }}"
+                                                    data-target="{{ summary.goal.target_amount }}">
+                                                    <div class="progress-bar"></div>
+                                                </div>
+                                                <span class="progress-percent"></span>
+                                            </td>
+                                            <td class="col_target">{{ "%.2f"|format(summary.goal.target_amount) }}</td>
+                                            <td class="col_deadline" data-deadline="{{ summary.goal.deadline }}">{{ summary.goal.deadline }}</td>
+                                            <td class="col_time_left"></td>
+                                            <td>
+                                                <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_goals', id=summary.goal.id) }}">Edit</a>
+                                            </td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>

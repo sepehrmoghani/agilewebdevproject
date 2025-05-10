@@ -27,7 +27,7 @@ def get_transactions_for_budget(user_id, category, period):
 
     # Query matching transactions
     transactions = Transaction.query.filter_by(
-        user_id=user_id,
+        user_id=user_id, #TODO: Replace with actual user_id
         category=category
     ).filter(
         Transaction.date >= datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc)
@@ -37,10 +37,10 @@ def get_transactions_for_budget(user_id, category, period):
 
 # Budgeting
 @budgeting_and_goals_bp.route('/budget', methods=['GET'])
-#@login_required
+#@login_required TODO:
 def view_budget():
     form = BudgetForm()
-    user_id = 1  # Placeholder for the logged-in user's ID
+    user_id = 1  # TODO: Placeholder for the logged-in user's ID
     # Query the budgets created by the currently logged-in user
     user_budgets = Budget.query.filter_by(user_id=user_id).all()
     
@@ -53,7 +53,6 @@ def view_budget():
 
         total_spent = expenses_total - income_total
 
-
         budget_summaries.append({
             'budget': budget,
             'transactions': transactions,
@@ -63,7 +62,7 @@ def view_budget():
     return render_template('budgeting_and_goals/budget.html', form=form, summaries=budget_summaries)
 
 @budgeting_and_goals_bp.route('/budget/edit/<int:id>', methods=['GET', 'POST'])
-#@login_required
+#@login_required TODO:
 def edit_budget(id):
     budget = Budget.query.get_or_404(id)
     
@@ -88,7 +87,7 @@ def edit_budget(id):
     return render_template('budgeting_and_goals/budget_edit.html', form=form, budget_id=id)
 
 @budgeting_and_goals_bp.route('/budget/add', methods=['GET', 'POST'])
-#@login_required  # Make sure the user is logged in
+#@login_required TODO:
 def add_budget():
     form = BudgetForm()  # Create a new form for adding a budget
 
@@ -111,7 +110,7 @@ def add_budget():
     return render_template('budgeting_and_goals/budget_add.html', form=form)
 
 @budgeting_and_goals_bp.route('/budget/delete/<int:id>', methods=['POST'])
-#@login_required
+#@login_required TODO:
 def delete_budget(id):
     budget = Budget.query.get_or_404(id)
 
@@ -127,19 +126,52 @@ def delete_budget(id):
     return redirect(url_for('budgeting_and_goals_bp.view_budget'))
 
 
+#Goal Helper Functions
+def get_transactions_for_goal(user_id, start_date, deadline):
+    """
+    Fetch transactions for a given user between start_date and deadline.
+    Separately totals expenses and income.
+    """
+    # Query all transactions in date range
+    transactions = Transaction.query.filter_by(
+        user_id = user_id, #TODO: Replace with actual user_id 
+    ).filter(
+        Transaction.date >= datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc),
+        Transaction.date <= datetime.combine(deadline, datetime.max.time(), tzinfo=timezone.utc)
+    ).all()
+
+    return transactions
 
 # Goals
 @budgeting_and_goals_bp.route('/goals', methods=['GET'])
-#@login_required
+#@login_required TODO:
 def view_goals():
     form = GoalForm()
-    user_id = 1  # Placeholder for the logged-in user's ID
+    user_id = 1  # TODO: Placeholder for the logged-in user's ID
     user_goals = Goal.query.filter_by(user_id=user_id).all()
 
-    return render_template('budgeting_and_goals/goals.html', form=form, goals=user_goals)
+    goal_summaries = []
+    
+    for goal in user_goals:
+        # Get transactions between goal start and deadline
+        transactions = get_transactions_for_goal(user_id, goal.start_date, goal.deadline)
+        expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
+        income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
+        
+        total_amount = goal.current_amount - expenses_total + income_total
+
+        goal_summaries.append({
+            'goal': goal,
+            'expenses_total': expenses_total,
+            'income_total': income_total,
+            'total_amount': total_amount,
+            'transactions': transactions
+        })
+    
+    return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries)
 
 @budgeting_and_goals_bp.route('/goals/edit/<int:id>', methods=['GET', 'POST'])
-#@login_required
+#@login_required TODO:
 def edit_goals(id):
     goal = Goal.query.get_or_404(id)
     
@@ -166,7 +198,7 @@ def edit_goals(id):
     return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=id)
 
 @budgeting_and_goals_bp.route('/goals/add', methods=['GET', 'POST'])
-#@login_required  # Ensure the user is logged in
+#@login_required TODO:
 def add_goal():
     form = GoalForm()  # Create a new form for adding a goal
 
@@ -191,7 +223,7 @@ def add_goal():
     return render_template('budgeting_and_goals/goals_add.html', form=form)
 
 @budgeting_and_goals_bp.route('/goals/delete/<int:id>', methods=['POST'])
-#@login_required
+#@login_required TODO:
 def delete_goal(id):
     goal = Goal.query.get_or_404(id)
 

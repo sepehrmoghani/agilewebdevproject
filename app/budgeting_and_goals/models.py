@@ -21,7 +21,7 @@ class Goal(db.Model):
     title = db.Column(db.String(100), nullable=False)
     target_amount = db.Column(db.Float, nullable=False)
     current_amount = db.Column(db.Float, nullable=False)
-    start_date = db.Column(db.Date, nullable=False, default=datetime.now(timezone.utc).date())
+    start_date = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc).date())
     deadline = db.Column(db.Date, nullable=False)
 
     user = db.relationship('User', backref=db.backref('goals', lazy=True))

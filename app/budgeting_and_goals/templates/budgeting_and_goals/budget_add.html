@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Add Budget{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+
+<div class="container min-vh-100 d-flex justify-content-center align-items-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals_bp.view_budget') }}">Budget</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Add Budget</li>
+            </ol>
+        </nav>
+
+        <h1 class="mb-4 text-center">Add Budget</h1>
+
+        <form method="POST" action="{{ url_for('budgeting_and_goals_bp.add_budget') }}">
+            {{ form.hidden_tag() }}
+
+            <!-- Select a Category -->
+            <div class="mb-3">
+                <label for="category" class="form-label">{{ form.category.label }}</label>
+                <select class="form-select" id="category" name="{{ form.category.name }}">
+                    {% for value, label in form.category.choices %}
+                        {% if value == '' %}
+                            <option value="" disabled selected>{{ label }}</option>
+                        {% else %}
+                            <option value="{{ value }}" {% if form.category.data == value %}selected{% endif %}>{{ label }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.category.errors %}
+                    <div class="text-danger small">
+                        {% for error in form.category.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Enter Limit (2d.p. Max) -->
+            <div class="mb-3">
+                <label for="limit" class="form-label">{{ form.limit.label }} $</label>
+                {{ form.limit(class="form-control", aria_label="Limit input") }}
+            </div>
+
+            <!-- Select Period [weekly, monthly, yearly] -->
+            <div class="mb-3">
+                <label for="period" class="form-label">{{ form.period.label }}</label>
+                {{ form.period(class="form-control", aria_label="Select a period") }}
+            </div>
+
+            <!-- Save Button -->
+            <div class="d-grid">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

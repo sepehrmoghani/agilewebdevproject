@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Transactions</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Import Transactions Card -->
+    <div class="card col-sm-4 mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Import Transactions</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('transactions.upload_transactions') }}" enctype="multipart/form-data">
+                {{ upload_form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    {{ upload_form.csv_file.label(class="form-label") }}
+                    {% if upload_form.csv_file.errors %}
+                        {{ upload_form.csv_file(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in upload_form.csv_file.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ upload_form.csv_file(class="form-control") }}
+                    {% endif %}
+                    <div class="form-text">CSV must have columns: date, description, amount (optional: category)</div>
+                </div>
+                
+                <div class="gap-2">
+                    {{ upload_form.submit(class="btn btn-outline-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Add Transaction Form -->
+    <div class="col mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Add Transaction</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ transaction_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ transaction_form.date.label(class="form-label") }}
+                        {% if transaction_form.date.errors %}
+                            {{ transaction_form.date(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in transaction_form.date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ transaction_form.date(class="form-control", type="date") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ transaction_form.description.label(class="form-label") }}
+                        {% if transaction_form.description.errors %}
+                            {{ transaction_form.description(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in transaction_form.description.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ transaction_form.description(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ transaction_form.amount.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {% if transaction_form.amount.errors %}
+                                {{ transaction_form.amount(class="form-control is-invalid", step="0.01") }}
+                                <div class="invalid-feedback">
+                                    {% for error in transaction_form.amount.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ transaction_form.amount(class="form-control", step="0.01") }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ transaction_form.category.label(class="form-label") }}
+                        {% if transaction_form.category.errors %}
+                            {{ transaction_form.category(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in transaction_form.category.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ transaction_form.category(class="form-control") }}
+                        {% endif %}
+                        <div class="form-text">E.g. Food, Utilities, Salary, etc.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ transaction_form.transaction_type.label(class="form-label") }}
+                        {% if transaction_form.transaction_type.errors %}
+                            {{ transaction_form.transaction_type(class="form-select is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in transaction_form.transaction_type.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ transaction_form.transaction_type(class="form-select") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="gap-2">
+                        {{ transaction_form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- Transactions Table -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Transaction History</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if transactions %}
+                                {% for transaction in transactions %}
+                                <tr>
+                                    <td>{{ transaction.date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ transaction.description }}</td>
+                                    <td>{{ transaction.category or 'Uncategorized' }}</td>
+                                    <td>
+                                        <span class="badge {{ 'bg-success' if transaction.transaction_type == 'income' else 'bg-danger' }}">
+                                            {{ transaction.transaction_type.title() }}
+                                        </span>
+                                    </td>
+                                    <td class="{{ 'text-success' if transaction.transaction_type == 'income' else 'text-danger' }}">
+                                        {{ "$%.2f"|format(transaction.amount) }}
+                                    </td>
+                                    <td>{{ "$%.2f"|format(transaction.balance) }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No transactions found</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/transactions.js') }}"></script>
+{% endblock %}

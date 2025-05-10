@@ -1,6 +1,8 @@
+from datetime import date
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from .forms import BudgetForm, GoalForm
-from instance.webforms import Budget, Goal, db
+from .models import Budget, Goal
+from app import db
 
 budgeting_and_goals_bp = Blueprint(
     'budgeting_and_goals_bp', __name__, template_folder='templates', static_folder='static'
@@ -15,7 +17,7 @@ def view_budget():
     # Query the budgets created by the currently logged-in user
     user_budgets = Budget.query.filter_by(user_id=user_id).all()
     
-    return render_template('budget.html', form=form, budgets=user_budgets)
+    return render_template('budgeting_and_goals/budget.html', form=form, budgets=user_budgets)
 
 @budgeting_and_goals_bp.route('/budget/edit/<int:id>', methods=['GET', 'POST'])
 #@login_required
@@ -40,7 +42,7 @@ def edit_budget(id):
         flash("Budget updated successfully!", "success")
         return redirect(url_for('budgeting_and_goals_bp.view_budget'))  # Redirect after save
 
-    return render_template('budget_edit.html', form=form, budget_id=id)
+    return render_template('budgeting_and_goals/budget_edit.html', form=form, budget_id=id)
 
 @budgeting_and_goals_bp.route('/budget/add', methods=['GET', 'POST'])
 #@login_required  # Make sure the user is logged in
@@ -63,7 +65,7 @@ def add_budget():
         flash('Budget added successfully!', 'success') 
         return redirect(url_for('budgeting_and_goals_bp.view_budget'))  # Redirect to view the budget list
 
-    return render_template('budget_add.html', form=form)
+    return render_template('budgeting_and_goals/budget_add.html', form=form)
 
 @budgeting_and_goals_bp.route('/budget/delete/<int:id>', methods=['POST'])
 #@login_required
@@ -91,7 +93,7 @@ def view_goals():
     user_id = 1  # Placeholder for the logged-in user's ID
     user_goals = Goal.query.filter_by(user_id=user_id).all()
 
-    return render_template('goals.html', form=form, goals=user_goals)
+    return render_template('budgeting_and_goals/goals.html', form=form, goals=user_goals)
 
 @budgeting_and_goals_bp.route('/goals/edit/<int:id>', methods=['GET', 'POST'])
 #@login_required
@@ -107,16 +109,18 @@ def edit_goals(id):
     form = GoalForm(obj=goal)  # Pre-fill the form with the current goal values
 
     if form.validate_on_submit():  # Save the changes when form is submitted
+        
         goal.title = form.title.data
         goal.target_amount = form.target_amount.data
         goal.current_amount = form.current_amount.data
+        goal.start_date = form.start_date.data
         goal.deadline = form.deadline.data
 
         db.session.commit()
         flash("Goal updated successfully!", "success")
         return redirect(url_for('budgeting_and_goals_bp.view_goals'))
 
-    return render_template('goals_edit.html', form=form, goal_id=id)
+    return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=id)
 
 @budgeting_and_goals_bp.route('/goals/add', methods=['GET', 'POST'])
 #@login_required  # Ensure the user is logged in
@@ -124,11 +128,13 @@ def add_goal():
     form = GoalForm()  # Create a new form for adding a goal
 
     if form.validate_on_submit():  # Validate form data when submitted
-        user_id = 1  # Placeholder for the logged-in user's ID
+        
+        user_id = 1
         new_goal = Goal(
             title=form.title.data,
             target_amount=form.target_amount.data,
             current_amount=form.current_amount.data,
+            start_date=form.start_date.data,
             deadline=form.deadline.data,
             user_id=user_id
         )
@@ -139,7 +145,7 @@ def add_goal():
         flash('Goal added successfully!', 'success')
         return redirect(url_for('budgeting_and_goals_bp.view_goals'))  # Redirect to view the goals list
 
-    return render_template('goals_add.html', form=form)
+    return render_template('budgeting_and_goals/goals_add.html', form=form)
 
 @budgeting_and_goals_bp.route('/goals/delete/<int:id>', methods=['POST'])
 #@login_required

@@ -1,5 +1,10 @@
-{% extends "layout.html" %}
-{% block title %} Home {% endblock %}
-{% block nav_Home %}active{% endblock %}
 
-{% block main %} <h1 style="text-align: center;margin-top: 120px;"> Index.html </h1> {% endblock %}
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<h1>Home</h1>
+
+{% endblock %}

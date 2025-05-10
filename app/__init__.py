@@ -8,7 +8,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 def create_app():
-    app = Flask(__name__, static_url_path='/static/css')
+    app = Flask(__name__)
 
     app.config['SECRET_KEY'] = '2fe112ef6f5d5d9b9e9eb49430249167'
     app.config['UPLOAD_FOLDER'] = 'upload_folder'

@@ -5,7 +5,7 @@ from app.transactions.models import Transaction  # Import from transactions.mode
 dashboard_bp = Blueprint('dashboard', __name__, template_folder='templates')
 
 # Route to render the dashboard page
-@dashboard_bp.route('/')
+@dashboard_bp.route('/dashboard', methods=['GET'])
 def dashboard():
     return render_template('dashboard/dashboard.html')
 

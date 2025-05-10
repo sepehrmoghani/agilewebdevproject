@@ -1,3 +1,4 @@
+from datetime import date
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from .forms import BudgetForm, GoalForm
 from .models import Budget, Goal
@@ -108,9 +109,18 @@ def edit_goals(id):
     form = GoalForm(obj=goal)  # Pre-fill the form with the current goal values
 
     if form.validate_on_submit():  # Save the changes when form is submitted
+        if form.start_date.data < date.today():
+            flash("Start date cannot be in the past.", "danger")
+            return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=id)
+
+        if form.start_date.data >= form.deadline.data:
+            flash("Start date must be before the deadline.", "danger")
+            return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=id)
+        
         goal.title = form.title.data
         goal.target_amount = form.target_amount.data
         goal.current_amount = form.current_amount.data
+        goal.start_date = form.start_date.data
         goal.deadline = form.deadline.data
 
         db.session.commit()
@@ -125,11 +135,22 @@ def add_goal():
     form = GoalForm()  # Create a new form for adding a goal
 
     if form.validate_on_submit():  # Validate form data when submitted
-        user_id = 1  # Placeholder for the logged-in user's ID
+        from datetime import date
+
+        if form.start_date.data < date.today():
+            flash("Start date cannot be in the past.", "danger")
+            return render_template('budgeting_and_goals/goals_add.html', form=form)
+
+        if form.start_date.data >= form.deadline.data:
+            flash("Start date must be before the deadline.", "danger")
+            return render_template('budgeting_and_goals/goals_add.html', form=form)
+        
+        user_id = 1
         new_goal = Goal(
             title=form.title.data,
             target_amount=form.target_amount.data,
             current_amount=form.current_amount.data,
+            start_date=form.start_date.data,
             deadline=form.deadline.data,
             user_id=user_id
         )

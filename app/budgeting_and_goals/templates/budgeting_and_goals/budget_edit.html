@@ -19,11 +19,25 @@
         <form method="POST" action="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget_id) }}">
             {{ form.hidden_tag() }}
 
-            <!-- Enter Category -->
+            <!-- Select a Category -->
             <div class="mb-3">
                 <label for="category" class="form-label">{{ form.category.label }}</label>
-                {{ form.category(class="form-control",
-                aria_label="Category input") }}
+                <select class="form-select" id="category" name="{{ form.category.name }}">
+                    {% for value, label in form.category.choices %}
+                        {% if value == '' %}
+                            <option value="" disabled selected>{{ label }}</option>
+                        {% else %}
+                            <option value="{{ value }}" {% if form.category.data == value %}selected{% endif %}>{{ label }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                {% if form.category.errors %}
+                    <div class="text-danger small">
+                        {% for error in form.category.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Enter Limit (2d.p. Max) -->

@@ -14,6 +14,7 @@
               <li class="breadcrumb-item active" aria-current="page">Edit Goal</li>
             </ol>
         </nav>
+        
         <h1 class="mb-4 text-center">Edit Goal</h1>
 
         <!-- Edit Goal Form -->
@@ -38,6 +39,12 @@
                 <label for="current_amount" class="form-label">{{ form.current_amount.label }}</label>
                 {{ form.current_amount(class="form-control",
                 aria_label="Current amount input") }}
+            </div>
+
+            <!-- Start (dd/mm/yyyy) -->
+            <div class="mb-3">
+                <label for="start_date" class="form-label">{{ form.start_date.label }}</label>
+                {{ form.start_date(class="form-control", aria_label="Start input") }}
             </div>
 
             <!-- Deadline (dd/mm/yyyy) -->

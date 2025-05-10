@@ -11,6 +11,16 @@
 <div class="container mt-5 pt-5">
     <h1 class="mb-4 text-center">Dashboard Overview</h1>
 
+    <!-- Navigation Links -->
+    <div class="row mb-4">
+        <div class="col-md-4 text-center">
+            <a href="{{ url_for('dashboard.monthly_analytics_page') }}" class="btn btn-info btn-lg w-100">View Monthly Analytics</a>
+        </div>
+        <div class="col-md-4 text-center">
+            <a href="{{ url_for('dashboard.category_analytics_page') }}" class="btn btn-info btn-lg w-100">View Category Analytics</a>
+        </div>
+    </div>
+
     <!-- Overview Cards -->
     <div class="row text-center mb-4">
         <div class="col-md-3">

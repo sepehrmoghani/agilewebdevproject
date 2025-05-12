@@ -33,8 +33,14 @@
                                     {% for summary in summaries %}
                                     <tr>
                                         <td>{{ summary.budget.category }}</td>
-                                        <td>{{ "%.2f"|format(summary.total_spent) }}</td>
-                                        <td>{{ "%.2f"|format(summary.budget.limit) }}</td>
+                                        <td>${{ "%.2f"|format(summary.total_spent|abs) }}
+                                            {% if (summary.total_spent < 0) %}
+                                                    Saved
+                                                {% else %}
+                                                    Spent
+                                                {% endif %}
+                                        </td>
+                                        <td>${{ "%.2f"|format(summary.budget.limit) }}</td>
                                         <td>{{ summary.budget.period }}</td>
                                         <td>
                                             <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_budget', id=summary.budget.id) }}">Edit</a>

@@ -23,6 +23,7 @@ class Goal(db.Model):
     current_amount = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc).date())
     deadline = db.Column(db.Date, nullable=False)
+    privacy = db.Column(db.Boolean, nullable=False, default=False)
 
     user = db.relationship('User', backref=db.backref('goals', lazy=True))
 

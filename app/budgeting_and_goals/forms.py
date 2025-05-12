@@ -55,6 +55,7 @@ class GoalForm(FlaskForm):
     current_amount = FloatField("Current Amount", validators=[InputRequired(), two_decimal_places], render_kw={"placeholder": "e.g. 250.00"})
     start_date = DateField("Start Date", format='%Y-%m-%d', validators=[InputRequired()], render_kw={"placeholder": "YYYY-MM-DD"})
     deadline = DateField("Deadline", validators=[InputRequired()], format='%Y-%m-%d', render_kw={"placeholder": "YYYY-MM-DD"})
+    privacy = RadioField("Privacy", choices=[('public', 'Public'), ('private', 'Private')], validators=[InputRequired()])
     submit = SubmitField("Set Goal")
     
     # Custom validation for the start date

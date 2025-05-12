@@ -190,10 +190,14 @@ def edit_goals(id):
         goal.current_amount = form.current_amount.data
         goal.start_date = form.start_date.data
         goal.deadline = form.deadline.data
+        goal.privacy = form.privacy.data == 'public'  # Convert to boolean
 
         db.session.commit()
         flash("Goal updated successfully!", "success")
         return redirect(url_for('budgeting_and_goals_bp.view_goals'))
+    elif request.method == 'GET':
+        form.privacy.data = 'public' if goal.privacy else 'private'
+
 
     return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=id)
 
@@ -211,6 +215,7 @@ def add_goal():
             current_amount=form.current_amount.data,
             start_date=form.start_date.data,
             deadline=form.deadline.data,
+            privacy=form.privacy.data == 'public',  # Convert to boolean
             user_id=user_id
         )
 

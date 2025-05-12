@@ -30,13 +30,21 @@
                                         <th>Target Amount</th>
                                         <th>Deadline</th>
                                         <th>Time Left</th>
+                                        <th>Privacy</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for summary in summaries %}
                                         <tr>
                                             <td class="col_title">{{ summary.goal.title }}</td>
-                                            <td class="col_current">{{ "%.2f"|format(summary.total_amount) }}</td>
+                                            <td class="col_current">
+                                                ${{ "%.2f"|format(summary.total_amount|abs) }} 
+                                                {% if (summary.total_amount < 0) %}
+                                                    in Debt
+                                                {% else %}
+                                                    Saved
+                                                {% endif %}
+                                            </td>
                                             <td>
                                                 <div class="progress-bar-container" 
                                                     data-current="{{ summary.total_amount }}"
@@ -45,9 +53,16 @@
                                                 </div>
                                                 <span class="progress-percent"></span>
                                             </td>
-                                            <td class="col_target">{{ "%.2f"|format(summary.goal.target_amount) }}</td>
+                                            <td class="col_target">${{ "%.2f"|format(summary.goal.target_amount) }}</td>
                                             <td class="col_deadline" data-deadline="{{ summary.goal.deadline }}">{{ summary.goal.deadline }}</td>
                                             <td class="col_time_left"></td>
+                                            <td class="col_privacy">
+                                                {% if summary.goal.privacy %}
+                                                    <i class="fas fa-lock-open" title="Public"></i>
+                                                {% else %}
+                                                    <i class="fas fa-lock" title="Private"></i>
+                                                {% endif %}
+                                            </td>
                                             <td>
                                                 <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_goals', id=summary.goal.id) }}">Edit</a>
                                             </td>

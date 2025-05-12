@@ -2,5 +2,9 @@ body {
     font-family: Arial, sans-serif;
     background-color: #a7a7a7;
     text-align: center;
-    padding-top: 50px;
+    padding-top: 30px;
+}
+
+.main-content {
+    padding-top: 50px; /* Adjust to fit the navbar height */
 }

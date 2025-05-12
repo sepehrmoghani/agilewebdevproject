@@ -54,6 +54,19 @@
                 aria_label="Deadline input") }}
             </div>
 
+            <!-- Privacy Selection (Radio Buttons) -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.privacy.label }}</label>
+                <div class="d-flex gap-3">
+                    {% for subfield in form.privacy %}
+                        <div class="form-check">
+                            {{ subfield(class="form-check-input", id=subfield.id) }}
+                            <label class="form-check-label" for="{{ subfield.id }}">{{ subfield.label.text }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
             <!-- Button Row -->
             <div class="d-flex justify-content-between">
                 <form method="POST" action="{{ url_for('budgeting_and_goals_bp.edit_goals', id=goal_id) }}">

@@ -50,6 +50,19 @@
                 {{ form.deadline(class="form-control", aria_label="Deadline input") }}
             </div>
 
+            <!-- Privacy Selection (Radio Buttons) -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.privacy.label }}</label>
+                <div class="d-flex gap-3">
+                    {% for subfield in form.privacy %}
+                        <div class="form-check">
+                            {{ subfield(class="form-check-input", id=subfield.id) }}
+                            <label class="form-check-label" for="{{ subfield.id }}">{{ subfield.label.text }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
             <!-- Save Button -->
             <div class="d-grid">
                 {{ form.submit(class="btn btn-primary") }}

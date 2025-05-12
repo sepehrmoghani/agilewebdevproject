@@ -9,14 +9,14 @@
     <div class="col-12 col-sm-8 col-md-6 col-lg-4">
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals_bp.view_budget') }}">Budget</a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals.view_budget') }}">Budget</a></li>
               <li class="breadcrumb-item active" aria-current="page">Add Budget</li>
             </ol>
         </nav>
 
         <h1 class="mb-4 text-center">Add Budget</h1>
 
-        <form method="POST" action="{{ url_for('budgeting_and_goals_bp.add_budget') }}">
+        <form method="POST" action="{{ url_for('budgeting_and_goals.add_budget') }}">
             {{ form.hidden_tag() }}
 
             <!-- Select a Category -->

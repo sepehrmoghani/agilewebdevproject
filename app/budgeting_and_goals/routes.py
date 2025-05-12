@@ -1,36 +1,33 @@
-from datetime import date, datetime, timedelta, timezone
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from datetime import datetime, timedelta, timezone
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask_login import current_user, login_required
 from .forms import BudgetForm, GoalForm
-from .models import User, Budget, Goal
+from .models import User, Budget, Goal, GoalInteraction
 from app.transactions.models import Transaction
 from app import db
 
 budgeting_and_goals_bp = Blueprint(
-    'budgeting_and_goals_bp', __name__, template_folder='templates', static_folder='static'
+    'budgeting_and_goals', __name__, template_folder='templates', static_folder='static'
 )
 
 #Budgeting Helper Functions
 def get_transactions_for_budget(user_id, category, period):
-    # Get today's date
-    today = datetime.now(timezone.utc).date()
+    now = datetime.now(timezone.utc)
 
-    # Calculate date range based on period
     if period == 'weekly':
-        start_date = today - timedelta(days=7)
+        start_date = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
     elif period == 'monthly':
-        start_date = today - timedelta(days=30)
+        start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     elif period == 'yearly':
-        start_date = today - timedelta(days=365)
+        start_date = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
     else:
-        # fallback to the earliest possible aware date
-        start_date = datetime(1, 1, 1, tzinfo=timezone.utc).date()
+        start_date = datetime(1, 1, 1, tzinfo=timezone.utc)
 
-    # Query matching transactions
     transactions = Transaction.query.filter_by(
-        user_id=user_id, #TODO: Replace with actual user_id
+        user_id=user_id,
         category=category
     ).filter(
-        Transaction.date >= datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc)
+        Transaction.date >= start_date
     ).all()
 
     return transactions
@@ -45,6 +42,11 @@ def view_budget():
     user_budgets = Budget.query.filter_by(user_id=user_id).all()
     
     budget_summaries = []
+    
+    most_saved = None
+    most_spent = None
+    max_saved_pct = -1
+    max_spent_pct = -1
 
     for budget in user_budgets:
         transactions = get_transactions_for_budget(user_id, budget.category, budget.period)
@@ -52,6 +54,19 @@ def view_budget():
         income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
 
         total_spent = expenses_total - income_total
+        
+        # Prevent divide-by-zero
+        if budget.limit and budget.limit > 0:
+            saved_pct = max(0, (budget.limit - total_spent) / budget.limit)
+            spent_pct = total_spent / budget.limit
+
+            if saved_pct > max_saved_pct:
+                max_saved_pct = saved_pct
+                most_saved = budget
+
+            if spent_pct > max_spent_pct:
+                max_spent_pct = spent_pct
+                most_spent = budget
 
         budget_summaries.append({
             'budget': budget,
@@ -59,7 +74,55 @@ def view_budget():
             'total_spent': total_spent
         })
         
-    return render_template('budgeting_and_goals/budget.html', form=form, summaries=budget_summaries)
+    
+    # Monthly income/spending
+    now = datetime.now(timezone.utc)
+    current_month = now.month
+    current_year = now.year
+    
+    transactions = Transaction.query.filter_by(user_id=user_id).all()
+    
+    this_month_income = sum(
+    t.amount for t in transactions
+    if t.transaction_type == 'income'
+    and t.date.month == current_month
+    and t.date.year == current_year
+    )
+    
+    this_month_expense = sum(
+    t.amount for t in transactions
+    if t.transaction_type == 'expense'
+    and t.date.month == current_month
+    and t.date.year == current_year
+    )
+    
+    # Previous month (handle January case too)
+    first_day_this_month = now.replace(day=1)
+    last_day_previous_month = first_day_this_month - timedelta(days=1)
+    previous_month = last_day_previous_month.month
+    previous_year = last_day_previous_month.year
+
+    # Previous month
+    previous_month = (datetime.utcnow().replace(day=1) - timedelta(days=1)).month
+    last_month_income = sum(
+    t.amount for t in transactions
+    if t.transaction_type == 'income'
+    and t.date.month == previous_month
+    and t.date.year == previous_year
+    )
+    
+    last_month_expense = sum(
+    t.amount for t in transactions
+    if t.transaction_type == 'expense'
+    and t.date.month == previous_month
+    and t.date.year == previous_year
+    )
+        
+    return render_template('budgeting_and_goals/budget.html', form=form, summaries=budget_summaries,
+        most_saved=most_saved, most_saved_pct=round(max_saved_pct * 100, 1) if most_saved else None,
+        most_spent=most_spent, most_spent_pct=round(max_spent_pct * 100, 1) if most_spent else None,
+        this_month_income=this_month_income, last_month_income=last_month_income,
+        this_month_expense=this_month_expense, last_month_expense=last_month_expense)
 
 @budgeting_and_goals_bp.route('/budget/edit/<int:id>', methods=['GET', 'POST'])
 #@login_required TODO:
@@ -70,7 +133,7 @@ def edit_budget(id):
     user_id = 1  # Placeholder for the logged-in user's ID
     if user_id != user_id:
         flash("You do not have permission to edit this budget.", "danger")
-        return redirect(url_for('budgeting_and_goals_bp.view_budget'))
+        return redirect(url_for('budgeting_and_goals.view_budget'))
 
     form = BudgetForm(obj=budget)  # Pre-fill the form with the current budget values
 
@@ -83,7 +146,7 @@ def edit_budget(id):
         
         db.session.commit()  # Save to the database
         flash("Budget updated successfully!", "success")
-        return redirect(url_for('budgeting_and_goals_bp.view_budget'))  # Redirect after save
+        return redirect(url_for('budgeting_and_goals.view_budget'))  # Redirect after save
 
     return render_template('budgeting_and_goals/budget_edit.html', form=form, budget_id=id)
 
@@ -107,7 +170,7 @@ def add_budget():
         db.session.commit()  
 
         flash('Budget added successfully!', 'success') 
-        return redirect(url_for('budgeting_and_goals_bp.view_budget'))  # Redirect to view the budget list
+        return redirect(url_for('budgeting_and_goals.view_budget'))  # Redirect to view the budget list
 
     return render_template('budgeting_and_goals/budget_add.html', form=form)
 
@@ -120,12 +183,12 @@ def delete_budget(id):
     user_id = 1  # Placeholder for the logged-in user's ID
     if budget.user_id != user_id:
         flash("You are not authorized to delete this budget.", "danger")
-        return redirect(url_for('budgeting_and_goals_bp.view_budget'))
+        return redirect(url_for('budgeting_and_goals.view_budget'))
 
     db.session.delete(budget)
     db.session.commit()
     flash("Budget deleted successfully.", "success")
-    return redirect(url_for('budgeting_and_goals_bp.view_budget'))
+    return redirect(url_for('budgeting_and_goals.view_budget'))
 
 
 #Goal Helper Functions
@@ -193,7 +256,7 @@ def edit_goals(id):
     user_id = 1  # Placeholder for the logged-in user's ID
     if user_id != user_id:
         flash("You do not have permission to edit this goal.", "danger")
-        return redirect(url_for('budgeting_and_goals_bp.view_goals'))
+        return redirect(url_for('budgeting_and_goals.view_goals'))
 
     form = GoalForm(obj=goal)  # Pre-fill the form with the current goal values
 
@@ -209,7 +272,7 @@ def edit_goals(id):
 
         db.session.commit()
         flash("Goal updated successfully!", "success")
-        return redirect(url_for('budgeting_and_goals_bp.view_goals'))
+        return redirect(url_for('budgeting_and_goals.view_goals'))
     elif request.method == 'GET':
         form.privacy.data = 'public' if goal.privacy else 'private'
 
@@ -239,7 +302,7 @@ def add_goal():
         db.session.commit()
 
         flash('Goal added successfully!', 'success')
-        return redirect(url_for('budgeting_and_goals_bp.view_goals'))  # Redirect to view the goals list
+        return redirect(url_for('budgeting_and_goals.view_goals'))  # Redirect to view the goals list
 
     return render_template('budgeting_and_goals/goals_add.html', form=form)
 
@@ -251,15 +314,16 @@ def delete_goal(id):
     user_id = 1  # Placeholder for the logged-in user's ID
     if goal.user_id != user_id:
         flash("You are not authorized to delete this goal.", "danger")
-        return redirect(url_for('budgeting_and_goals_bp.view_goals'))
+        return redirect(url_for('budgeting_and_goals.view_goals'))
 
     db.session.delete(goal)
     db.session.commit()
     flash("Goal deleted successfully.", "success")
-    return redirect(url_for('budgeting_and_goals_bp.view_goals'))
+    return redirect(url_for('budgeting_and_goals.view_goals'))
 
-@budgeting_and_goals_bp.route('/goals/shared', methods=['GET'])
-def shared_goals():
+@budgeting_and_goals_bp.route('/explore', methods=['GET'])
+def explore():
+    user_id = 1
     public_goals = Goal.query.filter_by(privacy=True).all()
 
     goal_summaries = []
@@ -272,12 +336,56 @@ def shared_goals():
         
         total_amount = goal.current_amount - expenses_total + income_total
 
+        # Check if current user has liked or saved this goal
+        liked = False
+        saved = False
+        #if current_user.is_authenticated:
+        interactions = GoalInteraction.query.filter_by(user_id=user_id, goal_id=goal.id).all()
+        liked = any(i.liked for i in interactions)
+        saved = any(i.saved for i in interactions)
+
+
         goal_summaries.append({
             'goal': goal,
             'expenses_total': expenses_total,
             'income_total': income_total,
             'total_amount': total_amount,
-            'transactions': transactions
+            'transactions': transactions,
+            'liked': liked,
+            'saved': saved
         })
 
-    return render_template('budgeting_and_goals/shared_goals.html', summaries=goal_summaries)
+    return render_template('budgeting_and_goals/explore.html', summaries=goal_summaries)
+
+@budgeting_and_goals_bp.route('/goal/<int:goal_id>/like', methods=['POST'])
+def like_goal(goal_id):
+    user_id = 1  # Replace with actual logged-in user
+    goal = Goal.query.get_or_404(goal_id)
+
+    interaction = GoalInteraction.query.filter_by(user_id=user_id, goal_id=goal_id).first()
+    if interaction:
+        interaction.liked = not interaction.liked
+    else:
+        # saved=False is the default if user hasn't saved yet
+        interaction = GoalInteraction(user_id=user_id, goal_id=goal_id, liked=True)
+        db.session.add(interaction)
+
+    db.session.commit()
+    return jsonify({'liked': interaction.liked})
+
+@budgeting_and_goals_bp.route('/goal/<int:goal_id>/save', methods=['POST'])
+def save_goal(goal_id):
+    user_id = 1  # Replace with actual logged-in user
+    goal = Goal.query.get_or_404(goal_id)
+
+    interaction = GoalInteraction.query.filter_by(user_id=user_id, goal_id=goal_id).first()
+    if interaction:
+        interaction.saved = not interaction.saved
+    else:
+        # liked=False is the default if user hasn't liked yet
+        interaction = GoalInteraction(user_id=user_id, goal_id=goal_id, saved=True)
+        db.session.add(interaction)
+
+    db.session.commit()
+    return jsonify({'saved': interaction.saved})
+

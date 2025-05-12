@@ -7,13 +7,11 @@
 {% endblock %}
 {% block content %}
 
-<div class="container min-vh-100 d-flex justify-content-center align-items-center">
-    
-    
+<div class="container py-5 mt-5 d-flex justify-content-center align-items-start">
     <div class="col">
 
         <!-- Stats Overview -->
-        <!-- Total Goals, Completed, In Progress, Shared -->
+        <!-- Total Goals -->
         <div class="row g-3 mb-5">
             <div class="col-md-3">
                 <div class="card h-100">
@@ -82,7 +80,7 @@
 
         <!-- Add Goals Button -->
         <div class="mb-3">
-            <a class="btn btn-success" href="{{ url_for('budgeting_and_goals_bp.add_goal') }}">+ Add a Goal</a>
+            <a class="btn btn-success" href="{{ url_for('budgeting_and_goals.add_goal') }}">+ Add a Goal</a>
         </div>
         <!-- Goals Table -->
         <div class="row">
@@ -143,7 +141,7 @@
                                                 {% endif %}
                                             </td>
                                             <td>
-                                                <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_goals', id=summary.goal.id) }}">Edit</a>
+                                                <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_goals', id=summary.goal.id) }}">Edit</a>
                                             </td>
                                         </tr>
                                     {% endfor %}

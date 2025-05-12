@@ -32,3 +32,10 @@ class Goal(db.Model):
     # Method to check if the goal is overdue
     def __repr__(self):
         return f'<Goal {self.title}, Started on {self.date_started}, Deadline: {self.deadline}>'
+    
+class GoalInteraction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    goal_id = db.Column(db.Integer)
+    liked = db.Column(db.Boolean, default=False)
+    saved = db.Column(db.Boolean, default=False)

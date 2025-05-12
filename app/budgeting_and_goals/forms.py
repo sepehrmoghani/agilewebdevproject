@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, RadioField
+from wtforms import StringField, SelectField, SubmitField, RadioField, TextAreaField
 from wtforms.validators import InputRequired, Length, ValidationError
 from wtforms.fields import FloatField
 from wtforms import DateField
@@ -46,6 +46,7 @@ class BudgetForm(FlaskForm):
     )
     limit = FloatField("Limit", validators=[InputRequired(), two_decimal_places], render_kw={"placeholder": "e.g. 200.00"})
     period = SelectField("Period", choices=[('weekly', 'Weekly'), ('monthly', 'Monthly'), ('yearly', 'Yearly')], validators=[InputRequired()])
+    description = TextAreaField("Description (Optional)")
     submit = SubmitField("Save Budget")
 
 
@@ -55,6 +56,7 @@ class GoalForm(FlaskForm):
     current_amount = FloatField("Current Amount", validators=[InputRequired(), two_decimal_places], render_kw={"placeholder": "e.g. 250.00"})
     start_date = DateField("Start Date", format='%Y-%m-%d', validators=[InputRequired()], render_kw={"placeholder": "YYYY-MM-DD"})
     deadline = DateField("Deadline", validators=[InputRequired()], format='%Y-%m-%d', render_kw={"placeholder": "YYYY-MM-DD"})
+    description = TextAreaField("Description (Optional)")
     privacy = RadioField("Privacy", choices=[('public', 'Public'), ('private', 'Private')], validators=[InputRequired()])
     submit = SubmitField("Set Goal")
     

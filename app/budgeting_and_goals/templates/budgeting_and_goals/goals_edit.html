@@ -54,6 +54,12 @@
                 aria_label="Deadline input") }}
             </div>
 
+            <!-- Optional Description -->
+            <div class="mb-3">
+                <label for="description" class="form-label">{{ form.description.label }}</label>
+                {{ form.description(class="form-control", rows="3", aria_label="Optional description") }}
+            </div>
+
             <!-- Privacy Selection (Radio Buttons) -->
             <div class="mb-3">
                 <label class="form-label">{{ form.privacy.label }}</label>

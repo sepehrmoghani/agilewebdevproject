@@ -12,6 +12,7 @@ class Budget(db.Model):
     category = db.Column(db.String(64), nullable=False)
     limit = db.Column(db.Float, nullable=False)
     period = db.Column(db.String(20), nullable=False)  # 'weekly' or 'monthly' or 'yearly'
+    description = db.Column(db.Text, nullable=True)
 
     user = db.relationship('User', backref='budgets')
 
@@ -23,6 +24,7 @@ class Goal(db.Model):
     current_amount = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc).date())
     deadline = db.Column(db.Date, nullable=False)
+    description = db.Column(db.Text, nullable=True)
     privacy = db.Column(db.Boolean, nullable=False, default=False)
 
     user = db.relationship('User', backref=db.backref('goals', lazy=True))

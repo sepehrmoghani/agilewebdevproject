@@ -79,6 +79,7 @@ def edit_budget(id):
         budget.category = form.category.data
         budget.limit = form.limit.data
         budget.period = form.period.data
+        budget.description = form.description.data
         
         db.session.commit()  # Save to the database
         flash("Budget updated successfully!", "success")
@@ -98,6 +99,7 @@ def add_budget():
             category=form.category.data,
             limit=form.limit.data,
             period=form.period.data,
+            description=form.description.data,
             user_id=user_id  # Set the user_id to the current user's id
         )
         
@@ -151,6 +153,9 @@ def view_goals():
     user_goals = Goal.query.filter_by(user_id=user_id).all()
 
     goal_summaries = []
+    total_goals = len(user_goals)
+    completed_goals = 0
+    shared_goals = 0
     
     for goal in user_goals:
         # Get transactions between goal start and deadline
@@ -160,6 +165,12 @@ def view_goals():
         
         total_amount = goal.current_amount - expenses_total + income_total
 
+        if total_amount >= goal.target_amount:
+            completed_goals += 1
+        
+        if goal.privacy:
+            shared_goals += 1
+        
         goal_summaries.append({
             'goal': goal,
             'expenses_total': expenses_total,
@@ -168,7 +179,10 @@ def view_goals():
             'transactions': transactions
         })
     
-    return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries)
+    in_progress = total_goals - completed_goals
+    
+    return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries, 
+                           total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress, shared_goals=shared_goals)
 
 @budgeting_and_goals_bp.route('/goals/edit/<int:id>', methods=['GET', 'POST'])
 #@login_required TODO:
@@ -190,6 +204,7 @@ def edit_goals(id):
         goal.current_amount = form.current_amount.data
         goal.start_date = form.start_date.data
         goal.deadline = form.deadline.data
+        goal.description = form.description.data
         goal.privacy = form.privacy.data == 'public'  # Convert to boolean
 
         db.session.commit()
@@ -215,6 +230,7 @@ def add_goal():
             current_amount=form.current_amount.data,
             start_date=form.start_date.data,
             deadline=form.deadline.data,
+            description=form.description.data,
             privacy=form.privacy.data == 'public',  # Convert to boolean
             user_id=user_id
         )
@@ -241,3 +257,27 @@ def delete_goal(id):
     db.session.commit()
     flash("Goal deleted successfully.", "success")
     return redirect(url_for('budgeting_and_goals_bp.view_goals'))
+
+@budgeting_and_goals_bp.route('/goals/shared', methods=['GET'])
+def shared_goals():
+    public_goals = Goal.query.filter_by(privacy=True).all()
+
+    goal_summaries = []
+
+    for goal in public_goals:
+        user_id = goal.user_id
+        transactions = get_transactions_for_goal(user_id, goal.start_date, goal.deadline)
+        expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
+        income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
+        
+        total_amount = goal.current_amount - expenses_total + income_total
+
+        goal_summaries.append({
+            'goal': goal,
+            'expenses_total': expenses_total,
+            'income_total': income_total,
+            'total_amount': total_amount,
+            'transactions': transactions
+        })
+
+    return render_template('budgeting_and_goals/shared_goals.html', summaries=goal_summaries)

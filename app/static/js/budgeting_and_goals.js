@@ -12,3 +12,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+
+// Initialize all tooltips
+document.addEventListener("DOMContentLoaded", function () {
+  var tooltipElements = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  tooltipElements.forEach(function (element) {
+    new bootstrap.Tooltip(element);
+  });
+});

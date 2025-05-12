@@ -1,35 +1,4 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  background-color: #2f2f2f;
-  color: white;
-}
-
 /* Table styles */
-.table {
-  margin-top: 30px;
-  margin-left: auto;
-  margin-right: auto;
-  width: 80%;
-  border: 2px solid black;
-  border-collapse: collapse;
-}
-.table td, .table th {
-  padding: 12px 20px;
-  text-align: center;
-  vertical-align: middle;
-  border: 1px solid black;
-}
-
-.table tr {
-  height: 60px;
-}
-
 .table .col_period, .table .col_limit, .table .col_current, .table .col_target, .table .col_deadline {
   width: 150px;
 }
@@ -44,32 +13,15 @@ body {
   width: 5%;
 }
 
+  /* Custom Tooltip Styles */
 
-/* Progress Bar */
-.progress-bar-container {
-  width: 100%;
-  height: 20px;
-  background-color: #eee;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 5px;
+  .custom-info-icon {
+    color: white !important;
 }
 
-.progress-bar {
-  height: 100%;
-  background-color: #4caf50;
-  width: 0%;
-  transition: width 0.5s ease-in-out;
-}
-
-.progress-percent {
-  font-size: 0.9em;
-  margin-top: 4px;
-  display: inline-block;
-}
-
-/* Make all placeholder text white */
-::placeholder {
-  color: white !important;
-  opacity: 1;
+.tooltip-inner {
+    color: #f8f9fa !important;                /* Dark text color for better contrast */
+    border-radius: 4px !important;         /* Optional: Rounded corners for a smoother look */
+    max-width: 350px !important;            /* Increase max width of tooltip */
+    padding: 24px 12px !important;          /* Optional: Add padding for better spacing */
 }

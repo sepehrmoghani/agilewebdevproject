@@ -52,6 +52,12 @@
                 {{ form.period(class="form-control", aria_label="Select a period") }}
             </div>
 
+            <!-- Optional Description -->
+            <div class="mb-3">
+                <label for="description" class="form-label">{{ form.description.label }}</label>
+                {{ form.description(class="form-control", rows="3", aria_label="Optional description") }}
+            </div>
+
             <!-- Button Row -->
             <div class="d-flex justify-content-between">
                 <form method="POST" action="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget_id) }}">

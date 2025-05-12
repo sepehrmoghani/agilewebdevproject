@@ -2,6 +2,7 @@
 {% block title %}Budget{% endblock %}
 {% block head %}
 {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/budgeting_and_goals.css') }}">
 {% endblock %}
 {% block content %}
 
@@ -32,7 +33,13 @@
                                 <tbody>
                                     {% for summary in summaries %}
                                     <tr>
-                                        <td>{{ summary.budget.category }}</td>
+                                        <td>{{ summary.budget.category }}
+                                            {% if summary.budget.description %}
+                                                <span class="ms-1" data-bs-toggle="tooltip" title="{{ summary.budget.description }}">
+                                                    <i class="fas fa-info-circle text-secondary custom-info-icon"></i>
+                                                </span>
+                                                {% endif %}
+                                            </td>
                                         <td>${{ "%.2f"|format(summary.total_spent|abs) }}
                                             {% if (summary.total_spent < 0) %}
                                                     Saved
@@ -57,4 +64,5 @@
     </div>
 </div>
 <script src="{{ url_for('static', filename='js/budgeting.js') }}"></script>
+<script src="{{ url_for('static', filename='js/budgeting_and_goals.js') }}"></script>
 {% endblock %}

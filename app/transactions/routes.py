@@ -31,7 +31,6 @@ def transactions():
     transaction_form = TransactionForm()
 
     if transaction_form.validate_on_submit():
-        # Calculate the balance
         #last_transaction = TransactionForm.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).first()
         last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
 
@@ -41,7 +40,6 @@ def transactions():
             date=transaction_form.date.data,
             description=transaction_form.description.data,
             amount=transaction_form.amount.data,
-            balance='',
             category=transaction_form.category.data,
             transaction_type=transaction_form.transaction_type.data
         )
@@ -103,20 +101,8 @@ def upload_transactions():
                         # Get category if exists
                         category = row.get('category', '')
 
-                        # Calculate new balance
                         #last_transaction = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).first()
                         last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
-
-                        if last_transaction:
-                            if transaction_type == 'expense':
-                                balance = last_transaction.balance - amount
-                            else:
-                                balance = last_transaction.balance + amount
-                        else:
-                            if transaction_type == 'expense':
-                                balance = -amount
-                            else:
-                                balance = amount
 
                         # Create transaction record
                         transaction = Transaction(
@@ -125,7 +111,6 @@ def upload_transactions():
                             date=date,
                             description=row['description'],
                             amount=amount,
-                            balance=balance,
                             category=category,
                             transaction_type=transaction_type
                         )
@@ -172,7 +157,7 @@ def export_transactions():
     writer = csv.writer(output)
 
     # Write header
-    writer.writerow(['Date', 'Description', 'Amount', 'Category', 'Type', 'Balance'])
+    writer.writerow(['Date', 'Description', 'Amount', 'Category', 'Type'])
 
     # Write transactions
     for transaction in transactions:
@@ -181,9 +166,7 @@ def export_transactions():
             transaction.description,
             transaction.amount,
             transaction.category,
-            transaction.transaction_type,
-            transaction.balance
-        ])
+            transaction.transaction_type])
 
     output.seek(0)
     return Response(
@@ -199,17 +182,7 @@ def edit_transaction(transaction_id):
     form = TransactionForm(obj=transaction)
 
     if form.validate_on_submit():
-        old_amount = transaction.amount
         new_amount = form.amount.data
-
-        if transaction.transaction_type == 'expense':
-            old_impact = -old_amount
-            new_impact = -new_amount
-        else:
-            old_impact = old_amount
-            new_impact = new_amount
-
-        balance_adjustment = new_impact - old_impact
 
         transaction.date = form.date.data
         transaction.description = form.description.data
@@ -222,9 +195,6 @@ def edit_transaction(transaction_id):
             Transaction.date >= transaction.date,
             Transaction.id != transaction.id
         ).order_by(Transaction.date.asc()).all()
-
-        for later_transaction in later_transactions:
-            later_transaction.balance += balance_adjustment
 
         db.session.commit()
         flash('Transaction updated successfully!', 'success')

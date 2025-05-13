@@ -175,7 +175,6 @@ def add_budget():
     return render_template('budgeting_and_goals/budget_add.html', form=form)
 
 @budgeting_and_goals_bp.route('/budget/delete/<int:id>', methods=['POST'])
-#@login_required TODO:
 def delete_budget(id):
     budget = Budget.query.get_or_404(id)
 
@@ -188,6 +187,8 @@ def delete_budget(id):
     db.session.delete(budget)
     db.session.commit()
     flash("Budget deleted successfully.", "success")
+    
+    # Redirect back to the budget overview page after deletion
     return redirect(url_for('budgeting_and_goals.view_budget'))
 
 

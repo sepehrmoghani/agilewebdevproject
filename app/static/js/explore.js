@@ -1,4 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
+
+    function getCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
     const likeButtons = document.querySelectorAll('.like-btn');
     const saveButtons = document.querySelectorAll('.save-btn');
 
@@ -15,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(), 
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({ toggle: true }) 
@@ -44,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener('click', function () {
             const icon = button.querySelector('svg');
             const goalId = button.dataset.goalId;
-
+            
             if (icon) {
                 toggleIcon(icon);
                 sendAjax(`/budgeting_and_goals/goal/${goalId}/save`, data => {

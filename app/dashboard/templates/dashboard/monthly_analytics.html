@@ -1,13 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Monthly Analytics{% endblock %}
+{% block title %}Monthly & Weekly Analytics{% endblock %}
+
 {% block head %}
     {{ super() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
+
 {% block content %}
 <div class="container mt-5 pt-5">
-    <h1 class="text-center mb-4">Monthly Balance Analytics</h1>
-    <canvas id="monthlyBalanceChart" height="100"></canvas>
+    <h1 class="text-center mb-4">Monthly & Weekly Balance Analytics</h1>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h4 class="text-center">Monthly Balance Trends</h4>
+            <canvas id="monthlyBalanceChart" height="100"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4 class="text-center">Weekly Balance Trends</h4>
+            <canvas id="weeklyBalanceChart" height="100"></canvas>
+        </div>
+    </div>
 </div>
+
 <script src="{{ url_for('static', filename='js/monthly_analytics.js') }}"></script>
 {% endblock %}

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import current_user, login_required
+from sqlalchemy import func
 from .forms import BudgetForm, GoalForm
 from .models import User, Budget, Goal, GoalInteraction
 from app.transactions.models import Transaction
@@ -322,41 +323,55 @@ def delete_goal(id):
     flash("Goal deleted successfully.", "success")
     return redirect(url_for('budgeting_and_goals.view_goals'))
 
+from flask_login import current_user
+from flask import render_template
+
 @budgeting_and_goals_bp.route('/explore', methods=['GET'])
 def explore():
-    user_id = 1
+    #if not current_user.is_authenticated:
+    #    return redirect(url_for('auth.login'))  # or handle anonymous users differently
+
+    user_id=1  # Placeholder for the logged-in user's ID
+    # current_user.id
+    user_id = user_id
     public_goals = Goal.query.filter_by(privacy=True).all()
 
-    goal_summaries = []
+    summaries = []
 
     for goal in public_goals:
-        user_id = goal.user_id
-        transactions = get_transactions_for_goal(user_id, goal.start_date, goal.deadline)
+        transactions = get_transactions_for_goal(goal.user_id, goal.start_date, goal.deadline)
         expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
         income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
         
         total_amount = goal.current_amount - expenses_total + income_total
 
-        # Check if current user has liked or saved this goal
-        liked = False
-        saved = False
-        #if current_user.is_authenticated:
-        interactions = GoalInteraction.query.filter_by(user_id=user_id, goal_id=goal.id).all()
-        liked = any(i.liked for i in interactions)
-        saved = any(i.saved for i in interactions)
+        # Fetch interaction for current user and this goal
+        interaction = GoalInteraction.query.filter_by(user_id=user_id, goal_id=goal.id).first()
 
+        # Get total likes and saves
+        like_count = db.session.query(func.count()).select_from(GoalInteraction).filter(
+            GoalInteraction.goal_id == goal.id,
+            GoalInteraction.liked == True
+        ).scalar()
 
-        goal_summaries.append({
+        save_count = db.session.query(func.count()).select_from(GoalInteraction).filter(
+            GoalInteraction.goal_id == goal.id,
+            GoalInteraction.saved == True
+        ).scalar()
+
+        summaries.append({
             'goal': goal,
+            'total_amount': total_amount,
+            'interaction': interaction,
+            'transactions': transactions,
             'expenses_total': expenses_total,
             'income_total': income_total,
-            'total_amount': total_amount,
-            'transactions': transactions,
-            'liked': liked,
-            'saved': saved
+            'like_count': like_count,
+            'save_count': save_count
         })
 
-    return render_template('budgeting_and_goals/explore.html', summaries=goal_summaries)
+    return render_template('budgeting_and_goals/explore.html', summaries=summaries)
+
 
 @budgeting_and_goals_bp.route('/goal/<int:goal_id>/like', methods=['POST'])
 def like_goal(goal_id):

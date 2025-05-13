@@ -7,12 +7,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const likeButtons = document.querySelectorAll('.like-btn');
     const saveButtons = document.querySelectorAll('.save-btn');
 
-    function toggleIcon(icon) {
+
+    function toggleIconAndCount(button) {
+        const icon = button.querySelector('svg');
+        const countSpan = button.querySelector('span');
+
+        let count = parseInt(countSpan.textContent) || 0;
+
         if (icon.getAttribute('data-prefix') === 'fas') {
             icon.setAttribute('data-prefix', 'far');
+            count = Math.max(0, count - 1);
         } else {
             icon.setAttribute('data-prefix', 'fas');
+            count += 1;
         }
+
+        countSpan.textContent = count;
     }
 
     function sendAjax(url, callback) {
@@ -38,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const goalId = button.dataset.goalId;
 
             if (icon) {
-                toggleIcon(icon);
+                toggleIconAndCount(button); 
                 sendAjax(`/budgeting_and_goals/goal/${goalId}/like`, data => {
                     console.log('Like toggled:', data.liked);
                 });
@@ -52,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const goalId = button.dataset.goalId;
             
             if (icon) {
-                toggleIcon(icon);
+                toggleIconAndCount(button); 
                 sendAjax(`/budgeting_and_goals/goal/${goalId}/save`, data => {
                     console.log('Save toggled:', data.saved);
                 });

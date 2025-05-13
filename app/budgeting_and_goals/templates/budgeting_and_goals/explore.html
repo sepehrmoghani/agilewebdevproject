@@ -15,13 +15,23 @@
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <h5 class="card-title mb-0">{{ summary.goal.title }}</h5>
                      <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-primary like-btn" data-goal-id="{{ summary.goal.id }}">
-                            <i class="fa-regular fa-thumbs-up"></i>
-                        </button>
+                        <div class="d-flex align-items-center gap-3">
+                            <!-- Like Button + Count -->
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-sm btn-outline-primary like-btn" data-goal-id="{{ summary.goal.id }}">
+                                    <i class="{{ 'fa-solid' if summary.interaction and summary.interaction.liked else 'fa-regular' }} fa-thumbs-up"></i>
+                                    <span class="ms-2">{{ summary.like_count }}</span>
+                                </button>
+                            </div>
 
-                        <button class="btn btn-sm btn-outline-danger save-btn" data-goal-id="{{ summary.goal.id }}">
-                            <i class="fa-regular fa-bookmark"></i>
-                        </button>
+                            <!-- Save Button + Count -->
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-sm btn-outline-danger save-btn" data-goal-id="{{ summary.goal.id }}">
+                                    <i class="{{ 'fa-solid' if summary.interaction and summary.interaction.saved else 'fa-regular' }} fa-bookmark"></i>
+                                    <span class="ms-2">{{ summary.save_count }}</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <p class="card-text text-muted">

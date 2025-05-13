@@ -2,65 +2,88 @@ fetch('/dashboard/api/transactions')
     .then(response => response.json())
     .then(data => {
         const monthlyTotals = {};
+        const weeklyTotals = {};
 
         data.forEach(tx => {
-            const month = tx.date.slice(0, 7); // YYYY-MM
-            if (!monthlyTotals[month]) monthlyTotals[month] = 0;
-            monthlyTotals[month] += tx.amount;
+            const dateObj = new Date(tx.date);
+            const year = dateObj.getFullYear();
+
+            // Monthly key: YYYY-MM
+            const monthKey = tx.date.slice(0, 7);
+            if (!monthlyTotals[monthKey]) monthlyTotals[monthKey] = 0;
+            monthlyTotals[monthKey] += tx.amount;
+
+            // Weekly key: YYYY-WW
+            const weekNumber = getWeekNumber(dateObj);
+            const weekKey = `${year}-W${weekNumber}`;
+            if (!weeklyTotals[weekKey]) weeklyTotals[weekKey] = 0;
+            weeklyTotals[weekKey] += tx.amount;
         });
 
-        const labels = Object.keys(monthlyTotals);
-        const values = Object.values(monthlyTotals);
+        // Render Monthly Chart
+        renderChart('monthlyBalanceChart', 'Monthly Transaction Total', monthlyTotals);
 
-        const ctx = document.getElementById('monthlyBalanceChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Monthly Transaction Total',
-                    data: values,
-                    borderColor: '#00bcd4',
-                    backgroundColor: 'rgba(0, 188, 212, 0.2)',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#00bcd4',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 3,
-                    pointRadius: 5,
-                    fill: true,
-                    tension: 0.4
-                }]
+        // Render Weekly Chart
+        renderChart('weeklyBalanceChart', 'Weekly Transaction Total', weeklyTotals);
+    })
+    .catch(err => console.error('Error loading analytics data:', err));
+
+// Helpers
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return String(weekNo).padStart(2, '0');
+}
+
+function renderChart(canvasId, label, dataObj) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Object.keys(dataObj),
+            datasets: [{
+                label: label,
+                data: Object.values(dataObj),
+                borderColor: '#00bcd4',
+                backgroundColor: 'rgba(0, 188, 212, 0.2)',
+                borderWidth: 2,
+                pointBackgroundColor: '#00bcd4',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 3,
+                pointRadius: 5,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: label,
+                    font: { size: 20 },
+                    color: '#333'
+                },
+                tooltip: {
+                    backgroundColor: '#333',
+                    titleFont: { size: 16, weight: 'bold' },
+                    bodyFont: { size: 14 }
+                }
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Monthly Balance Trends',
-                        font: { size: 20 },
-                        color: '#333'
-                    },
-                    tooltip: {
-                        backgroundColor: '#333',
-                        titleFont: { size: 16, weight: 'bold' },
-                        bodyFont: { size: 14 }
-                    }
+            scales: {
+                x: {
+                    ticks: { color: '#333', font: { size: 14 } },
+                    grid: { color: 'rgba(0,0,0,0.1)' }
                 },
-                scales: {
-                    x: {
-                        grid: { color: 'rgba(0,0,0,0.1)' },
-                        ticks: { color: '#333', font: { size: 14 } }
-                    },
-                    y: {
-                        grid: { color: 'rgba(0,0,0,0.1)' },
-                        ticks: { color: '#333', font: { size: 14 } },
-                        beginAtZero: true
-                    }
-                },
-                interaction: {
-                    mode: 'nearest',
-                    intersect: false
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#333', font: { size: 14 } },
+                    grid: { color: 'rgba(0,0,0,0.1)' }
                 }
             }
-        });
+        }
     });
+}

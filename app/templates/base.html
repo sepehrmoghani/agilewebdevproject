@@ -25,16 +25,12 @@
 
     <!-- Bootstrap Bundle JS (includes Popper.js) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
- 
 
     <!-- default dark Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css" rel="stylesheet">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {% endblock %}
 </head>
@@ -49,9 +45,19 @@
                   <a class="navbar-brand" href="{{ url_for('home') }}">
                   FinanceTracker
                   </a>
-                <a class="btn btn-outline-light" href="{{ url_for('authentication.login') if not g.user else '#' }}">
-                {{ g.user.name if g.user else 'Login' }}
-                </a>
+                {% if session.get('user') %}
+                    <a href="{{ url_for('authentication.profile') }}" class="profile-link">
+                        <div class="profile-circle">
+                            {% if session.user.profile_image %}
+                                <img src="{{ session.user.profile_image }}" alt="Profile" class="profile-image">
+                            {% else %}
+                                <span class="profile-initials">{{ session.user.first_name[0] }}{{ session.user.last_name[0] }}</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% else %}
+                    <a class="btn btn-outline-light" href="{{ url_for('authentication.login') }}">Login</a>
+                {% endif %}
               <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
                 <div class="offcanvas-header">
                   <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">FinanceTracker</h5>
@@ -65,7 +71,8 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('budgeting_and_goals_bp.view_budget') }}">Budgets</a>
                         <a class="nav-link" href="{{ url_for('budgeting_and_goals_bp.view_goals') }}">Goals</a>
-                        <a class="nav-link" href="{{ url_for('transactions.transactions_view') }}">Transactions</a>
+                        <a class="nav-link" href="{{ url_for('transactions.transactions') }}">Transactions</a>
+                        <a class="nav-link" href="{{ url_for('transactions.share_settings') }}"> Share</a>
                         <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
                         <a class="nav-link" href="#">Reports</a>
                         <a class="nav-link" href="{{ url_for('authentication.login') }}">Login</a>

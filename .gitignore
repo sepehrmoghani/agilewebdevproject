@@ -1,0 +1,18 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# Database
+*.sqlite3
+*.db
+*.sqlite
+instance/
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store

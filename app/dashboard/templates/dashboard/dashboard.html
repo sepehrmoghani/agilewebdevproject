@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <h1 class="mb-4 text-center">Dashboard Overview</h1>
+
+    <!-- Navigation Links -->
+    <div class="row mb-4">
+        <div class="col-md-4 text-center">
+            <a href="{{ url_for('dashboard.monthly_analytics_page') }}" class="btn btn-info btn-lg w-100">View Monthly Analytics</a>
+        </div>
+        <div class="col-md-4 text-center">
+            <a href="{{ url_for('dashboard.category_analytics_page') }}" class="btn btn-info btn-lg w-100">View Category Analytics</a>
+        </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="row text-center mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Current Balance</h5>
+                    <p class="card-text" id="currentBalance">$0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Income</h5>
+                    <p class="card-text" id="totalIncome">$0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Expenses</h5>
+                    <p class="card-text" id="totalExpenses">$0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Net Savings</h5>
+                    <p class="card-text" id="netSavings">$0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <canvas id="transactionLineChart"></canvas>
+        </div>
+        <div class="col-md-6 mb-4">
+            <canvas id="transactionBarChart"></canvas>
+        </div>
+        <div class="col-md-6 mb-4">
+            <canvas id="transactionPieChart"></canvas>
+        </div>
+        <div class="col-md-6 mb-4">
+            <canvas id="savingsTrendChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard_charts.js') }}"></script>
+{% endblock %}

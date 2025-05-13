@@ -1,4 +1,44 @@
 $(document).ready(function() {
+    // Handle edit button click
+    $('.edit-transaction').click(function() {
+        const transactionId = $(this).data('transaction-id');
+        $('#editTransactionId').val(transactionId);
+        
+        // Get the current row data
+        const row = $(this).closest('tr');
+        $('#editDate').val(row.find('td:eq(0)').text().trim());
+        $('#editDescription').val(row.find('td:eq(1)').text().trim());
+        $('#editCategory').val(row.find('td:eq(2)').text().replace('Uncategorized', '').trim());
+        const type = row.find('td:eq(3) span').text().trim().toLowerCase();
+        $('#editType').val(type);
+        $('#editAmount').val(row.find('td:eq(4)').text().trim().replace('$', '').trim());
+    });
+
+    // Handle save changes button click
+    $('#saveEditTransaction').click(function() {
+        const transactionId = $('#editTransactionId').val();
+        const formData = {
+            date: $('#editDate').val(),
+            description: $('#editDescription').val(),
+            amount: $('#editAmount').val(),
+            category: $('#editCategory').val(),
+            transaction_type: $('#editType').val()
+        };
+
+        // Send AJAX request to update transaction
+        $.ajax({
+            url: `/transactions/edit/${transactionId}`,
+            method: 'POST',
+            data: formData,
+            success: function(response) {
+                $('#editTransactionModal').modal('hide');
+                location.reload(); // Reload to show updated data
+            },
+            error: function(error) {
+                alert('Error updating transaction');
+            }
+        });
+    });
     // Initialize DataTables
     $('#transactions-table').DataTable({
         order: [[0, 'desc']], // Sort by date descending
@@ -69,5 +109,27 @@ $(document).ready(function() {
         }
         
         $(this).val(value);
+    });
+
+    // Handle delete button click
+    $('.delete-transaction').click(function() {
+        const transactionId = $(this).data('transaction-id');
+        if (confirm('Are you sure you want to delete this transaction?')) {
+            $.ajax({
+                url: `/transactions/delete/${transactionId}`,
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrf_token
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    }
+                },
+                error: function(error) {
+                    alert('Error deleting transaction');
+                }
+            });
+        }
     });
 });

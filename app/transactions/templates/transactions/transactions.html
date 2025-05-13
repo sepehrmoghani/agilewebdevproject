@@ -3,7 +3,7 @@
 {% block title %}Transactions{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
+<div class="row mb-4 mt-4">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
@@ -39,7 +39,7 @@
                 </div>
                 
                 <div class="gap-2">
-                    {{ upload_form.submit(class="btn btn-outline-primary") }}
+                    {{ upload_form.submit(class="btn btn-primary") }}
                 </div>
             </form>
         </div>
@@ -172,6 +172,59 @@
                                         {{ "$%.2f"|format(transaction.amount) }}
                                     </td>
                                     <td>{{ "$%.2f"|format(transaction.balance) }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary edit-transaction" data-transaction-id="{{ transaction.id }}" data-bs-toggle="modal" data-bs-target="#editTransactionModal">
+                                             Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-transaction" data-transaction-id="{{ transaction.id }}">
+                                           Delete
+                                        </button>
+                                    </td>
+
+<!-- Edit Transaction Modal -->
+<div class="modal fade" id="editTransactionModal" tabindex="-1" aria-labelledby="editTransactionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTransactionModalLabel">Edit Transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editTransactionForm">
+                    <input type="hidden" id="editTransactionId">
+                    <div class="mb-3">
+                        <label for="editDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="editDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="editDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAmount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="editAmount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCategory" class="form-label">Category</label>
+                        <input type="text" class="form-control" id="editCategory">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editType" class="form-label">Type</label>
+                        <select class="form-select" id="editType" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveEditTransaction">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
                                 </tr>
                                 {% endfor %}
                             {% else %}
@@ -189,5 +242,8 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+    var csrf_token = "{{ csrf_token() }}";
+</script>
 <script src="{{ url_for('static', filename='js/transactions.js') }}"></script>
 {% endblock %}

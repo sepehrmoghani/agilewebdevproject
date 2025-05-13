@@ -20,7 +20,6 @@ def get_transactions_data():
         'date': t.date.strftime('%Y-%m-%d'),
         'description': t.description,
         'amount': t.amount,
-        'balance': t.balance,
         'category': t.category,
         'transaction_type': t.transaction_type
     } for t in transactions]

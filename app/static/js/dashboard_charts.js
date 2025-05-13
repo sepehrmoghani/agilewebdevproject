@@ -3,7 +3,6 @@ fetch('/dashboard/api/transactions')
     .then(response => response.json())
     .then(data => {
         // DOM elements
-        const currentBalanceEl = document.getElementById('currentBalance');
         const totalIncomeEl = document.getElementById('totalIncome');
         const totalExpensesEl = document.getElementById('totalExpenses');
         const netSavingsEl = document.getElementById('netSavings');
@@ -11,7 +10,6 @@ fetch('/dashboard/api/transactions')
         // Data containers
         let labels = [];
         let amounts = [];
-        let balances = [];
         let categories = {};
         let transactionTypes = { 'Income': 0, 'Expense': 0, 'Transfer': 0 };
 
@@ -19,14 +17,12 @@ fetch('/dashboard/api/transactions')
         let totalIncome = 0;
         let totalExpenses = 0;
         let netSavings = 0;
-        let currentBalance = 0;
 
         // Process each transaction
         data.forEach(tx => {
             // Chart data
             labels.push(tx.date);
             amounts.push(tx.amount);
-            balances.push(tx.balance);
 
             // Categorized expenses for bar chart
             if (categories[tx.category]) {
@@ -50,10 +46,8 @@ fetch('/dashboard/api/transactions')
 
         // Compute summaries
         netSavings = totalIncome - totalExpenses;
-        currentBalance = balances.length ? balances[balances.length - 1] : 0;
 
         // Update overview cards
-        currentBalanceEl.textContent = `$${currentBalance.toFixed(2)}`;
         totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
         totalExpensesEl.textContent = `$${totalExpenses.toFixed(2)}`;
         netSavingsEl.textContent = `$${netSavings.toFixed(2)}`;
@@ -146,36 +140,6 @@ fetch('/dashboard/api/transactions')
             }
         });
 
-        // --- Chart 4: Savings Trend Over Time (Line) ---
-        const savingsCtx = document.getElementById('savingsTrendChart').getContext('2d');
-        new Chart(savingsCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Balance Over Time',
-                    data: balances,
-                    borderColor: '#9966FF',
-                    backgroundColor: 'rgba(153, 102, 255, 0.3)',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Savings Trend Over Time',
-                        font: { size: 18 },
-                        color: '#fff'
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#ccc' }, grid: { color: '#444' } },
-                    y: { ticks: { color: '#ccc' }, grid: { color: '#444' } }
-                }
-            }
-        });
+        // Removed: Chart 4 - Balance Over Time (no longer applicable)
     })
     .catch(error => console.error('Error fetching transactions:', error));

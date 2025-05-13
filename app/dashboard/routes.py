@@ -9,7 +9,9 @@ dashboard_bp = Blueprint('dashboard', __name__, template_folder='templates')
 # Dashboard main page
 @dashboard_bp.route('/dashboard', methods=['GET'])
 def dashboard():
-    return render_template('dashboard/dashboard.html')
+    transactions = Transaction.query.filter_by(user_id=1).all()
+    current_balance = sum(t.amount if t.transaction_type == 'income' else -t.amount for t in transactions)
+    return render_template('dashboard/dashboard.html', current_balance=current_balance)
 
 # API: Get all transactions for user_id=1
 @dashboard_bp.route("api/transactions")

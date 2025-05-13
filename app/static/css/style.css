@@ -3,6 +3,11 @@ body {
     background-color: #a7a7a7;
     text-align: center;
     padding-top: 50px;
+}
+
+.main-content {
+    padding-top: 50px; /* Adjust to fit the navbar height */
+}
 
 /* File input button styling */
 input[type="file"]::file-selector-button {
@@ -19,8 +24,6 @@ input[type="file"]::file-selector-button:hover {
     background-color: #f8f9fa;
     color: #000;
     border-color: #000;
-}
-
 }
 
 

@@ -1,0 +1,27 @@
+/* Table styles */
+.table .col_period, .table .col_limit, .table .col_current, .table .col_target, .table .col_deadline {
+  width: 150px;
+}
+
+.table .col_title, .table .col_time_left {
+  width: 200px;
+}
+
+/* The Edit Button */
+.table td:last-child {
+  border: none;
+  width: 5%;
+}
+
+  /* Custom Tooltip Styles */
+
+  .custom-info-icon {
+    color: white !important;
+}
+
+.tooltip-inner {
+    color: #f8f9fa !important;                /* Dark text color for better contrast */
+    border-radius: 4px !important;         /* Optional: Rounded corners for a smoother look */
+    max-width: 350px !important;            /* Increase max width of tooltip */
+    padding: 24px 12px !important;          /* Optional: Add padding for better spacing */
+}

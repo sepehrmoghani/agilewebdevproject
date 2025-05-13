@@ -2,17 +2,87 @@
 {% block title %}Goals{% endblock %}
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/progress_bar.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/budgeting_and_goals.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/goals.css') }}">
 {% endblock %}
 {% block content %}
 
-<div class="container min-vh-100 d-flex justify-content-center align-items-center">
+<div class="container py-5 mt-5 d-flex justify-content-center align-items-start">
     <div class="col">
-        <!-- Add Budget Button -->
-        <div class="mb-3">
-            <a class="btn btn-success" href="{{ url_for('budgeting_and_goals_bp.add_goal') }}">+ Add a Goal</a>
+
+        <!-- Stats Overview -->
+        <!-- Total Goals -->
+        <div class="row g-3 mb-5">
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Total Goals</p>
+                                <h3 class="mb-0">{{ total_goals }}</h3>
+                            </div>
+                            <div class="bg-indigo-light p-2 rounded-3 text-primary">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Total Goals Completed -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Completed</p>
+                                <h3 class="mb-0">{{ completed_goals }}</h3>
+                            </div>
+                            <div class="bg-green-light p-2 rounded-3 text-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Total Goals in Progress -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">In Progress</p>
+                                <h3 class="mb-0">{{ in_progress }}</h3>
+                            </div>
+                            <div class="bg-yellow-light p-2 rounded-3 text-warning">
+                                <i class="fas fa-spinner"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Total Shared Goals -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Shared</p>
+                                <h3 class="mb-0">{{ shared_goals }}</h3>
+                            </div>
+                            <div class="bg-purple-light p-2 rounded-3 text-purple">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- Budgets Table -->
+
+        <!-- Add Goals Button -->
+        <div class="mb-3">
+            <a class="btn btn-success" href="{{ url_for('budgeting_and_goals.add_goal') }}">+ Add a Goal</a>
+        </div>
+        <!-- Goals Table -->
         <div class="row">
             <!-- Transactions Table -->
                 <div class="card h-100">
@@ -30,28 +100,50 @@
                                         <th>Target Amount</th>
                                         <th>Deadline</th>
                                         <th>Time Left</th>
+                                        <th>Privacy</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for goal in goals %}
-                                    <tr>
-                                        <td class="col_title">{{ goal.title }}</td>
-                                        <td class="col_current">{{ "%.2f"|format(goal.current_amount) }}</td>
-                                        <td>
-                                            <div class="progress-bar-container" 
-                                                data-current="{{ goal.current_amount }}"
-                                                data-target="{{ goal.target_amount }}">
-                                                <div class="progress-bar"></div>
-                                            </div>
-                                            <span class="progress-percent"></span>
-                                        </td>
-                                        <td class="col_target">{{ "%.2f"|format(goal.target_amount) }}</td>
-                                        <td class="col_deadline" data-deadline="{{ goal.deadline }}">{{ goal.deadline }}</td>
-                                        <td class="col_time_left"></td>
-                                        <td>
-                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_goals', id=goal.id) }}">Edit</a>
-                                        </td>
-                                    </tr>
+                                    {% for summary in summaries %}
+                                        <tr>
+                                            <td class="col_title">
+                                                {{ summary.goal.title }}
+                                                {% if summary.goal.description %}
+                                                    <span class="ms-1" data-bs-toggle="tooltip" title="{{ summary.goal.description }}">
+                                                        <i class="fas fa-info-circle text-secondary custom-info-icon"></i>
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="col_current">
+                                                ${{ "%.2f"|format(summary.total_amount|abs) }} 
+                                                {% if (summary.total_amount < 0) %}
+                                                    in Debt
+                                                {% else %}
+                                                    Saved
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="progress-bar-container" 
+                                                    data-current="{{ summary.total_amount }}"
+                                                    data-target="{{ summary.goal.target_amount }}">
+                                                    <div class="progress-bar"></div>
+                                                </div>
+                                                <span class="progress-percent"></span>
+                                            </td>
+                                            <td class="col_target">${{ "%.2f"|format(summary.goal.target_amount) }}</td>
+                                            <td class="col_deadline" data-deadline="{{ summary.goal.deadline }}">{{ summary.goal.deadline }}</td>
+                                            <td class="col_time_left"></td>
+                                            <td class="col_privacy">
+                                                {% if summary.goal.privacy %}
+                                                    <i class="fas fa-lock-open" title="Public"></i>
+                                                {% else %}
+                                                    <i class="fas fa-lock" title="Private"></i>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_goals', id=summary.goal.id) }}">Edit</a>
+                                            </td>
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -63,5 +155,6 @@
     </div>
 </div>
 
+<script src="{{ url_for('static', filename='js/budgeting_and_goals.js') }}"></script>
 <script src="{{ url_for('static', filename='js/goals.js') }}"></script>
 {% endblock %}

@@ -1,4 +1,6 @@
-#!/Users/sepehrmoghani/Documents/myprojects-vscode/UWA/agilewebdev/agilewebdevproject/venv/bin/python3.13
+#!/bin/sh
+'''exec' "/Users/williamlo/Desktop/🤓/Web Development/agilewebdevproject/venv/bin/python3" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys

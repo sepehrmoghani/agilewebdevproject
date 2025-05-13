@@ -29,7 +29,7 @@ def create_app():
 
     app.register_blueprint(transactions_bp, url_prefix='/transactions')
     app.register_blueprint(authentication_bp, url_prefix='/authentication')
-    app.register_blueprint(budgeting_and_goals_bp, url_prefix='/budgeting_and_goals_bp')
+    app.register_blueprint(budgeting_and_goals_bp, url_prefix='/budgeting_and_goals')
     app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
     app.register_blueprint(share_bp, url_prefix='/share')
 

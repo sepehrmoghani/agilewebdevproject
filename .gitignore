@@ -1,0 +1,19 @@
+# Node-related (if you ever use npm/yarn)
+node_modules/
+dist/
+build/
+*.log
+
+# Python virtual environment
+venv/
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store
+
+# VS Code settings (optional, only if you're not sharing workspace settings)
+.vscode/
+
+# Environment files (if you use .env for config/secrets)
+.env

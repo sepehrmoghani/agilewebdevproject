@@ -5,18 +5,19 @@
 {% endblock %}
 {% block content %}
 
+
 <div class="container min-vh-100 d-flex justify-content-center align-items-center">
     <div class="col-12 col-sm-8 col-md-6 col-lg-4">
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals_bp.view_budget') }}">Goals</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Add a Goal</li>
+                <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals.view_goals') }}">Goals</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Add Goal</li>
             </ol>
         </nav>
 
         <h1 class="mb-4 text-center">Add a Goal</h1>
 
-        <form method="POST" action="{{ url_for('budgeting_and_goals_bp.add_goal') }}">
+        <form method="POST" action="{{ url_for('budgeting_and_goals.add_goal') }}">
             {{ form.hidden_tag() }}
 
             <!-- Enter Goal Title -->
@@ -37,10 +38,35 @@
                 {{ form.current_amount(class="form-control", aria_label="Current amount input") }}
             </div>
 
+            <!-- Start (dd/mm/yyyy) -->
+            <div class="mb-3">
+                <label for="start_date" class="form-label">{{ form.start_date.label }}</label>
+                {{ form.start_date(class="form-control", aria_label="Start input") }}
+            </div>
+
             <!-- Select Deadline (dd/mm/yyyy) -->
             <div class="mb-3">
                 <label for="deadline" class="form-label">{{ form.deadline.label }}</label>
                 {{ form.deadline(class="form-control", aria_label="Deadline input") }}
+            </div>
+
+            <!-- Optional Description -->
+            <div class="mb-3">
+                <label for="description" class="form-label">{{ form.description.label }}</label>
+                {{ form.description(class="form-control", rows="3", aria_label="Optional description") }}
+            </div>
+
+            <!-- Privacy Selection (Radio Buttons) -->
+            <div class="mb-3">
+                <label class="form-label">{{ form.privacy.label }}</label>
+                <div class="d-flex gap-3">
+                    {% for subfield in form.privacy %}
+                        <div class="form-check">
+                            {{ subfield(class="form-check-input", id=subfield.id) }}
+                            <label class="form-check-label" for="{{ subfield.id }}">{{ subfield.label.text }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
 
             <!-- Save Button -->
@@ -51,5 +77,4 @@
     </div>
 </div>
 
-    
 {% endblock %}

@@ -66,16 +66,17 @@
                 <div class="offcanvas-body">
                   <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="{{ url_for('home') }}">Home</a>
+                      <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" aria-current="page" href="{{ url_for('home') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('budgeting_and_goals_bp.view_budget') }}">Budgets</a>
-                        <a class="nav-link" href="{{ url_for('budgeting_and_goals_bp.view_goals') }}">Goals</a>
-                        <a class="nav-link" href="{{ url_for('transactions.transactions') }}">Transactions</a>
-                        <a class="nav-link" href="{{ url_for('share.share_settings') }}"> Share</a>
-                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
-                        <a class="nav-link" href="{{ url_for('authentication.login') }}">Login</a>
-                        <a class="nav-link" href="{{ url_for('authentication.signup') }}">Sign Up</a>
+                        <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.view_budget' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.view_budget') }}">Budgets</a>
+                        <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.view_goals' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.view_goals') }}">Goals</a>
+                        <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.explore' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.explore') }}">Explore</a>
+                        <a class="nav-link {% if request.endpoint == 'transactions.transactions' %}active{% endif %}" href="{{ url_for('transactions.transactions') }}">Transactions</a>
+                        <a class="nav-link {% if request.endpoint == 'share.share_settings' %}active{% endif %}" href="{{ url_for('share.share_settings') }}"> Share</a>
+                        <a class="nav-link {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                        <a class="nav-link {% if request.endpoint == 'authentication.login' %}active{% endif %}" href="{{ url_for('authentication.login') }}">Login</a>
+                        <a class="nav-link {% if request.endpoint == 'authentication.signup' %}active{% endif %}" href="{{ url_for('authentication.signup') }}">Sign Up</a>
                     </li>
                   </ul>
                 </div>
@@ -83,9 +84,11 @@
             </div>
           </nav>
       </header>
+    <main class="main-content">
     {% block content %}
 
     {% endblock %}
+    </main>
 </body>
 
 </html>

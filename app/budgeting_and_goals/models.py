@@ -1,11 +1,18 @@
+from datetime import datetime, timezone
 from app import db
+from app.authentication.forms import User
+
+#@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(50), nullable=False)
-    limit = db.Column(db.Float, nullable=False)
-    period = db.Column(db.String(20), nullable=False)  # 'weekly' or 'monthly'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    category = db.Column(db.String(64), nullable=False)
+    limit = db.Column(db.Float, nullable=False)
+    period = db.Column(db.String(20), nullable=False)  # 'weekly' or 'monthly' or 'yearly'
+    description = db.Column(db.Text, nullable=True)
 
     user = db.relationship('User', backref='budgets')
 
@@ -15,6 +22,20 @@ class Goal(db.Model):
     title = db.Column(db.String(100), nullable=False)
     target_amount = db.Column(db.Float, nullable=False)
     current_amount = db.Column(db.Float, nullable=False)
+    start_date = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc).date())
     deadline = db.Column(db.Date, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    privacy = db.Column(db.Boolean, nullable=False, default=False)
 
     user = db.relationship('User', backref=db.backref('goals', lazy=True))
+
+    # Method to check if the goal is overdue
+    def __repr__(self):
+        return f'<Goal {self.title}, Started on {self.date_started}, Deadline: {self.deadline}>'
+    
+class GoalInteraction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    goal_id = db.Column(db.Integer)
+    liked = db.Column(db.Boolean, default=False)
+    saved = db.Column(db.Boolean, default=False)

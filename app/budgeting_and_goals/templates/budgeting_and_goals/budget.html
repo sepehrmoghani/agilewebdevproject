@@ -2,14 +2,100 @@
 {% block title %}Budget{% endblock %}
 {% block head %}
 {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/budgeting_and_goals.css') }}">
 {% endblock %}
 {% block content %}
 
-<div class="container min-vh-100 d-flex justify-content-center align-items-center">
+<div class="container py-5 mt-5 d-flex justify-content-center align-items-start">
     <div class="col">
+
+        <!-- Widgets -->
+        <!-- Budget that has the highest % saved or lowest % spent -->
+        <div class="row g-3 mb-5">
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Most Saved Budget</p>
+                                <h5 class="mb-0">
+                                    {% if most_saved %}
+                                        {{ most_saved.category }}<br>
+                                        {{ most_saved_pct }}%
+                                    {% else %}
+                                        No data
+                                    {% endif %}
+                                </h5>
+                            </div>
+                            <div class="bg-indigo-light p-2 rounded-3 text-success">
+                                <i class="fas fa-up-long"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Budget that has the lowest % saved or highest % spent -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Most Spent Budget</p>
+                                <h5 class="mb-0">
+                                    {% if most_spent %}
+                                        {{ most_spent.category }}<br>
+                                        {{ most_spent_pct }}%
+                                    {% else %}
+                                        No data
+                                    {% endif %}
+                                </h5>
+                            </div>
+                            <div class="bg-green-light p-2 rounded-3 text-danger">
+                                <i class="fas fa-down-long"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Monthly income compared to last month's Income -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Monthly Income</p>
+                                <h4 class="mb-0">${{ this_month_income | round(2) }}</h4>
+                                <p class="text-muted small">Last month: ${{ last_month_income | round(2) }}</p>
+                            </div>
+                            <div class="bg-yellow-light p-2 rounded-3 text-warning">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Monthly spending compared to last month's spending -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Monthly Spending</p>
+                                <h4 class="mb-0">${{ this_month_expense | round(2) }}</h4>
+                                <p class="text-muted small">Last month: ${{ last_month_expense | round(2) }}</p>
+                            </div>
+                            <div class="bg-purple-light p-2 rounded-3 text-danger">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Add Budget Button -->
         <div class="mb-3">
-            <a class="btn btn-success" href="{{ url_for('budgeting_and_goals_bp.add_budget') }}">+ Add Budget</a>
+            <a class="btn btn-success" href="{{ url_for('budgeting_and_goals.add_budget') }}">+ Add Budget</a>
         </div>
         <!-- Budgets Table -->
         <div class="row">
@@ -24,18 +110,33 @@
                                 <thead>
                                     <tr>
                                         <th>Category</th>
+                                        <th>Current Amount</th>
                                         <th>Limit</th>
                                         <th>Period</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for budget in budgets %}
+                                    {% for summary in summaries %}
                                     <tr>
-                                        <td class="col_category">{{ budget.category }}</td>
-                                        <td class="col_limit">{{ "%.2f"|format(budget.limit) }}</td>
-                                        <td class="col_period">{{ budget.period }}</td>
+                                        <td>{{ summary.budget.category }}
+                                            {% if summary.budget.description %}
+                                                <span class="ms-1" data-bs-toggle="tooltip" title="{{ summary.budget.description }}">
+                                                    <i class="fas fa-info-circle text-secondary custom-info-icon"></i>
+                                                </span>
+                                                {% endif %}
+                                            </td>
+                                        <td>${{ "%.2f"|format(summary.total_spent|abs) }}
+                                            {% if (summary.total_spent < 0) %}
+                                                    Saved
+                                                {% else %}
+                                                    Spent
+                                                {% endif %}
+                                        </td>
+                                        <td>${{ "%.2f"|format(summary.budget.limit) }}</td>
+                                        <td>{{ summary.budget.period }}</td>
                                         <td>
-                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals_bp.edit_budget', id=budget.id) }}">Edit</a>
+                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_budget', id=summary.budget.id) }}">Edit</a>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -49,4 +150,5 @@
     </div>
 </div>
 <script src="{{ url_for('static', filename='js/budgeting.js') }}"></script>
+<script src="{{ url_for('static', filename='js/budgeting_and_goals.js') }}"></script>
 {% endblock %}

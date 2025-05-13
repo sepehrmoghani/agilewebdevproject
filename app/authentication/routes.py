@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g
 from app.authentication import authentication_bp
 from .forms import LoginForm, SignupForm, User, LoginInfo
 from flask_wtf import FlaskForm
@@ -9,6 +9,14 @@ from werkzeug.security import check_password_hash
 from app import db
 
 loginInfo = {}
+
+@authentication_bp.before_request
+def load_logged_in_user():
+    user = session.get('user')
+    if user:
+        g.user = user
+    else:
+        g.user = None
 
 @authentication_bp.route('/login', methods=['GET', 'POST'])
 def login():

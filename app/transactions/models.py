@@ -13,7 +13,6 @@ class Transaction(db.Model):
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     description = db.Column(db.String(256), nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    balance = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(64), nullable=True)
     transaction_type = db.Column(db.String(32), nullable=True)  # income, expense, transfer
     

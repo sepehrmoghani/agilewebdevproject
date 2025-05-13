@@ -28,7 +28,9 @@
 
     <!-- default dark Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css" rel="stylesheet">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {% endblock %}
 </head>
@@ -43,9 +45,19 @@
                   <a class="navbar-brand" href="{{ url_for('home') }}">
                   FinanceTracker
                   </a>
-                <a class="btn btn-outline-light" href="{{ url_for('authentication.login') if not g.user else '#' }}">
-                {{ g.user.name if g.user else 'Login' }}
-                </a>
+                {% if session.get('user') %}
+                    <a href="{{ url_for('authentication.profile') }}" class="profile-link">
+                        <div class="profile-circle">
+                            {% if session.user.profile_image %}
+                                <img src="{{ session.user.profile_image }}" alt="Profile" class="profile-image">
+                            {% else %}
+                                <span class="profile-initials">{{ session.user.first_name[0] }}{{ session.user.last_name[0] }}</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% else %}
+                    <a class="btn btn-outline-light" href="{{ url_for('authentication.login') }}">Login</a>
+                {% endif %}
               <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
                 <div class="offcanvas-header">
                   <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">FinanceTracker</h5>
@@ -54,16 +66,17 @@
                 <div class="offcanvas-body">
                   <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="{{ url_for('home') }}">Home</a>
+                      <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" aria-current="page" href="{{ url_for('home') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('budgeting_and_goals_bp.view_budget') }}">Budgets</a>
-                        <a class="nav-link" href="{{ url_for('budgeting_and_goals_bp.view_goals') }}">Goals</a>
-                        <a class="nav-link" href="{{ url_for('transactions.transactions') }}">Transactions</a>
-                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
-                        <a class="nav-link" href="#">Reports</a>
-                        <a class="nav-link" href="{{ url_for('authentication.login') }}">Login</a>
-                        <a class="nav-link" href="{{ url_for('authentication.signup') }}">Sign Up</a>
+                        <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.view_budget' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.view_budget') }}">Budgets</a>
+                        <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.view_goals' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.view_goals') }}">Goals</a>
+                        <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.explore' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.explore') }}">Explore</a>
+                        <a class="nav-link {% if request.endpoint == 'transactions.transactions' %}active{% endif %}" href="{{ url_for('transactions.transactions') }}">Transactions</a>
+                        <a class="nav-link {% if request.endpoint == 'share.share_settings' %}active{% endif %}" href="{{ url_for('share.share_settings') }}"> Share</a>
+                        <a class="nav-link {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                        <a class="nav-link {% if request.endpoint == 'authentication.login' %}active{% endif %}" href="{{ url_for('authentication.login') }}">Login</a>
+                        <a class="nav-link {% if request.endpoint == 'authentication.signup' %}active{% endif %}" href="{{ url_for('authentication.signup') }}">Sign Up</a>
                     </li>
                   </ul>
                 </div>
@@ -71,9 +84,11 @@
             </div>
           </nav>
       </header>
+    <main class="main-content">
     {% block content %}
 
     {% endblock %}
+    </main>
 </body>
 
 </html>

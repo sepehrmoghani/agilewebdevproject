@@ -1,7 +1,11 @@
 import csv
 import io
-from datetime import datetime
-from flask import render_template, url_for, flash, redirect, request, jsonify, abort, Blueprint
+from datetime import datetime, timedelta
+from flask import render_template, url_for, flash, redirect, request, jsonify, abort, Blueprint, session, Response
+import csv
+import io
+import uuid
+from sqlalchemy import func
 #from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from .models import User, Transaction
@@ -11,50 +15,48 @@ from .forms import TransactionUploadForm, TransactionForm
 # Create a Blueprint
 transactions_bp = Blueprint('transactions', __name__, template_folder='templates')
 
+def calculate_balance(transactions):
+    total = 0
+    for transaction in transactions:
+        if transaction.transaction_type == 'income':
+            total += transaction.amount
+        else:
+            total -= transaction.amount
+    return total
+
 @transactions_bp.route('/transactions', methods=['GET', 'POST'])
 #@login_required
 def transactions():
     upload_form = TransactionUploadForm()
     transaction_form = TransactionForm()
-    
+
     if transaction_form.validate_on_submit():
-        # Calculate the balance
         #last_transaction = TransactionForm.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).first()
         last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
 
-        if last_transaction:
-            if transaction_form.transaction_type.data == 'expense':
-                balance = last_transaction.balance - transaction_form.amount.data
-            else:
-                balance = last_transaction.balance + transaction_form.amount.data
-        else:
-            if transaction_form.transaction_type.data == 'expense':
-                balance = -transaction_form.amount.data
-            else:
-                balance = transaction_form.amount.data
-        
         transaction = Transaction(
             user_id = 1,
             #user_id=current_user.id,
             date=transaction_form.date.data,
             description=transaction_form.description.data,
             amount=transaction_form.amount.data,
-            balance=balance,
             category=transaction_form.category.data,
             transaction_type=transaction_form.transaction_type.data
         )
-        
+
         db.session.add(transaction)
         db.session.commit()
         flash('Transaction added successfully!', 'success')
         return redirect(url_for('transactions.transactions'))
-    
+
     #transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
     transactions = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).all()
+    current_balance = calculate_balance(transactions)
     return render_template('transactions/transactions.html', title='Transactions', 
                            upload_form=upload_form, 
                            transaction_form=transaction_form,
-                           transactions=transactions)
+                           transactions=transactions,
+                           current_balance=current_balance)
 
 @transactions_bp.route('/upload_transactions', methods=['POST'])
 #@login_required
@@ -66,18 +68,18 @@ def upload_transactions():
             try:
                 stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
                 csv_reader = csv.DictReader(stream)
-                
+
                 # Check required columns
                 required_columns = ['date', 'description', 'amount']
                 first_row = next(csv_reader)
                 stream.seek(0)
                 csv_reader = csv.DictReader(stream)
-                
+
                 missing_columns = [col for col in required_columns if col not in first_row]
                 if missing_columns:
                     flash(f'CSV file missing required columns: {", ".join(missing_columns)}', 'danger')
                     return redirect(url_for('transactions.transactions'))
-                
+
                 # Process transactions
                 count = 0
                 for row in csv_reader:
@@ -90,30 +92,18 @@ def upload_transactions():
                                 date = datetime.strptime(row['date'], '%m/%d/%Y')
                             except ValueError:
                                 date = datetime.strptime(row['date'], '%d/%m/%Y')
-                        
+
                         # Get amount and determine transaction type
                         amount = float(row['amount'])
                         transaction_type = 'income' if amount >= 0 else 'expense'
                         amount = abs(amount)
-                        
+
                         # Get category if exists
                         category = row.get('category', '')
-                        
-                        # Calculate new balance
+
                         #last_transaction = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).first()
                         last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
-                        
-                        if last_transaction:
-                            if transaction_type == 'expense':
-                                balance = last_transaction.balance - amount
-                            else:
-                                balance = last_transaction.balance + amount
-                        else:
-                            if transaction_type == 'expense':
-                                balance = -amount
-                            else:
-                                balance = amount
-                        
+
                         # Create transaction record
                         transaction = Transaction(
                             user_id = 1,
@@ -121,16 +111,15 @@ def upload_transactions():
                             date=date,
                             description=row['description'],
                             amount=amount,
-                            balance=balance,
                             category=category,
                             transaction_type=transaction_type
                         )
-                        
+
                         db.session.add(transaction)
                         count += 1
                     except Exception as e:
                         flash(f'Error processing row: {str(e)}', 'danger')
-                
+
                 db.session.commit()
                 flash(f'Successfully imported {count} transactions!', 'success')
             except Exception as e:
@@ -144,17 +133,71 @@ def upload_transactions():
 def get_transactions_data():
     #transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
     transactions = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).all()
+
+@transactions_bp.route('/delete/<int:transaction_id>', methods=['POST'])
+def delete_transaction(transaction_id):
+    transaction = Transaction.query.get_or_404(transaction_id)
     
-    result = []
+    # Only allow deletion if the transaction belongs to the current user
+    user_id = 1  # Placeholder for the logged-in user's ID
+    if transaction.user_id != user_id:
+        flash("You are not authorized to delete this transaction.", "danger")
+        return redirect(url_for('transactions.transactions'))
+
+    db.session.delete(transaction)
+    db.session.commit()
+    flash("Transaction deleted successfully.", "success")
+    return redirect(url_for('transactions.transactions'))
+
+@transactions_bp.route('/export')
+def export_transactions():
+    transactions = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Write header
+    writer.writerow(['Date', 'Description', 'Amount', 'Category', 'Type'])
+
+    # Write transactions
     for transaction in transactions:
-        result.append({
-            'id': transaction.id,
-            'date': transaction.date.strftime('%Y-%m-%d'),
-            'description': transaction.description,
-            'amount': transaction.amount,
-            'balance': transaction.balance,
-            'category': transaction.category,
-            'transaction_type': transaction.transaction_type
-        })
-    
-    return jsonify(result)
+        writer.writerow([
+            transaction.date.strftime('%Y-%m-%d'),
+            transaction.description,
+            transaction.amount,
+            transaction.category,
+            transaction.transaction_type])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=transactions.csv'}
+    )
+
+@transactions_bp.route('/edit/<int:transaction_id>', methods=['GET', 'POST'])
+#@login_required
+def edit_transaction(transaction_id):
+    transaction = Transaction.query.get_or_404(transaction_id)
+    form = TransactionForm(obj=transaction)
+
+    if form.validate_on_submit():
+        new_amount = form.amount.data
+
+        transaction.date = form.date.data
+        transaction.description = form.description.data
+        transaction.amount = new_amount
+        transaction.category = form.category.data
+        transaction.transaction_type = form.transaction_type.data
+
+        later_transactions = Transaction.query.filter(
+            Transaction.user_id == transaction.user_id,
+            Transaction.date >= transaction.date,
+            Transaction.id != transaction.id
+        ).order_by(Transaction.date.asc()).all()
+
+        db.session.commit()
+        flash('Transaction updated successfully!', 'success')
+        return redirect(url_for('transactions.transactions'))
+
+    return render_template('transactions/transactions_edit.html', form=form, transaction=transaction)

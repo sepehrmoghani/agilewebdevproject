@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block title %}Transactions{% endblock %}
-
+{% block head %}
+{{ super() }}
+{% endblock %}
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-12">
@@ -102,16 +104,74 @@
                     <div class="mb-3">
                         {{ transaction_form.category.label(class="form-label") }}
                         {% if transaction_form.category.errors %}
-                            {{ transaction_form.category(class="form-control is-invalid") }}
+                            <select class="form-select is-invalid" name="category" id="category">
+                                <option value="" disabled selected>Select a category</option>
+                                <option value="Business">Business</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Childcare">Childcare</option>
+                                <option value="Eating out & takeaway">Eating out & takeaway</option>
+                                <option value="Education">Education</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Fees & interest">Fees & interest</option>
+                                <option value="Gifts & donations">Gifts & donations</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Health & medical">Health & medical</option>
+                                <option value="Home">Home</option>
+                                <option value="Home loan">Home loan</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="Other investments">Other investments</option>
+                                <option value="Personal care">Personal care</option>
+                                <option value="Pets">Pets</option>
+                                <option value="Professional services">Professional services</option>
+                                <option value="Shares">Shares</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Sport & fitness">Sport & fitness</option>
+                                <option value="Super contribution">Super contribution</option>
+                                <option value="Tax paid">Tax paid</option>
+                                <option value="Transfer & payments">Transfer & payments</option>
+                                <option value="Travel & holidays">Travel & holidays</option>
+                                <option value="Uncategorised">Uncategorised</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Vehicle & transport">Vehicle & transport</option>
+                            </select>
                             <div class="invalid-feedback">
                                 {% for error in transaction_form.category.errors %}
                                     {{ error }}
                                 {% endfor %}
                             </div>
                         {% else %}
-                            {{ transaction_form.category(class="form-control") }}
+                            <select class="form-select" name="category" id="category">
+                                <option value="" disabled selected>Select a category</option>
+                                <option value="Business">Business</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Childcare">Childcare</option>
+                                <option value="Eating out & takeaway">Eating out & takeaway</option>
+                                <option value="Education">Education</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Fees & interest">Fees & interest</option>
+                                <option value="Gifts & donations">Gifts & donations</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Health & medical">Health & medical</option>
+                                <option value="Home">Home</option>
+                                <option value="Home loan">Home loan</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="Other investments">Other investments</option>
+                                <option value="Personal care">Personal care</option>
+                                <option value="Pets">Pets</option>
+                                <option value="Professional services">Professional services</option>
+                                <option value="Shares">Shares</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Sport & fitness">Sport & fitness</option>
+                                <option value="Super contribution">Super contribution</option>
+                                <option value="Tax paid">Tax paid</option>
+                                <option value="Transfer & payments">Transfer & payments</option>
+                                <option value="Travel & holidays">Travel & holidays</option>
+                                <option value="Uncategorised">Uncategorised</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Vehicle & transport">Vehicle & transport</option>
+                            </select>
                         {% endif %}
-                        <div class="form-text">E.g. Food, Utilities, Salary, etc.</div>
+                        <div class="form-text">Choose a category from the dropdown.</div>
                     </div>
                     
                     <div class="mb-3">
@@ -172,11 +232,23 @@
                                         {{ "$%.2f"|format(transaction.amount) }}
                                     </td>
                                     <td>{{ "$%.2f"|format(transaction.balance) }}</td>
+                                    <td>
+                                        <button 
+                                            class="btn btn-sm btn-outline-primary edit-button"
+                                            data-id="{{ transaction.id }}"
+                                            data-date="{{ transaction.date.strftime('%Y-%m-%d') }}"
+                                            data-description="{{ transaction.description }}"
+                                            data-category="{{ transaction.category }}"
+                                            data-type="{{ transaction.transaction_type }}"
+                                            data-amount="{{ transaction.amount }}">
+                                            Edit
+                                        </button>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="6" class="text-center">No transactions found</td>
+                                    <td colspan="7" class="text-center">No transactions found</td>
                                 </tr>
                             {% endif %}
                         </tbody>
@@ -186,8 +258,64 @@
         </div>
     </div>
 </div>
-{% endblock %}
+<!-- Edit Transaction-->
 
+<div class="modal fade" id="editTransactionModal" tabindex="-1" aria-labelledby="editTransactionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTransactionModalLabel">Edit Transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-transaction-form">
+                    <input type="hidden" id="edit-transaction-id">
+                    
+                    <div class="mb-3">
+                        <label for="edit-date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="edit-date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-description" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="edit-description" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-amount" class="form-label">Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="edit-amount" step="0.01" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-category" class="form-label">Category</label>
+                        <input type="text" class="form-control" id="edit-category">
+                        <div class="form-text">E.g. Food, Utilities, Salary, etc.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-transaction-type" class="form-label">Type</label>
+                        <select class="form-select" id="edit-transaction-type" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                            <option value="transfer">Transfer</option>
+                        </select>
+                    </div>
+                </form>
+                <div id="edit-transaction-error" class="alert alert-danger d-none"></div>
+                <div id="edit-transaction-success" class="alert alert-success d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-transaction">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/transactions.js') }}"></script>
 {% endblock %}

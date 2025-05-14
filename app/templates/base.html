@@ -68,16 +68,22 @@
                     <li class="nav-item">
                       <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" aria-current="page" href="{{ url_for('home') }}">Home</a>
                     </li>
+                    {% if session.get('user') %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.view_budget' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.view_budget') }}">Budgets</a>
                         <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.view_goals' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.view_goals') }}">Goals</a>
                         <a class="nav-link {% if request.endpoint == 'budgeting_and_goals.explore' %}active{% endif %}" href="{{ url_for('budgeting_and_goals.explore') }}">Explore</a>
                         <a class="nav-link {% if request.endpoint == 'transactions.transactions' %}active{% endif %}" href="{{ url_for('transactions.transactions') }}">Transactions</a>
-                        <a class="nav-link {% if request.endpoint == 'share.share_settings' %}active{% endif %}" href="{{ url_for('share.share_settings') }}"> Share</a>
+                        <a class="nav-link {% if request.endpoint == 'share.share_settings' %}active{% endif %}" href="{{ url_for('share.share_settings') }}">Share</a>
                         <a class="nav-link {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                        <a class="nav-link text-danger" href="{{ url_for('authentication.logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'authentication.login' %}active{% endif %}" href="{{ url_for('authentication.login') }}">Login</a>
                         <a class="nav-link {% if request.endpoint == 'authentication.signup' %}active{% endif %}" href="{{ url_for('authentication.signup') }}">Sign Up</a>
                     </li>
+                    {% endif %}
                   </ul>
                 </div>
               </div>

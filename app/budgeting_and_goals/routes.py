@@ -404,4 +404,3 @@ def save_goal(goal_id):
 
     db.session.commit()
     return jsonify({'saved': interaction.saved})
-

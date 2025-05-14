@@ -37,7 +37,7 @@ def login():
                     'email': user.email
                 }
                 flash("Logged in successfully!", "success")
-                return redirect(url_for('authentication.profile'))
+                return redirect(url_for('dashboard.dashboard'))
             elif not user:
                 flash("Email does not match any accounts", "danger")
             else:

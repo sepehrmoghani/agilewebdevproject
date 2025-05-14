@@ -2,11 +2,9 @@ import csv
 import io
 from datetime import datetime, timedelta
 from flask import render_template, url_for, flash, redirect, request, jsonify, abort, Blueprint, session, Response
-import csv
-import io
 import uuid
 from sqlalchemy import func
-#from flask_login import login_user, current_user, logout_user, login_required
+from app.authentication.utils import login_required
 from werkzeug.utils import secure_filename
 from .models import User, Transaction
 from app import db
@@ -25,17 +23,17 @@ def calculate_balance(transactions):
     return total
 
 @transactions_bp.route('/transactions', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def transactions():
     upload_form = TransactionUploadForm()
     transaction_form = TransactionForm()
 
     if transaction_form.validate_on_submit():
         #last_transaction = TransactionForm.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).first()
-        last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
+        #last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
 
         transaction = Transaction(
-            user_id = 1,
+            user_id = session['user']['id'],
             #user_id=current_user.id,
             date=transaction_form.date.data,
             description=transaction_form.description.data,
@@ -50,7 +48,7 @@ def transactions():
         return redirect(url_for('transactions.transactions'))
 
     #transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
-    transactions = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).all()
+    transactions = Transaction.query.filter_by(user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
     current_balance = calculate_balance(transactions)
     return render_template('transactions/transactions.html', title='Transactions', 
                            upload_form=upload_form, 
@@ -59,7 +57,7 @@ def transactions():
                            current_balance=current_balance)
 
 @transactions_bp.route('/upload_transactions', methods=['POST'])
-#@login_required
+@login_required
 def upload_transactions():
     form = TransactionUploadForm()
     if form.validate_on_submit():
@@ -102,11 +100,11 @@ def upload_transactions():
                         category = row.get('category', '')
 
                         #last_transaction = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).first()
-                        last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
+                        #last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
 
                         # Create transaction record
                         transaction = Transaction(
-                            user_id = 1,
+                            user_id = session['user']['id'],
                             #user_id=current_user.id,
                             date=date,
                             description=row['description'],
@@ -129,17 +127,18 @@ def upload_transactions():
     return redirect(url_for('transactions.transactions'))
 
 @transactions_bp.route("/api/transactions")
-#@login_required
+@login_required
 def get_transactions_data():
     #transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
-    transactions = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).all()
+    transactions = Transaction.query.filter_by(user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
 
 @transactions_bp.route('/delete/<int:transaction_id>', methods=['POST'])
 def delete_transaction(transaction_id):
     transaction = Transaction.query.get_or_404(transaction_id)
-    
+
     # Only allow deletion if the transaction belongs to the current user
-    user_id = 1  # Placeholder for the logged-in user's ID
+    #user_id = 1  # Placeholder for the logged-in user's ID
+    user_id = session['user']['id']
     if transaction.user_id != user_id:
         flash("You are not authorized to delete this transaction.", "danger")
         return redirect(url_for('transactions.transactions'))
@@ -151,7 +150,7 @@ def delete_transaction(transaction_id):
 
 @transactions_bp.route('/export')
 def export_transactions():
-    transactions = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).all()
+    transactions = Transaction.query.filter_by(user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
 
     output = io.StringIO()
     writer = csv.writer(output)
@@ -176,7 +175,7 @@ def export_transactions():
     )
 
 @transactions_bp.route('/edit/<int:transaction_id>', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def edit_transaction(transaction_id):
     transaction = Transaction.query.get_or_404(transaction_id)
     form = TransactionForm(obj=transaction)

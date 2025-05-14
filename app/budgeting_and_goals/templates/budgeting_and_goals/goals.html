@@ -134,7 +134,7 @@
                                             <td class="col_deadline" data-deadline="{{ summary.goal.deadline }}">{{ summary.goal.deadline }}</td>
                                             <td class="col_time_left"></td>
                                             <td class="editing_button" style="border: none;">
-                                                <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_goals', id=summary.goal.id) }}">Edit</a>
+                                                <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_goals', goal_id=summary.goal.id) }}">Edit</a>
                                             </td>
                                         </tr>
                                     {% endfor %}

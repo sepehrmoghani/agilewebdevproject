@@ -159,7 +159,7 @@
                                         <td>$<span class="removeZero">{{ "%.2f"|format(summary.budget.limit) }}</span></td>
                                         <td class="col_time_left">{{ summary.budget.period }}</td>
                                         <td class="editing_button" style="border: none;">
-                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_budget', id=summary.budget.id) }}">Edit</a>
+                                            <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_budget', budget_id=summary.budget.id) }}">Edit</a>
                                         </td>
                                     </tr>
                                     {% endfor %}

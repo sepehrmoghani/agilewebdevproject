@@ -137,30 +137,29 @@ def view_budget():
         this_month_income=this_month_income, last_month_income=last_month_income,
         this_month_expense=this_month_expense, last_month_expense=last_month_expense)
 
-@budgeting_and_goals_bp.route('/budget/edit/<int:id>', methods=['GET', 'POST'])
+@budgeting_and_goals_bp.route('/budget/edit/<int:budget_id>', methods=['GET', 'POST'])
 @login_required
 def edit_budget(budget_id):
     budget = Budget.query.get_or_404(budget_id)
 
-    # Ensure the user is the owner of the budget
     if budget.user_id != session['user']['id']:
         flash("You do not have permission to edit this budget.", "danger")
         return redirect(url_for('budgeting_and_goals.view_budget'))
 
-    form = BudgetForm(obj=budget)  # Pre-fill the form with the current budget values
+    form = BudgetForm(obj=budget)
 
-    if form.validate_on_submit():  # Save the changes when form is submitted
-        # Update the budget with the new values from the form
+    if form.validate_on_submit():
         budget.category = form.category.data
         budget.limit = form.limit.data
         budget.period = form.period.data
         budget.description = form.description.data
 
-        db.session.commit()  # Save to the database
+        db.session.commit()
         flash("Budget updated successfully!", "success")
-        return redirect(url_for('budgeting_and_goals.view_budget'))  # Redirect after save
+        return redirect(url_for('budgeting_and_goals.view_budget'))
 
-    return render_template('budgeting_and_goals/budget_edit.html', form=form, budget_id=id)
+    return render_template('budgeting_and_goals/budget_edit.html', form=form, budget_id=budget_id)
+
 
 @budgeting_and_goals_bp.route('/budget/add', methods=['GET', 'POST'])
 @login_required 
@@ -185,7 +184,7 @@ def add_budget():
 
     return render_template('budgeting_and_goals/budget_add.html', form=form)
 
-@budgeting_and_goals_bp.route('/budget/delete/<int:id>', methods=['POST'])
+@budgeting_and_goals_bp.route('/budget/delete/<int:budget_id>', methods=['POST'])
 @login_required
 def delete_budget(budget_id):
     budget = Budget.query.get_or_404(budget_id)
@@ -254,7 +253,7 @@ def view_goals():
     return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries, 
                            total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress)
 
-@budgeting_and_goals_bp.route('/goals/edit/<int:id>', methods=['GET', 'POST'])
+@budgeting_and_goals_bp.route('/goals/edit/<int:goal_id>', methods=['GET', 'POST'])
 @login_required 
 def edit_goals(goal_id):
     goal = Goal.query.get_or_404(goal_id)
@@ -280,7 +279,7 @@ def edit_goals(goal_id):
         return redirect(url_for('budgeting_and_goals.view_goals'))
 
 
-    return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=id)
+    return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=goal_id)
 
 @budgeting_and_goals_bp.route('/goals/add', methods=['GET', 'POST'])
 @login_required
@@ -307,7 +306,7 @@ def add_goal():
 
     return render_template('budgeting_and_goals/goals_add.html', form=form)
 
-@budgeting_and_goals_bp.route('/goals/delete/<int:id>', methods=['POST'])
+@budgeting_and_goals_bp.route('/goals/delete/<int:goal_id>', methods=['POST'])
 @login_required
 def delete_goal(goal_id):
     goal = Goal.query.get_or_404(goal_id)

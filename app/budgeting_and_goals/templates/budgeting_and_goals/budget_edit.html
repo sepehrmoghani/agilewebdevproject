@@ -16,7 +16,7 @@
         <h1 class="mb-4 text-center">Edit Budget</h1>
 
         <!-- Edit Budget Form -->
-        <form method="POST" action="{{ url_for('budgeting_and_goals.edit_budget', id=budget_id) }}">
+        <form method="POST" action="{{ url_for('budgeting_and_goals.edit_budget', budget_id=budget_id) }}">
             {{ form.hidden_tag() }}
 
             <!-- Select a Category -->
@@ -61,15 +61,15 @@
 
             <!-- Button Row -->
             <div class="d-flex justify-content-between">
-                <form method="POST" action="{{ url_for('budgeting_and_goals.edit_budget', id=budget_id) }}">
+                <form method="POST" action="{{ url_for('budgeting_and_goals.edit_budget', budget_id=budget_id) }}">
                     {{ form.hidden_tag() }}
 
                     <!-- Save Button -->
-                    {{ form.submit(class="btn btn-primary") }}
+                    {{ form.submit(class="btn btn-info") }}
                 </form>
 
                 <!-- Delete Button -->
-                <form method="POST" id="delete-form" action="{{ url_for('budgeting_and_goals.delete_budget', id=budget_id) }}" onsubmit="return confirm('Are you sure you want to delete this budget?');">
+                <form method="POST" id="delete-form" action="{{ url_for('budgeting_and_goals.delete_budget', budget_id=budget_id) }}" onsubmit="return confirm('Are you sure you want to delete this budget?');">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- Correctly render the CSRF token -->
                     <button type="submit" class="btn btn-danger">Delete Budget</button>
                 </form>

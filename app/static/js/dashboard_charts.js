@@ -9,7 +9,6 @@ fetch('/dashboard/api/transactions')
 
         // Containers
         let categories = {};
-        let transactionTypes = { 'Income': 0, 'Expense': 0, 'Transfer': 0 };
         let totalIncome = 0, totalExpenses = 0;
 
         // Sort transactions by date
@@ -28,11 +27,7 @@ fetch('/dashboard/api/transactions')
             // Categorized totals
             categories[tx.category] = (categories[tx.category] || 0) + tx.amount;
 
-            // Type breakdown
-            if (tx.transaction_type) {
-                transactionTypes[tx.transaction_type] += tx.amount;
-            }
-
+            // Totals
             if (tx.transaction_type === 'Income') {
                 totalIncome += tx.amount;
             } else if (tx.transaction_type === 'Expense') {
@@ -48,91 +43,70 @@ fetch('/dashboard/api/transactions')
         netSavingsEl.textContent = `$${netSavings.toFixed(2)}`;
 
         // Chart 1: Transaction Amounts Over Time (Line)
-        const lineCtx = document.getElementById('transactionLineChart').getContext('2d');
-        new Chart(lineCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Transaction Amount',
-                    data: amounts,
-                    borderColor: '#4bc0c0',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: true,
-                    tension: 0.3,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Transaction Amounts Over Time',
-                        font: { size: 18 },
-                        color: '#fff'
-                    }
+        const lineCtx = document.getElementById('transactionLineChart')?.getContext('2d');
+        if (lineCtx) {
+            new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Transaction Amount',
+                        data: amounts,
+                        borderColor: '#4bc0c0',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        tension: 0.3,
+                    }]
                 },
-                scales: {
-                    x: { ticks: { color: '#ccc' }, grid: { color: '#444' } },
-                    y: { ticks: { color: '#ccc' }, grid: { color: '#444' } }
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Transaction Amounts Over Time',
+                            font: { size: 18 },
+                            color: '#fff'
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#ccc' }, grid: { color: '#444' } },
+                        y: { ticks: { color: '#ccc' }, grid: { color: '#444' } }
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // Chart 2: Total Amount Spent by Category (Bar)
-        const barCtx = document.getElementById('transactionBarChart').getContext('2d');
-        new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(categories),
-                datasets: [{
-                    label: 'Total Spent by Category',
-                    data: Object.values(categories),
-                    backgroundColor: 'rgba(255, 159, 64, 0.6)',
-                    borderColor: '#ff9f40',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Total Amount Spent by Category',
-                        font: { size: 18 },
-                        color: '#fff'
-                    }
+        const barCtx = document.getElementById('transactionBarChart')?.getContext('2d');
+        if (barCtx) {
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(categories),
+                    datasets: [{
+                        label: 'Total Spent by Category',
+                        data: Object.values(categories),
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: '#ff9f40',
+                        borderWidth: 1
+                    }]
                 },
-                scales: {
-                    x: { ticks: { color: '#ccc' }, grid: { color: '#444' } },
-                    y: { ticks: { color: '#ccc' }, grid: { color: '#444' } }
-                }
-            }
-        });
-
-        // Chart 3: Distribution of Transaction Types (Pie)
-        const pieCtx = document.getElementById('transactionPieChart').getContext('2d');
-        new Chart(pieCtx, {
-            type: 'pie',
-            data: {
-                labels: Object.keys(transactionTypes),
-                datasets: [{
-                    label: 'Transaction Types Distribution',
-                    data: Object.values(transactionTypes),
-                    backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Distribution of Transaction Types',
-                        font: { size: 18 },
-                        color: '#fff'
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Total Amount Spent by Category',
+                            font: { size: 18 },
+                            color: '#fff'
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#ccc' }, grid: { color: '#444' } },
+                        y: { ticks: { color: '#ccc' }, grid: { color: '#444' } }
                     }
                 }
-            }
-        });
+            });
+        }
     })
     .catch(error => console.error('Error fetching transactions:', error));

@@ -1,21 +1,33 @@
 $(document).ready(function() {
+    console.log('transactions.js loaded and DOM is ready');
+
     // Handle edit button click
     $('.edit-transaction').click(function() {
+        console.log('Edit button clicked');
         const transactionId = $(this).data('transaction-id');
+        console.log('Transaction ID to edit:', transactionId);
+
         $('#editTransactionId').val(transactionId);
-        
-        // Get the current row data
         const row = $(this).closest('tr');
-        $('#editDate').val(row.find('td:eq(0)').text().trim());
-        $('#editDescription').val(row.find('td:eq(1)').text().trim());
-        $('#editCategory').val(row.find('td:eq(2)').text().replace('Uncategorized', '').trim());
+
+        const date = row.find('td:eq(0)').text().trim();
+        const description = row.find('td:eq(1)').text().trim();
+        const category = row.find('td:eq(2)').text().replace('Uncategorized', '').trim();
         const type = row.find('td:eq(3) span').text().trim().toLowerCase();
+        const amount = row.find('td:eq(4)').text().trim().replace('$', '').trim();
+
+        console.log({ date, description, category, type, amount });
+
+        $('#editDate').val(date);
+        $('#editDescription').val(description);
+        $('#editCategory').val(category);
         $('#editType').val(type);
-        $('#editAmount').val(row.find('td:eq(4)').text().trim().replace('$', '').trim());
+        $('#editAmount').val(amount);
     });
 
     // Handle save changes button click
     $('#saveEditTransaction').click(function() {
+        console.log('Save changes clicked');
         const transactionId = $('#editTransactionId').val();
         const formData = {
             date: $('#editDate').val(),
@@ -25,51 +37,62 @@ $(document).ready(function() {
             transaction_type: $('#editType').val()
         };
 
-        // Send AJAX request to update transaction
+        console.log('Submitting edited data:', formData);
+
         $.ajax({
             url: `/transactions/edit/${transactionId}`,
             method: 'POST',
             data: formData,
             success: function(response) {
+                console.log('Edit success:', response);
                 $('#editTransactionModal').modal('hide');
-                location.reload(); // Reload to show updated data
+                location.reload();
             },
             error: function(error) {
+                console.error('Error updating transaction:', error);
                 alert('Error updating transaction');
             }
         });
     });
+
     // Initialize DataTables
-    $('#transactions-table').DataTable({
-        order: [[0, 'desc']], // Sort by date descending
-        responsive: true,
-        language: {
-            search: 'Search transactions:',
-            lengthMenu: 'Show _MENU_ entries',
-            info: 'Showing _START_ to _END_ of _TOTAL_ transactions',
-            paginate: {
-                first: 'First',
-                last: 'Last',
-                next: '›',
-                previous: '‹'
-            }
-        },
-        columnDefs: [
-            { targets: 0, type: 'date' }, // Date column
-            { targets: 4, className: 'text-end' }, // Amount column
-            { targets: 5, className: 'text-end' }  // Balance column
-        ]
-    });
+    if ($('#transactions-table').length) {
+        $('#transactions-table').DataTable({
+            order: [[0, 'desc']],
+            responsive: true,
+            language: {
+                search: 'Search transactions:',
+                lengthMenu: 'Show _MENU_ entries',
+                info: 'Showing _START_ to _END_ of _TOTAL_ transactions',
+                paginate: {
+                    first: 'First',
+                    last: 'Last',
+                    next: '›',
+                    previous: '‹'
+                }
+            },
+            columnDefs: [
+                { targets: 0, type: 'date' },
+                { targets: 4, className: 'text-end' },
+                { targets: 5, className: 'text-end' }
+            ]
+        });
+        console.log('DataTable initialized');
+    } else {
+        console.warn('No #transactions-table found for DataTable');
+    }
 
     // Show filename in custom file input
     $('input[type=file]').on('change', function() {
         const fileName = $(this).val().split('\\').pop();
+        console.log('File selected:', fileName);
         $(this).next('.custom-file-label').html(fileName);
     });
 
     // Transaction type toggle
     $('#transaction_type').change(function() {
         const type = $(this).val();
+        console.log('Transaction type selected:', type);
         if (type === 'expense') {
             $('.amount-label').text('Expense Amount');
         } else if (type === 'income') {
@@ -81,7 +104,9 @@ $(document).ready(function() {
 
     // Form validation
     $('.needs-validation').submit(function(event) {
+        console.log('Form validation triggered');
         if (this.checkValidity() === false) {
+            console.warn('Form is invalid');
             event.preventDefault();
             event.stopPropagation();
         }
@@ -91,15 +116,13 @@ $(document).ready(function() {
     // Amount input formatting
     $('input[name="amount"]').on('input', function() {
         let value = $(this).val().replace(/[^\d.]/g, '');
-        
-        // Allow only one decimal point
         const decimalCount = (value.match(/\./g) || []).length;
+
         if (decimalCount > 1) {
             const firstDecimalIndex = value.indexOf('.');
             value = value.slice(0, firstDecimalIndex + 1) + value.slice(firstDecimalIndex + 1).replace(/\./g, '');
         }
-        
-        // Limit to 2 decimal places
+
         if (value.includes('.')) {
             const parts = value.split('.');
             if (parts[1].length > 2) {
@@ -107,13 +130,16 @@ $(document).ready(function() {
                 value = parts.join('.');
             }
         }
-        
+
+        console.log('Formatted amount input:', value);
         $(this).val(value);
     });
 
     // Handle delete button click
     $('.delete-transaction').click(function() {
         const transactionId = $(this).data('transaction-id');
+        console.log('Delete button clicked for transaction:', transactionId);
+
         if (confirm('Are you sure you want to delete this transaction?')) {
             $.ajax({
                 url: `/transactions/delete/${transactionId}`,
@@ -122,11 +148,13 @@ $(document).ready(function() {
                     'X-CSRFToken': csrf_token
                 },
                 success: function(response) {
+                    console.log('Delete success:', response);
                     if (response.success) {
                         location.reload();
                     }
                 },
                 error: function(error) {
+                    console.error('Error deleting transaction:', error);
                     alert('Error deleting transaction');
                 }
             });

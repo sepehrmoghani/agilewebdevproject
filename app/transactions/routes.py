@@ -1,5 +1,6 @@
 import csv
 import io
+import pandas as pd
 from datetime import datetime, timedelta
 from flask import render_template, url_for, flash, redirect, request, jsonify, abort, Blueprint, session, Response
 import uuid
@@ -29,7 +30,7 @@ def transactions():
     transaction_form = TransactionForm()
 
     if transaction_form.validate_on_submit():
-        #last_transaction = TransactionForm.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).first()
+        last_transaction = Transaction.query.filter_by(user_id=session['user']['id']).order_by(Transaction.date.desc()).first()
         #last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
 
         transaction = Transaction(
@@ -64,65 +65,65 @@ def upload_transactions():
         csv_file = form.csv_file.data
         if csv_file:
             try:
-                stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
-                csv_reader = csv.DictReader(stream)
+                #print("Reading CSV file...")
+                stream = io.StringIO(csv_file.stream.read().decode("utf-8"))
+                df = pd.read_csv(stream)
+                #print(f"CSV loaded. Columns: {df.columns.tolist()}")
 
-                # Check required columns
-                required_columns = ['date', 'description', 'amount']
-                first_row = next(csv_reader)
-                stream.seek(0)
-                csv_reader = csv.DictReader(stream)
+                # Normalize column names to lowercase first
+                df.columns = df.columns.str.lower()
 
-                missing_columns = [col for col in required_columns if col not in first_row]
-                if missing_columns:
-                    flash(f'CSV file missing required columns: {", ".join(missing_columns)}', 'danger')
+                required_columns = {'date', 'description', 'amount', 'category', 'type'}
+                df_columns = set(df.columns)
+
+                if not required_columns.issubset(df_columns):
+                    missing = required_columns - df_columns
+                    #print(f"Missing columns: {missing}")
+                    flash(f'CSV file missing required columns: {", ".join(missing)}', 'danger')
                     return redirect(url_for('transactions.transactions'))
 
-                # Process transactions
-                count = 0
-                for row in csv_reader:
-                    try:
-                        # Parse date
+                def parse_date(date_str):
+                    for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y'):
                         try:
-                            date = datetime.strptime(row['date'], '%Y-%m-%d')
+                            return datetime.strptime(date_str, fmt)
                         except ValueError:
-                            try:
-                                date = datetime.strptime(row['date'], '%m/%d/%Y')
-                            except ValueError:
-                                date = datetime.strptime(row['date'], '%d/%m/%Y')
+                            continue
+                    raise ValueError(f'Invalid date format: {date_str}')
 
-                        # Get amount and determine transaction type
-                        amount = float(row['amount'])
-                        transaction_type = 'income' if amount >= 0 else 'expense'
-                        amount = abs(amount)
+                #print("Parsing dates...")
+                df['date'] = df['date'].apply(parse_date)
+                #print("Dates parsed successfully.")
 
-                        # Get category if exists
-                        category = row.get('category', '')
+                #print("Converting amounts...")
+                df['amount'] = df['amount'].astype(float)
+                df['transaction_type'] = df['amount'].apply(lambda x: 'income' if x >= 0 else 'expense')
+                df['amount'] = df['amount'].abs()
+                #print("Amount and type processing done.")
 
-                        #last_transaction = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).first()
-                        #last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
-
-                        # Create transaction record
-                        transaction = Transaction(
-                            user_id = session['user']['id'],
-                            #user_id=current_user.id,
-                            date=date,
-                            description=row['description'],
-                            amount=amount,
-                            category=category,
-                            transaction_type=transaction_type
-                        )
-
-                        db.session.add(transaction)
-                        count += 1
-                    except Exception as e:
-                        flash(f'Error processing row: {str(e)}', 'danger')
+                count = 0
+                #print("Adding transactions to database session...")
+                for _, row in df.iterrows():
+                    #print(f"Adding: {row.to_dict()}")
+                    transaction = Transaction(
+                        user_id=session['user']['id'],
+                        date=row['date'],
+                        description=row['description'],
+                        amount=row['amount'],
+                        category=row.get('category', ''),
+                        transaction_type=row['transaction_type']
+                    )
+                    db.session.add(transaction)
+                    count += 1
 
                 db.session.commit()
+                #print(f"Committed {count} transactions to the database.")
                 flash(f'Successfully imported {count} transactions!', 'success')
+
             except Exception as e:
+                #print(f"Exception occurred: {e}")
                 flash(f'Error processing CSV file: {str(e)}', 'danger')
         else:
+            #print("No file selected.")
             flash('No file selected', 'danger')
     return redirect(url_for('transactions.transactions'))
 

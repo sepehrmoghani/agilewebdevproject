@@ -7,36 +7,32 @@ fetch('/dashboard/api/transactions')
         const totalExpensesEl = document.getElementById('totalExpenses');
         const netSavingsEl = document.getElementById('netSavings');
 
-        // Data containers
-        let labels = [];
-        let amounts = [];
+        // Containers
         let categories = {};
         let transactionTypes = { 'Income': 0, 'Expense': 0, 'Transfer': 0 };
+        let totalIncome = 0, totalExpenses = 0;
 
-        // Calculated values
-        let totalIncome = 0;
-        let totalExpenses = 0;
-        let netSavings = 0;
+        // Sort transactions by date
+        const sortedData = data.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        // Process each transaction
-        data.forEach(tx => {
-            // Chart data
-            labels.push(tx.date);
+        // Line chart data
+        let labels = [];
+        let amounts = [];
+
+        sortedData.forEach(tx => {
+            const dateObj = new Date(tx.date);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            labels.push(formattedDate);
             amounts.push(tx.amount);
 
-            // Categorized expenses for bar chart
-            if (categories[tx.category]) {
-                categories[tx.category] += tx.amount;
-            } else {
-                categories[tx.category] = tx.amount;
-            }
+            // Categorized totals
+            categories[tx.category] = (categories[tx.category] || 0) + tx.amount;
 
-            // Transaction type pie chart data
+            // Type breakdown
             if (tx.transaction_type) {
                 transactionTypes[tx.transaction_type] += tx.amount;
             }
 
-            // Summarize income and expenses
             if (tx.transaction_type === 'Income') {
                 totalIncome += tx.amount;
             } else if (tx.transaction_type === 'Expense') {
@@ -44,15 +40,14 @@ fetch('/dashboard/api/transactions')
             }
         });
 
-        // Compute summaries
-        netSavings = totalIncome - totalExpenses;
+        const netSavings = totalIncome - totalExpenses;
 
-        // Update overview cards
+        // Update cards
         totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
         totalExpensesEl.textContent = `$${totalExpenses.toFixed(2)}`;
         netSavingsEl.textContent = `$${netSavings.toFixed(2)}`;
 
-        // --- Chart 1: Transaction Amounts Over Time (Line) ---
+        // Chart 1: Transaction Amounts Over Time (Line)
         const lineCtx = document.getElementById('transactionLineChart').getContext('2d');
         new Chart(lineCtx, {
             type: 'line',
@@ -84,7 +79,7 @@ fetch('/dashboard/api/transactions')
             }
         });
 
-        // --- Chart 2: Total Amount Spent by Category (Bar) ---
+        // Chart 2: Total Amount Spent by Category (Bar)
         const barCtx = document.getElementById('transactionBarChart').getContext('2d');
         new Chart(barCtx, {
             type: 'bar',
@@ -115,7 +110,7 @@ fetch('/dashboard/api/transactions')
             }
         });
 
-        // --- Chart 3: Distribution of Transaction Types (Pie) ---
+        // Chart 3: Distribution of Transaction Types (Pie)
         const pieCtx = document.getElementById('transactionPieChart').getContext('2d');
         new Chart(pieCtx, {
             type: 'pie',
@@ -139,7 +134,5 @@ fetch('/dashboard/api/transactions')
                 }
             }
         });
-
-        // Removed: Chart 4 - Balance Over Time (no longer applicable)
     })
     .catch(error => console.error('Error fetching transactions:', error));

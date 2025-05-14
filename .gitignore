@@ -17,3 +17,6 @@ __pycache__/
 
 # Environment files (if you use .env for config/secrets)
 .env
+
+# Database
+instance/database.db

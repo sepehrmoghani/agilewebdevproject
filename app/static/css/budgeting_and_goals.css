@@ -8,20 +8,18 @@
 }
 
 /* The Edit Button */
-.table td:last-child {
-  border: none;
+.table .editing_button, .table .col_privacy {
   width: 5%;
 }
 
-  /* Custom Tooltip Styles */
-
-  .custom-info-icon {
+/* Custom Tooltip Styles */
+.custom-info-icon {
     color: white !important;
 }
 
 .tooltip-inner {
-    color: #f8f9fa !important;                /* Dark text color for better contrast */
-    border-radius: 4px !important;         /* Optional: Rounded corners for a smoother look */
-    max-width: 350px !important;            /* Increase max width of tooltip */
-    padding: 24px 12px !important;          /* Optional: Add padding for better spacing */
+    color: #f8f9fa !important;
+    border-radius: 4px !important;
+    max-width: 350px !important;
+    padding: 24px 12px !important;
 }

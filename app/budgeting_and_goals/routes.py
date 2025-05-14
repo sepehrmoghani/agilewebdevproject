@@ -33,6 +33,34 @@ def get_transactions_for_budget(user_id, category, period):
 
     return transactions
 
+def get_previous_transactions_for_budget(user_id, category, period):
+    now = datetime.now(timezone.utc)
+
+    if period == 'weekly':
+        start = (now - timedelta(days=now.weekday() + 7)).replace(hour=0, minute=0, second=0, microsecond=0)
+        end = start + timedelta(days=7)
+    elif period == 'monthly':
+        this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        last_month_end = this_month_start - timedelta(seconds=1)
+        start = last_month_end.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        end = last_month_end
+    elif period == 'yearly':
+        start = now.replace(year=now.year - 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        end = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(seconds=1)
+    else:
+        return []
+
+    transactions = Transaction.query.filter_by(
+        user_id=user_id,
+        category=category
+    ).filter(
+        Transaction.date >= start,
+        Transaction.date <= end
+    ).all()
+
+    return transactions
+
+
 # Budgeting
 @budgeting_and_goals_bp.route('/budget', methods=['GET'])
 #@login_required TODO:
@@ -53,8 +81,14 @@ def view_budget():
         transactions = get_transactions_for_budget(user_id, budget.category, budget.period)
         expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
         income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
-
+        
+        previous_transactions = get_previous_transactions_for_budget(user_id, budget.category, budget.period)
+        previous_expenses = sum(t.amount for t in previous_transactions if t.transaction_type == 'expense')
+        previous_income = sum(t.amount for t in previous_transactions if t.transaction_type == 'income')
+        
         total_spent = expenses_total - income_total
+        previous_total_spent = previous_expenses - previous_income
+        
         
         # Prevent divide-by-zero
         if budget.limit and budget.limit > 0:
@@ -72,7 +106,8 @@ def view_budget():
         budget_summaries.append({
             'budget': budget,
             'transactions': transactions,
-            'total_spent': total_spent
+            'total_spent': total_spent,
+            'previous_total_spent': previous_total_spent,
         })
         
     
@@ -83,19 +118,8 @@ def view_budget():
     
     transactions = Transaction.query.filter_by(user_id=user_id).all()
     
-    this_month_income = sum(
-    t.amount for t in transactions
-    if t.transaction_type == 'income'
-    and t.date.month == current_month
-    and t.date.year == current_year
-    )
-    
-    this_month_expense = sum(
-    t.amount for t in transactions
-    if t.transaction_type == 'expense'
-    and t.date.month == current_month
-    and t.date.year == current_year
-    )
+    this_month_income = sum(t.amount for t in transactions if t.transaction_type == 'income' and t.date.month == current_month and t.date.year == current_year)
+    this_month_expense = sum(t.amount for t in transactions if t.transaction_type == 'expense' and t.date.month == current_month and t.date.year == current_year)
     
     # Previous month (handle January case too)
     first_day_this_month = now.replace(day=1)
@@ -105,19 +129,8 @@ def view_budget():
 
     # Previous month
     previous_month = (datetime.utcnow().replace(day=1) - timedelta(days=1)).month
-    last_month_income = sum(
-    t.amount for t in transactions
-    if t.transaction_type == 'income'
-    and t.date.month == previous_month
-    and t.date.year == previous_year
-    )
-    
-    last_month_expense = sum(
-    t.amount for t in transactions
-    if t.transaction_type == 'expense'
-    and t.date.month == previous_month
-    and t.date.year == previous_year
-    )
+    last_month_income = sum(t.amount for t in transactions if t.transaction_type == 'income' and t.date.month == previous_month and t.date.year == previous_year)
+    last_month_expense = sum(t.amount for t in transactions if t.transaction_type == 'expense' and t.date.month == previous_month and t.date.year == previous_year)
         
     return render_template('budgeting_and_goals/budget.html', form=form, summaries=budget_summaries,
         most_saved=most_saved, most_saved_pct=round(max_saved_pct * 100, 1) if most_saved else None,

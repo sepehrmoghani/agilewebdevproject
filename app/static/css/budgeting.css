@@ -1,0 +1,52 @@
+.budget-bar-container {
+  position: relative;
+  height: 24px;
+  background-color: #e0e0e0;
+  overflow: hidden;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.budget-bar-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background-color: #4caf50;
+}
+
+.marker {
+  position: absolute;
+  top: -6px;
+  width: 2px;
+  height: 36px;
+  background-color: black;
+  z-index: 10;
+}
+
+.marker-zero {
+  background-color: black;
+}
+
+.marker-previous {
+  background-color: orange;
+}
+
+.marker-limit {
+  background-color: red;
+}
+
+.budget-bar-previous {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background-color: #2196F3; /* blue for previous */
+  z-index: 1;
+}
+
+.budget-bar-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background-color: #4caf50; /* default green */
+  z-index: 2;
+}

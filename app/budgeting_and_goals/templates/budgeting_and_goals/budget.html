@@ -3,6 +3,7 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/budgeting_and_goals.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/budgeting.css') }}">
 {% endblock %}
 {% block content %}
 
@@ -21,7 +22,7 @@
                                 <h5 class="mb-0">
                                     {% if most_saved %}
                                         {{ most_saved.category }}<br>
-                                        {{ most_saved_pct }}%
+                                        <span class="removeZero">{{ most_saved_pct }}</span>%
                                     {% else %}
                                         No data
                                     {% endif %}
@@ -44,7 +45,7 @@
                                 <h5 class="mb-0">
                                     {% if most_spent %}
                                         {{ most_spent.category }}<br>
-                                        {{ most_spent_pct }}%
+                                        <span class="removeZero">{{ most_spent_pct }}</span>%
                                     {% else %}
                                         No data
                                     {% endif %}
@@ -64,8 +65,8 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="text-muted small mb-1">Monthly Income</p>
-                                <h4 class="mb-0">${{ this_month_income | round(2) }}</h4>
-                                <p class="text-muted small">Last month: ${{ last_month_income | round(2) }}</p>
+                                <h4 class="mb-0">$<span class="removeZero">{{ "%.2f"|format(this_month_income | round(2)) }}</span></h4>
+                                <p class="text-muted small">Last month: $<span class="removeZero">{{ "%.2f"|format(last_month_income | round(2)) }}</span></p>
                             </div>
                             <div class="bg-yellow-light p-2 rounded-3 text-warning">
                                 <i class="fas fa-coins"></i>
@@ -81,8 +82,8 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="text-muted small mb-1">Monthly Spending</p>
-                                <h4 class="mb-0">${{ this_month_expense | round(2) }}</h4>
-                                <p class="text-muted small">Last month: ${{ last_month_expense | round(2) }}</p>
+                                <h4 class="mb-0">$<span class="removeZero">{{ "%.2f"|format(this_month_expense | round(2)) }}</span></h4>
+                                <p class="text-muted small">Last month: $<span class="removeZero">{{ "%.2f"|format(last_month_expense | round(2)) }}</span></p>
                             </div>
                             <div class="bg-purple-light p-2 rounded-3 text-danger">
                                 <i class="fas fa-dollar-sign"></i>
@@ -111,6 +112,7 @@
                                     <tr>
                                         <th>Category</th>
                                         <th>Current Amount</th>
+                                        <th style="text-align: center;">Spending Comparison</th>
                                         <th>Limit</th>
                                         <th>Period</th>
                                         <th></th>
@@ -119,23 +121,44 @@
                                 <tbody>
                                     {% for summary in summaries %}
                                     <tr>
-                                        <td>{{ summary.budget.category }}
+                                        <td class="col_title">{{ summary.budget.category }}
                                             {% if summary.budget.description %}
                                                 <span class="ms-1" data-bs-toggle="tooltip" title="{{ summary.budget.description }}">
                                                     <i class="fas fa-info-circle text-secondary custom-info-icon"></i>
                                                 </span>
                                                 {% endif %}
                                             </td>
-                                        <td>${{ "%.2f"|format(summary.total_spent|abs) }}
+                                        <td class="col_current">$ <span class="removeZero">{{ "%.2f"|format(summary.total_spent|abs) }}</span>
                                             {% if (summary.total_spent < 0) %}
                                                     Saved
                                                 {% else %}
                                                     Spent
                                                 {% endif %}
                                         </td>
-                                        <td>${{ "%.2f"|format(summary.budget.limit) }}</td>
+                                        {% set limit = summary.budget.limit %}
+                                        {% set spent = summary.total_spent %}
+                                        {% set previous = summary.previous_total_spent %}
+                                        <td style="width: 600px; text-align: center;">
+                                        <div class="budget-bar-container"
+                                            data-current="{{ summary.total_spent }}"
+                                            data-limit="{{ summary.budget.limit }}"
+                                            data-previous="{{ summary.previous_total_spent }}">
+
+                                        <div class="budget-bar-previous" data-bs-toggle="tooltip"
+                                            title="Previous: ${{ '%.2f'|format(summary.previous_total_spent|abs) }} {{ 'Saved' if summary.previous_total_spent < 0 else 'Spent' }}"></div>
+
+                                        <div class="budget-bar-fill" data-bs-toggle="tooltip"
+                                            title="Current: ${{ '%.2f'|format(summary.total_spent|abs) }} {{ 'Saved' if summary.total_spent < 0 else 'Spent' }}"></div>
+
+                                        <div class="marker marker-zero" data-bs-toggle="tooltip" title="0%"></div>
+                                        <div class="marker marker-limit" data-bs-toggle="tooltip"
+                                            title="Limit: ${{ summary.budget.limit }}"></div>
+                                        </div>
+                                        </div>
+                                        </td>
+                                        <td>$<span class="removeZero">{{ "%.2f"|format(summary.budget.limit) }}</span></td>
                                         <td>{{ summary.budget.period }}</td>
-                                        <td>
+                                        <td class="editing_button" style="border: none;">
                                             <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_budget', id=summary.budget.id) }}">Edit</a>
                                         </td>
                                     </tr>

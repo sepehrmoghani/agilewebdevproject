@@ -39,8 +39,8 @@ class BudgetForm(FlaskForm):
             ('Travel & holidays', 'Travel & holidays'),
             ('Uncategorised', 'Uncategorised'),
             ('Utilities', 'Utilities'),
-            ('Vehicle & transport', 'Vehicle & transport')
-        ],
+            ('Vehicle & transport', 'Vehicle & transport'),
+            ('Wages and Income','Wages and Income')],
         validators=[InputRequired()],
         coerce=str
     )
@@ -51,7 +51,7 @@ class BudgetForm(FlaskForm):
 
 
 class GoalForm(FlaskForm):
-    title = StringField("Title", validators=[InputRequired(), Length(max=100)], render_kw={"placeholder": "Untitled"})
+    title = StringField("Title", validators=[InputRequired(), Length(max=60)], render_kw={"placeholder": "Untitled"})
     target_amount = FloatField("Target Amount", validators=[InputRequired(), two_decimal_places], render_kw={"placeholder": "e.g. 1000.00"})
     current_amount = FloatField("Current Amount", validators=[InputRequired(), two_decimal_places], render_kw={"placeholder": "e.g. 250.00"})
     start_date = DateField("Start Date", format='%Y-%m-%d', validators=[InputRequired()], render_kw={"placeholder": "YYYY-MM-DD"})

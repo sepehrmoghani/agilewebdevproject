@@ -48,8 +48,8 @@
                     {% endif %}<br>
                 </p>
 
-                <p class="col_target mb-1"><strong>Goal Amount:</strong> ${{ "%.2f"|format(summary.goal.target_amount) }}</p>
-                <p class="col_current mb-1"><strong>Saved:</strong> ${{ "%.2f"|format(summary.total_amount) }}</p>
+                <p class="col_target mb-1"><strong>Goal Amount:</strong> $<span class="removeZero">{{ "%.2f"|format(summary.goal.target_amount) }}</span></p>
+                <p class="col_current mb-1"><strong>Saved:</strong> $<span class="removeZero">{{ "%.2f"|format(summary.total_amount) }}</span></p>
 
                 <div class="progress mb-2 position-relative" style="height: 20px;">
                     {% set progress = (summary.total_amount / summary.goal.target_amount * 100) if summary.goal.target_amount else 0 %}
@@ -59,7 +59,7 @@
                         aria-valuemin="0" aria-valuemax="100">
                     </div>
                     <span class="position-absolute top-50 start-50 translate-middle text-white fw-bold">
-                        {{ (progress | round(0)) if progress else 0 }}%
+                        <span class="removeZero">{{ (progress | round(0)) if progress else 0 }}</span>%
                     </span>
                 </div>
             </div>

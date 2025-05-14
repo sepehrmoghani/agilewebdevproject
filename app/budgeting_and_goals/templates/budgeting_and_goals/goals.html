@@ -96,7 +96,7 @@
                                     <tr>
                                         <th>Title</th>
                                         <th>Current Amount</th>
-                                        <th>Progress</th>
+                                        <th style="text-align: center;">Progress</th>
                                         <th>Target Amount</th>
                                         <th>Deadline</th>
                                         <th>Time Left</th>
@@ -115,14 +115,15 @@
                                                 {% endif %}
                                             </td>
                                             <td class="col_current">
-                                                ${{ "%.2f"|format(summary.total_amount|abs) }} 
+                                                $<span class="removeZero">{{ "%.2f"|format(summary.total_amount|abs) }}</span> 
                                                 {% if (summary.total_amount < 0) %}
                                                     in Debt
                                                 {% else %}
                                                     Saved
                                                 {% endif %}
                                             </td>
-                                            <td>
+                                            <td style="width: 400px; text-align: center;">
+                                                {% set progress = (summary.total_amount / summary.goal.target_amount * 100) if summary.goal.target_amount else 0 %}
                                                 <div class="progress-bar-container" 
                                                     data-current="{{ summary.total_amount }}"
                                                     data-target="{{ summary.goal.target_amount }}">
@@ -130,17 +131,17 @@
                                                 </div>
                                                 <span class="progress-percent"></span>
                                             </td>
-                                            <td class="col_target">${{ "%.2f"|format(summary.goal.target_amount) }}</td>
+                                            <td class="col_target">$<span class="removeZero">{{ "%.2f"|format(summary.goal.target_amount) }}</span></td>
                                             <td class="col_deadline" data-deadline="{{ summary.goal.deadline }}">{{ summary.goal.deadline }}</td>
                                             <td class="col_time_left"></td>
-                                            <td class="col_privacy">
+                                            <td class="col_privacy" style="text-align: center;">
                                                 {% if summary.goal.privacy %}
                                                     <i class="fas fa-lock-open" title="Public"></i>
                                                 {% else %}
                                                     <i class="fas fa-lock" title="Private"></i>
                                                 {% endif %}
                                             </td>
-                                            <td>
+                                            <td class="editing_button" style="border: none;">
                                                 <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_goals', id=summary.goal.id) }}">Edit</a>
                                             </td>
                                         </tr>

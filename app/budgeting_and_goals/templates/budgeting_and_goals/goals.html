@@ -60,14 +60,14 @@
                     </div>
                 </div>
             </div>
-            <!-- Total Shared Goals -->
+            <!-- Milestone Highlights or Time-Based Grouping -->
             <div class="col-md-3">
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Shared</p>
-                                <h3 class="mb-0">{{ shared_goals }}</h3>
+                                <p class="text-muted small mb-1">Milestone Highlights</p>
+                                <h3 class="mb-0"></h3>
                             </div>
                             <div class="bg-purple-light p-2 rounded-3 text-purple">
                                 <i class="fas fa-users"></i>
@@ -100,7 +100,6 @@
                                         <th>Target Amount</th>
                                         <th>Deadline</th>
                                         <th>Time Left</th>
-                                        <th>Privacy</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -134,13 +133,6 @@
                                             <td class="col_target">$<span class="removeZero">{{ "%.2f"|format(summary.goal.target_amount) }}</span></td>
                                             <td class="col_deadline" data-deadline="{{ summary.goal.deadline }}">{{ summary.goal.deadline }}</td>
                                             <td class="col_time_left"></td>
-                                            <td class="col_privacy" style="text-align: center;">
-                                                {% if summary.goal.privacy %}
-                                                    <i class="fas fa-lock-open" title="Public"></i>
-                                                {% else %}
-                                                    <i class="fas fa-lock" title="Private"></i>
-                                                {% endif %}
-                                            </td>
                                             <td class="editing_button" style="border: none;">
                                                 <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_goals', id=summary.goal.id) }}">Edit</a>
                                             </td>

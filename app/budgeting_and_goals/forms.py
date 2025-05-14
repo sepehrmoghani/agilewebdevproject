@@ -57,7 +57,6 @@ class GoalForm(FlaskForm):
     start_date = DateField("Start Date", format='%Y-%m-%d', validators=[InputRequired()], render_kw={"placeholder": "YYYY-MM-DD"})
     deadline = DateField("Deadline", validators=[InputRequired()], format='%Y-%m-%d', render_kw={"placeholder": "YYYY-MM-DD"})
     description = TextAreaField("Description (Optional)")
-    privacy = RadioField("Privacy", choices=[('public', 'Public'), ('private', 'Private')], validators=[InputRequired()])
     submit = SubmitField("Set Goal")
     
     # Custom validation for the start date

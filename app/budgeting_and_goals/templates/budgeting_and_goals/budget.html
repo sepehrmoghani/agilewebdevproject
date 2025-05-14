@@ -138,7 +138,7 @@
                                         {% set limit = summary.budget.limit %}
                                         {% set spent = summary.total_spent %}
                                         {% set previous = summary.previous_total_spent %}
-                                        <td style="width: 600px; text-align: center;">
+                                        <td style="width: 450px; text-align: center;">
                                         <div class="budget-bar-container"
                                             data-current="{{ summary.total_spent }}"
                                             data-limit="{{ summary.budget.limit }}"
@@ -157,7 +157,7 @@
                                         </div>
                                         </td>
                                         <td>$<span class="removeZero">{{ "%.2f"|format(summary.budget.limit) }}</span></td>
-                                        <td>{{ summary.budget.period }}</td>
+                                        <td class="col_time_left">{{ summary.budget.period }}</td>
                                         <td class="editing_button" style="border: none;">
                                             <a class="btn btn-info" href="{{ url_for('budgeting_and_goals.edit_budget', id=summary.budget.id) }}">Edit</a>
                                         </td>

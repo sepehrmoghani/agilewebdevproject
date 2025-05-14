@@ -1,24 +1,67 @@
 {% extends "base.html" %}
+
 {% block title %}Monthly & Weekly Analytics{% endblock %}
 
 {% block head %}
     {{ super() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            color: #eaeaea;
+        }
+
+        h1, h2 {
+            color: #f1f1f1;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 400px !important;
+        }
+
+        .btn {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: #264653;
+            border-color: #264653;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #1f3c44;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-5 pt-5">
-    <h1 class="text-center mb-4">Monthly & Weekly Balance Analytics</h1>
+    <h1 class="mb-4 text-center">Monthly & Weekly Balance</h1>
 
-    <div class="row mb-5">
-        <div class="col-md-6">
-            <h4 class="text-center">Monthly Balance Trends</h4>
-            <canvas id="monthlyBalanceChart" height="100"></canvas>
-        </div>
-        <div class="col-md-6">
-            <h4 class="text-center">Weekly Balance Trends</h4>
-            <canvas id="weeklyBalanceChart" height="100"></canvas>
-        </div>
+    <div class="text-center mb-4">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-primary">← Back to Dashboard</a>
+    </div>
+
+    <div class="chart-container">
+        <h2 class="text-center">Monthly Balance</h2>
+        <canvas id="monthlyBalanceChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2 class="text-center">Weekly Balance</h2>
+        <canvas id="weeklyBalanceChart"></canvas>
     </div>
 </div>
 

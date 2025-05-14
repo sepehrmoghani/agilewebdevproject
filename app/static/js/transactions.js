@@ -111,9 +111,9 @@ $(document).ready(function () {
     });
 
     // Initialize DataTables
-    if ($("#transactions-table").length) {
-        $("#transactions-table").DataTable({
-            order: [[1, "desc"]],
+    if ($('#transactions-table tbody tr').length && $('#transactions-table tbody td[colspan]').length === 0) {
+        $('#transactions-table').DataTable({
+            order: [[0, 'desc']],
             responsive: true,
             language: {
                 search: "Search transactions:",
@@ -135,8 +135,9 @@ $(document).ready(function () {
         });
         console.log("DataTable initialized");
     } else {
-        console.warn("No #transactions-table found for DataTable");
+        console.log('Skipping DataTable initialization: table is empty');
     }
+
 
     // Show filename in custom file input
     $("input[type=file]").on("change", function () {

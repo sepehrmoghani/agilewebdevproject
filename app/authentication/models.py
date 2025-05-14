@@ -1,4 +1,3 @@
-
 from flask_login import UserMixin
 from app import db
 
@@ -9,6 +8,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(128), nullable=False)
 
+    profile_pic = db.Column(db.String(128), nullable=True)
     date_of_birth = db.Column(db.Date, nullable=True)
     phone = db.Column(db.String(50), nullable=True)
     address = db.Column(db.String(50), nullable=True)

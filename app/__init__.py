@@ -3,6 +3,7 @@ from flask_migrate import Migrate
 from app.routes import configure_routes
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+import os
 from flask_login import LoginManager
 
 db = SQLAlchemy()
@@ -12,11 +13,17 @@ login_manager.login_view = 'authentication.login'
 
 migrate = Migrate()
 
+MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB limit
+UPLOAD_FOLDER = os.path.join('app/static', 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 def create_app():
     app = Flask(__name__)
 
+    app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
     app.config['SECRET_KEY'] = '2fe112ef6f5d5d9b9e9eb49430249167'
-    app.config['UPLOAD_FOLDER'] = 'upload_folder'
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

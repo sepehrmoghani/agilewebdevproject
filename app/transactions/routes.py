@@ -12,7 +12,10 @@ from app import db
 from .forms import TransactionUploadForm, TransactionForm
 
 # Create a Blueprint
-transactions_bp = Blueprint('transactions', __name__, template_folder='templates')
+transactions_bp = Blueprint('transactions',
+                            __name__,
+                            template_folder='templates')
+
 
 def calculate_balance(transactions):
     total = 0
@@ -23,6 +26,7 @@ def calculate_balance(transactions):
             total -= transaction.amount
     return total
 
+
 @transactions_bp.route('/transactions', methods=['GET', 'POST'])
 @login_required
 def transactions():
@@ -30,18 +34,19 @@ def transactions():
     transaction_form = TransactionForm()
 
     if transaction_form.validate_on_submit():
-        last_transaction = Transaction.query.filter_by(user_id=session['user']['id']).order_by(Transaction.date.desc()).first()
+        last_transaction = Transaction.query.filter_by(
+            user_id=session['user']['id']).order_by(
+                Transaction.date.desc()).first()
         #last_transaction = Transaction.query.filter_by(user_id=1).order_by(Transaction.date.desc()).first()
 
         transaction = Transaction(
-            user_id = session['user']['id'],
+            user_id=session['user']['id'],
             #user_id=current_user.id,
             date=transaction_form.date.data,
             description=transaction_form.description.data,
             amount=transaction_form.amount.data,
             category=transaction_form.category.data,
-            transaction_type=transaction_form.transaction_type.data
-        )
+            transaction_type=transaction_form.transaction_type.data)
 
         db.session.add(transaction)
         db.session.commit()
@@ -49,13 +54,16 @@ def transactions():
         return redirect(url_for('transactions.transactions'))
 
     #transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
-    transactions = Transaction.query.filter_by(user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
+    transactions = Transaction.query.filter_by(
+        user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
     current_balance = calculate_balance(transactions)
-    return render_template('transactions/transactions.html', title='Transactions', 
-                           upload_form=upload_form, 
+    return render_template('transactions/transactions.html',
+                           title='Transactions',
+                           upload_form=upload_form,
                            transaction_form=transaction_form,
                            transactions=transactions,
                            current_balance=current_balance)
+
 
 @transactions_bp.route('/upload_transactions', methods=['POST'])
 @login_required
@@ -73,13 +81,17 @@ def upload_transactions():
                 # Normalize column names to lowercase first
                 df.columns = df.columns.str.lower()
 
-                required_columns = {'date', 'description', 'amount', 'category', 'type'}
+                required_columns = {
+                    'date', 'description', 'amount', 'category', 'type'
+                }
                 df_columns = set(df.columns)
 
                 if not required_columns.issubset(df_columns):
                     missing = required_columns - df_columns
                     #print(f"Missing columns: {missing}")
-                    flash(f'CSV file missing required columns: {", ".join(missing)}', 'danger')
+                    flash(
+                        f'CSV file missing required columns: {", ".join(missing)}',
+                        'danger')
                     return redirect(url_for('transactions.transactions'))
 
                 def parse_date(date_str):
@@ -96,7 +108,8 @@ def upload_transactions():
 
                 #print("Converting amounts...")
                 df['amount'] = df['amount'].astype(float)
-                df['transaction_type'] = df['amount'].apply(lambda x: 'income' if x >= 0 else 'expense')
+                df['transaction_type'] = df['amount'].apply(
+                    lambda x: 'income' if x >= 0 else 'expense')
                 df['amount'] = df['amount'].abs()
                 #print("Amount and type processing done.")
 
@@ -110,14 +123,14 @@ def upload_transactions():
                         description=row['description'],
                         amount=row['amount'],
                         category=row.get('category', ''),
-                        transaction_type=row['transaction_type']
-                    )
+                        transaction_type=row['transaction_type'])
                     db.session.add(transaction)
                     count += 1
 
                 db.session.commit()
                 #print(f"Committed {count} transactions to the database.")
-                flash(f'Successfully imported {count} transactions!', 'success')
+                flash(f'Successfully imported {count} transactions!',
+                      'success')
 
             except Exception as e:
                 #print(f"Exception occurred: {e}")
@@ -127,11 +140,33 @@ def upload_transactions():
             flash('No file selected', 'danger')
     return redirect(url_for('transactions.transactions'))
 
+
 @transactions_bp.route("/api/transactions")
 @login_required
 def get_transactions_data():
     #transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
-    transactions = Transaction.query.filter_by(user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
+    transactions = Transaction.query.filter_by(
+        user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
+
+
+@transactions_bp.route('/delete_multiple', methods=['POST'])
+def delete_multiple_transactions():
+    transaction_ids = request.json.get('transaction_ids', [])
+    user_id = session['user']['id']
+    
+    try:
+        for transaction_id in transaction_ids:
+            transaction = Transaction.query.get_or_404(transaction_id)
+            if transaction.user_id != user_id:
+                return jsonify({"error": "Unauthorized"}), 403
+            db.session.delete(transaction)
+        
+        db.session.commit()
+        flash("Selected transactions deleted successfully.", "success")
+        return jsonify({"success": True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 @transactions_bp.route('/delete/<int:transaction_id>', methods=['POST'])
 def delete_transaction(transaction_id):
@@ -149,9 +184,11 @@ def delete_transaction(transaction_id):
     flash("Transaction deleted successfully.", "success")
     return redirect(url_for('transactions.transactions'))
 
+
 @transactions_bp.route('/export')
 def export_transactions():
-    transactions = Transaction.query.filter_by(user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
+    transactions = Transaction.query.filter_by(
+        user_id=session['user']['id']).order_by(Transaction.date.desc()).all()
 
     output = io.StringIO()
     writer = csv.writer(output)
@@ -162,18 +199,19 @@ def export_transactions():
     # Write transactions
     for transaction in transactions:
         writer.writerow([
-            transaction.date.strftime('%Y-%m-%d'),
-            transaction.description,
-            transaction.amount,
-            transaction.category,
-            transaction.transaction_type])
+            transaction.date.strftime('%Y-%m-%d'), transaction.description,
+            transaction.amount, transaction.category,
+            transaction.transaction_type
+        ])
 
     output.seek(0)
-    return Response(
-        output.getvalue(),
-        mimetype='text/csv',
-        headers={'Content-Disposition': 'attachment; filename=transactions.csv'}
-    )
+    return Response(output.getvalue(),
+                    mimetype='text/csv',
+                    headers={
+                        'Content-Disposition':
+                        'attachment; filename=transactions.csv'
+                    })
+
 
 @transactions_bp.route('/edit/<int:transaction_id>', methods=['GET', 'POST'])
 @login_required
@@ -191,13 +229,14 @@ def edit_transaction(transaction_id):
         transaction.transaction_type = form.transaction_type.data
 
         later_transactions = Transaction.query.filter(
-            Transaction.user_id == transaction.user_id,
-            Transaction.date >= transaction.date,
-            Transaction.id != transaction.id
-        ).order_by(Transaction.date.asc()).all()
+            Transaction.user_id == transaction.user_id, Transaction.date
+            >= transaction.date, Transaction.id
+            != transaction.id).order_by(Transaction.date.asc()).all()
 
         db.session.commit()
         flash('Transaction updated successfully!', 'success')
         return redirect(url_for('transactions.transactions'))
 
-    return render_template('transactions/transactions_edit.html', form=form, transaction=transaction)
+    return render_template('transactions/transactions_edit.html',
+                           form=form,
+                           transaction=transaction)

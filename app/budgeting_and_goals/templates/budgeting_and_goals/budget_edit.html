@@ -45,6 +45,10 @@
             <div class="mb-3">
                 <label for="limit" class="form-label">{{ form.limit.label }}</label>
                 {{ form.limit(class="form-control", aria_label="Limit input") }}
+
+                {% for error in form.limit.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
             </div>
 
             <!-- Select Period [weekly, monthly, yearly] -->

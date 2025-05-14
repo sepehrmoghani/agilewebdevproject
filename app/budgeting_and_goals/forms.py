@@ -1,9 +1,16 @@
 from datetime import datetime, timezone
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, RadioField, TextAreaField
+from wtforms import StringField, SelectField, SubmitField, HiddenField, TextAreaField
 from wtforms.validators import InputRequired, Length, ValidationError
 from wtforms.fields import FloatField
 from wtforms import DateField
+
+def positive_number_only(form, field):
+    if field.data is None:
+        return
+
+    if field.data <= 0:
+        raise ValidationError("Value must be a positive number.")
 
 def two_decimal_places(form, field):
     if round(field.data, 2) != field.data:
@@ -44,25 +51,50 @@ class BudgetForm(FlaskForm):
         validators=[InputRequired()],
         coerce=str
     )
-    limit = FloatField("Limit", validators=[InputRequired(), two_decimal_places], render_kw={"placeholder": "e.g. 200.00"})
-    period = SelectField("Period", choices=[('weekly', 'Weekly'), ('monthly', 'Monthly'), ('yearly', 'Yearly')], validators=[InputRequired()])
+    limit = FloatField("Limit", validators=[InputRequired(),positive_number_only, two_decimal_places], render_kw={"placeholder": "e.g. 200.00"})
+    period = SelectField("Period", choices=[('', 'Choose a Period'), ('weekly', 'Weekly'), ('monthly', 'Monthly'), ('yearly', 'Yearly')], validators=[InputRequired()])
     description = TextAreaField("Description (Optional)")
     submit = SubmitField("Save Budget")
 
+def current_limit(form, field):
+    if field.data is None:
+        return
+
+    if field.data > form.target_amount.data:
+        raise ValidationError("Current amount cannot exceed the target amount.")
+
+def validate_start_date(self, field):
+    current_date = datetime.now(timezone.utc).date()
+    original_date_raw = self.original_start_date.data
+
+    # Convert original_start_date if it exists
+    original_start_date = None
+    if original_date_raw:
+        try:
+            original_start_date = datetime.strptime(original_date_raw, "%Y-%m-%d").date()
+        except ValueError:
+            raise ValidationError("Invalid original start date format.")
+
+    # Validation rules
+    if original_start_date:
+        if field.data < original_start_date:
+            raise ValidationError("Cannot move date earlier than the current start date.")
+    elif field.data < current_date:
+        raise ValidationError("Start date cannot be in the past.")
+
+    if self.deadline.data and field.data >= self.deadline.data:
+        raise ValidationError("Start date must be before the deadline.")
+        
+def validate_deadline(self, field):
+    if self.start_date.data and field.data <= self.start_date.data:
+        raise ValidationError("Deadline must be after the start date.")
 
 class GoalForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired(), Length(max=60)], render_kw={"placeholder": "Untitled"})
-    target_amount = FloatField("Target Amount", validators=[InputRequired(), two_decimal_places], render_kw={"placeholder": "e.g. 1000.00"})
-    current_amount = FloatField("Current Amount", validators=[InputRequired(), two_decimal_places], render_kw={"placeholder": "e.g. 250.00"})
-    start_date = DateField("Start Date", format='%Y-%m-%d', validators=[InputRequired()], render_kw={"placeholder": "YYYY-MM-DD"})
-    deadline = DateField("Deadline", validators=[InputRequired()], format='%Y-%m-%d', render_kw={"placeholder": "YYYY-MM-DD"})
+    target_amount = FloatField("Target Amount", validators=[InputRequired(), positive_number_only, two_decimal_places], render_kw={"placeholder": "e.g. 1000.00"})
+    current_amount = FloatField("Current Amount", validators=[InputRequired(), current_limit, two_decimal_places], render_kw={"placeholder": "e.g. 250.00"})
+    start_date = DateField("Start Date", format='%Y-%m-%d', default=datetime.now(timezone.utc).date(), validators=[InputRequired(), validate_start_date], render_kw={"placeholder": "YYYY-MM-DD"})
+    original_start_date = HiddenField()
+    deadline = DateField("Deadline", validators=[InputRequired(), validate_deadline], format='%Y-%m-%d', render_kw={"placeholder": "YYYY-MM-DD"})
     description = TextAreaField("Description (Optional)")
     submit = SubmitField("Set Goal")
-    
-    # Custom validation for the start date
-    def validate_start_date(self, field):
-        current_date = datetime.now(timezone.utc).date()
-        if field.data < current_date:
-            raise ValidationError("Start date cannot be in the past.")
-        if self.deadline.data and field.data >= self.deadline.data:
-            raise ValidationError("Start date must be before the deadline.")

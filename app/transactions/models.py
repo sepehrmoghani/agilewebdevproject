@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask_login import UserMixin
 from app import db
-from app.authentication.forms import User
+from app.authentication.models import User
 
 from app import login_manager
 

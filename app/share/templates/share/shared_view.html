@@ -3,9 +3,8 @@
 {% block content %}
 <div class="container mt-5">
     {% if is_private %}
-    <div class="alert alert-info">
-        <h4>Content Not Available</h4>
-        <p>The owner has made this content private.</p>
+    <div class="alert alert-info text-center">
+        <h4>{{ username }} is not sharing anything right now.</h4>
     </div>
     {% else %}
     <div class="card">
@@ -13,19 +12,22 @@
             <h3>{{ username }}'s Progress</h3>
         </div>
         <div class="card-body">
+            <div class="row">
             {% for category in categories %}
-            <div class="mb-4">
-                <h5>{{ category }}</h5>
-                <div class="progress">
-                    {% set improvement = improvements[category] %}
-                    <div class="progress-bar {% if improvement > 0 %}bg-success{% else %}bg-danger{% endif %}" 
-                         role="progressbar" 
-                         style="width: {{ abs(improvement) }}%">
-                        {{ improvement }}%
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ category }}</h5>
+                            {% set improvement = improvements[category] %}
+                            <h2 class="{% if improvement > 0 %}text-success{% else %}text-danger{% endif %}">
+                                {{ improvement }}%
+                            </h2>
+                            <p class="text-muted">Savings compared to last week</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}

@@ -41,9 +41,9 @@ def view_budget():
     user_id = 1  # TODO: Placeholder for the logged-in user's ID
     # Query the budgets created by the currently logged-in user
     user_budgets = Budget.query.filter_by(user_id=user_id).all()
-    
+
     budget_summaries = []
-    
+
     most_saved = None
     most_spent = None
     max_saved_pct = -1
@@ -55,7 +55,7 @@ def view_budget():
         income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
 
         total_spent = expenses_total - income_total
-        
+
         # Prevent divide-by-zero
         if budget.limit and budget.limit > 0:
             saved_pct = max(0, (budget.limit - total_spent) / budget.limit)
@@ -74,29 +74,29 @@ def view_budget():
             'transactions': transactions,
             'total_spent': total_spent
         })
-        
-    
+
+
     # Monthly income/spending
     now = datetime.now(timezone.utc)
     current_month = now.month
     current_year = now.year
-    
+
     transactions = Transaction.query.filter_by(user_id=user_id).all()
-    
+
     this_month_income = sum(
     t.amount for t in transactions
     if t.transaction_type == 'income'
     and t.date.month == current_month
     and t.date.year == current_year
     )
-    
+
     this_month_expense = sum(
     t.amount for t in transactions
     if t.transaction_type == 'expense'
     and t.date.month == current_month
     and t.date.year == current_year
     )
-    
+
     # Previous month (handle January case too)
     first_day_this_month = now.replace(day=1)
     last_day_previous_month = first_day_this_month - timedelta(days=1)
@@ -111,14 +111,14 @@ def view_budget():
     and t.date.month == previous_month
     and t.date.year == previous_year
     )
-    
+
     last_month_expense = sum(
     t.amount for t in transactions
     if t.transaction_type == 'expense'
     and t.date.month == previous_month
     and t.date.year == previous_year
     )
-        
+
     return render_template('budgeting_and_goals/budget.html', form=form, summaries=budget_summaries,
         most_saved=most_saved, most_saved_pct=round(max_saved_pct * 100, 1) if most_saved else None,
         most_spent=most_spent, most_spent_pct=round(max_spent_pct * 100, 1) if most_spent else None,
@@ -129,7 +129,7 @@ def view_budget():
 #@login_required TODO:
 def edit_budget(id):
     budget = Budget.query.get_or_404(id)
-    
+
     # Ensure the user is the owner of the budget
     user_id = 1  # Placeholder for the logged-in user's ID
     if user_id != user_id:
@@ -144,7 +144,7 @@ def edit_budget(id):
         budget.limit = form.limit.data
         budget.period = form.period.data
         budget.description = form.description.data
-        
+
         db.session.commit()  # Save to the database
         flash("Budget updated successfully!", "success")
         return redirect(url_for('budgeting_and_goals.view_budget'))  # Redirect after save
@@ -166,7 +166,7 @@ def add_budget():
             description=form.description.data,
             user_id=user_id  # Set the user_id to the current user's id
         )
-        
+
         db.session.add(new_budget)  
         db.session.commit()  
 
@@ -188,7 +188,7 @@ def delete_budget(id):
     db.session.delete(budget)
     db.session.commit()
     flash("Budget deleted successfully.", "success")
-    
+
     # Redirect back to the budget overview page after deletion
     return redirect(url_for('budgeting_and_goals.view_budget'))
 
@@ -221,21 +221,21 @@ def view_goals():
     total_goals = len(user_goals)
     completed_goals = 0
     shared_goals = 0
-    
+
     for goal in user_goals:
         # Get transactions between goal start and deadline
         transactions = get_transactions_for_goal(user_id, goal.start_date, goal.deadline)
         expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
         income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
-        
+
         total_amount = goal.current_amount - expenses_total + income_total
 
         if total_amount >= goal.target_amount:
             completed_goals += 1
-        
+
         if goal.privacy:
             shared_goals += 1
-        
+
         goal_summaries.append({
             'goal': goal,
             'expenses_total': expenses_total,
@@ -243,9 +243,9 @@ def view_goals():
             'total_amount': total_amount,
             'transactions': transactions
         })
-    
+
     in_progress = total_goals - completed_goals
-    
+
     return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries, 
                            total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress, shared_goals=shared_goals)
 
@@ -253,7 +253,7 @@ def view_goals():
 #@login_required TODO:
 def edit_goals(id):
     goal = Goal.query.get_or_404(id)
-    
+
     # Ensure the user is the owner of the goal
     user_id = 1  # Placeholder for the logged-in user's ID
     if user_id != user_id:
@@ -263,7 +263,7 @@ def edit_goals(id):
     form = GoalForm(obj=goal)  # Pre-fill the form with the current goal values
 
     if form.validate_on_submit():  # Save the changes when form is submitted
-        
+
         goal.title = form.title.data
         goal.target_amount = form.target_amount.data
         goal.current_amount = form.current_amount.data
@@ -287,7 +287,7 @@ def add_goal():
     form = GoalForm()  # Create a new form for adding a goal
 
     if form.validate_on_submit():  # Validate form data when submitted
-        
+
         user_id = 1
         new_goal = Goal(
             title=form.title.data,
@@ -342,7 +342,7 @@ def explore():
         transactions = get_transactions_for_goal(goal.user_id, goal.start_date, goal.deadline)
         expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
         income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
-        
+
         total_amount = goal.current_amount - expenses_total + income_total
 
         # Fetch interaction for current user and this goal

@@ -8,11 +8,9 @@ fetch('/dashboard/api/transactions')
             const dateObj = new Date(tx.date);
             const year = dateObj.getFullYear();
 
-            // Monthly key: YYYY-MM
             const monthKey = tx.date.slice(0, 7);
             monthlyTotals[monthKey] = (monthlyTotals[monthKey] || 0) + tx.amount;
 
-            // Weekly key: YYYY-WW
             const weekNumber = getWeekNumber(dateObj);
             const weekKey = `${year}-W${weekNumber}`;
             weeklyTotals[weekKey] = (weeklyTotals[weekKey] || 0) + tx.amount;
@@ -23,7 +21,6 @@ fetch('/dashboard/api/transactions')
     })
     .catch(err => console.error('Error loading analytics data:', err));
 
-// Helpers
 function getWeekNumber(d) {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     const dayNum = d.getUTCDay() || 7;
@@ -71,23 +68,29 @@ function renderChart(canvasId, label, dataObj, labelFormatter) {
                     display: true,
                     text: label,
                     font: { size: 20 },
-                    color: '#333'
+                    color: '#eee'
                 },
                 tooltip: {
                     backgroundColor: '#333',
                     titleFont: { size: 16, weight: 'bold' },
                     bodyFont: { size: 14 }
+                },
+                legend: {
+                    labels: {
+                        font: { size: 14 },
+                        color: '#ccc'
+                    }
                 }
             },
             scales: {
                 x: {
-                    ticks: { color: '#333', font: { size: 14 } },
-                    grid: { color: 'rgba(0,0,0,0.1)' }
+                    ticks: { color: '#ccc', font: { size: 14 } },
+                    grid: { color: '#444' }
                 },
                 y: {
                     beginAtZero: true,
-                    ticks: { color: '#333', font: { size: 14 } },
-                    grid: { color: 'rgba(0,0,0,0.1)' }
+                    ticks: { color: '#ccc', font: { size: 14 } },
+                    grid: { color: '#444' }
                 }
             }
         }

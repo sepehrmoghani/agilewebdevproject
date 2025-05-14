@@ -1,43 +1,66 @@
 {% extends "base.html" %}
+
 {% block title %}Category Analytics{% endblock %}
 
 {% block head %}
     {{ super() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Responsive chart container */
+        body {
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            color: #eaeaea;
+        }
+
+        h1 {
+            color: #f1f1f1;
+        }
+
         .chart-container {
             width: 100%;
-            max-width: 800px; /* Adjust the max-width to your preference */
+            max-width: 800px;
             margin: 2rem auto;
             padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
             position: relative;
+            overflow: hidden;
         }
 
-        /* Dynamically set canvas height to maintain square aspect ratio */
         canvas {
-            width: 100% !important;
-            height: auto !important; /* Let the height adjust automatically */
-            max-height: 600px; /* Limit the max height if needed */
+            display: block;  /* Makes the canvas behave like a block-level element */
+            width: 100% !important; /* Ensures the canvas stretches to 100% of the container width */
+            height: auto !important; /* Maintain auto height to keep aspect ratio consistent */
         }
 
-        /* Ensure that the chart container keeps the aspect ratio */
-        .chart-container::after {
-            content: "";
-            display: block;
-            padding-bottom: 100%; /* 1:1 aspect ratio (square) */
+        .btn {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: #264653;
+            border-color: #264653;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #1f3c44;
         }
     </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-5 pt-5">
-    <h1 class="text-center mb-4">Spending Breakdown by Category</h1>
-    
-    <!-- Responsive Chart Container -->
+    <h1 class="mb-4 text-center">Spending by Category</h1>
+
+    <div class="text-center mb-4">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-primary">← Back to Dashboard</a>
+    </div>
+
     <div class="chart-container">
-        <canvas id="categoryPieChart"></canvas>
+        <canvas id="categoryChart"></canvas>
     </div>
 </div>
+
 <script src="{{ url_for('static', filename='js/category_analytics.js') }}"></script>
 {% endblock %}

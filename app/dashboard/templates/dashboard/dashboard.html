@@ -6,15 +6,90 @@
     {{ super() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            color: #eaeaea;
+        }
+
+        h1, h5 {
+            color: #f1f1f1;
+        }
+
         .chart-container {
             width: 100%;
             max-width: 1000px;
             margin: 2rem auto;
             padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
         }
+
         canvas {
             width: 100% !important;
             height: 400px !important;
+        }
+
+        .btn {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .btn-info {
+            background-color: #2a9d8f;
+            border-color: #2a9d8f;
+            color: #ffffff;
+        }
+
+        .btn-info:hover {
+            background-color: #21867a;
+        }
+
+        .btn-primary {
+            background-color: #264653;
+            border-color: #264653;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #1f3c44;
+        }
+
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-weight: 600;
+        }
+
+        .card-text {
+            font-size: 1.2rem;
+        }
+
+        .card.bg-primary {
+            background-color: #1e88e5;
+        }
+
+        .card.bg-success {
+            background-color: #43a047;
+        }
+
+        .card.bg-danger {
+            background-color: #e53935;
+        }
+
+        .card.bg-warning {
+            background-color: #ffb300;
+        }
+
+        .card.bg-warning .card-text {
+            color: #1a1a1a;
+        }
+
+        a {
+            text-decoration: none;
         }
     </style>
 {% endblock %}
@@ -25,20 +100,20 @@
 
     <!-- Navigation Links -->
     <div class="row mb-4 justify-content-center">
-        <div class="col-md-4 text-center">
-            <a href="{{ url_for('dashboard.monthly_analytics_page') }}" class="btn btn-info btn-lg w-100">View Monthly & Weekly Analytics</a>
+        <div class="col-md-4 text-center mb-3">
+            <a href="{{ url_for('dashboard.monthly_analytics_page') }}" class="btn btn-info btn-lg w-100">Monthly & Weekly Analytics</a>
         </div>
-        <div class="col-md-4 text-center">
-            <a href="{{ url_for('dashboard.category_analytics_page') }}" class="btn btn-info btn-lg w-100">View Category Analytics</a>
+        <div class="col-md-4 text-center mb-3">
+            <a href="{{ url_for('dashboard.category_analytics_page') }}" class="btn btn-info btn-lg w-100">Category Analytics</a>
         </div>
-        <div class="col-md-4 text-center">
+        <div class="col-md-4 text-center mb-3">
             <a href="{{ url_for('transactions.transactions') }}" class="btn btn-primary btn-lg w-100">View Transactions</a>
         </div>
     </div>
 
     <!-- Overview Cards -->
     <div class="row text-center mb-4">
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Current Balance</h5>
@@ -46,7 +121,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3">
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Income</h5>
@@ -54,7 +129,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3">
             <div class="card bg-danger text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Expenses</h5>
@@ -62,7 +137,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3">
             <div class="card bg-warning text-dark">
                 <div class="card-body">
                     <h5 class="card-title">Net Savings</h5>
@@ -72,7 +147,7 @@
         </div>
     </div>
 
-    <!-- Charts: Vertically Stacked -->
+    <!-- Charts -->
     <div class="chart-container">
         <canvas id="transactionLineChart"></canvas>
     </div>

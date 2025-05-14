@@ -12,7 +12,7 @@ fetch('/dashboard/api/transactions')
         const values = Object.values(categoryTotals);
         const colors = labels.map((_, i) => `hsl(${i * 40 % 360}, 70%, 60%)`);
 
-        const ctx = document.getElementById('categoryPieChart').getContext('2d');
+        const ctx = document.getElementById('categoryChart').getContext('2d');
         new Chart(ctx, {
             type: 'pie',
             data: {
@@ -27,13 +27,14 @@ fetch('/dashboard/api/transactions')
                 }]
             },
             options: {
-                responsive: true,  // This is crucial for resizing the chart
+                responsive: true,
+                aspectRatio: 1,  // Ensure the chart remains circular (aspect ratio of 1:1)
                 plugins: {
                     title: {
                         display: true,
                         text: 'Spending Breakdown by Category',
                         font: { size: 20 },
-                        color: '#333'
+                        color: '#eee'
                     },
                     tooltip: {
                         backgroundColor: '#333',
@@ -44,7 +45,7 @@ fetch('/dashboard/api/transactions')
                         position: 'top',
                         labels: {
                             font: { size: 14, weight: 'bold' },
-                            color: '#333'
+                            color: '#eee'
                         }
                     }
                 }

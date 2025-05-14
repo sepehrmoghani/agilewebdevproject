@@ -5,6 +5,18 @@
 {% block head %}
     {{ super() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        canvas {
+            width: 100% !important;
+            height: 400px !important;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -60,17 +72,12 @@
         </div>
     </div>
 
-    <!-- Charts -->
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <canvas id="transactionLineChart"></canvas>
-        </div>
-        <div class="col-md-6 mb-4">
-            <canvas id="transactionBarChart"></canvas>
-        </div>
-        <div class="col-md-6 mb-4">
-            <canvas id="transactionPieChart"></canvas>
-        </div>
+    <!-- Charts: Vertically Stacked -->
+    <div class="chart-container">
+        <canvas id="transactionLineChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="transactionBarChart"></canvas>
     </div>
 </div>
 

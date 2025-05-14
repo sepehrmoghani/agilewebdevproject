@@ -6,22 +6,15 @@ fetch('/dashboard/api/transactions')
         const netSavingsEl = document.getElementById('netSavings');
 
         let categories = {};
-        let totalIncome = 0, totalExpenses = 0;
+        let totalIncome = 0, totalExpenses = 0, netSavings = 0;
 
         const sortedData = data.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
         let labels = [];
         let amounts = [];
-        let categories = {};
         let transactionTypes = { 'Income': 0, 'Expense': 0, 'Transfer': 0 };
-
-        // Calculated values
-        let totalIncome = 0;
-        let totalExpenses = 0;
-        let netSavings = 0;
 
         // Process each transaction
         data.forEach(tx => {
-            // Chart data
             labels.push(tx.date);
             amounts.push(tx.amount);
 
@@ -34,7 +27,7 @@ fetch('/dashboard/api/transactions')
             }
         });
 
-        const netSavings = totalIncome - totalExpenses;
+        netSavings = totalIncome - totalExpenses;
         totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
         totalExpensesEl.textContent = `$${totalExpenses.toFixed(2)}`;
         netSavingsEl.textContent = `$${netSavings.toFixed(2)}`;

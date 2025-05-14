@@ -1,12 +1,13 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g, current_app
 from app.authentication import authentication_bp
-from .forms import LoginForm, SignupForm, LoginInfo
+from .forms import LoginForm, SignupForm, LoginInfo, UpdateProfileForm
 from .models import User
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, Optional, Length, EqualTo
-from werkzeug.security import generate_password_hash
-from werkzeug.security import check_password_hash
+import os
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from app import db
 
 loginInfo = {}
@@ -94,6 +95,16 @@ def edit_profile():
         user.last_name = form.last_name.data
         user.email = form.email.data
 
+
+        # Profile Picture
+        if form.profile_pic.data:
+            pic_file = form.profile_pic.data
+            filename = secure_filename(pic_file.filename)
+            pic_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            pic_file.save(pic_path)
+            user.profile_pic = filename
+        
+        # Password
         if form.current_password.data:
             if not check_password_hash(user.password, form.current_password.data):
                 flash("Current password is incorrect.", "danger")
@@ -121,20 +132,6 @@ def edit_profile():
 
     return render_template('authentication/profile_edit.html', form=form, user=user)
 
-
-class UpdateProfileForm(FlaskForm):
-    first_name = StringField('First Name', validators=[DataRequired()])
-    last_name = StringField('Last Name', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    
-    # Optional password change
-    current_password = PasswordField('Current Password', validators=[Optional()])
-    new_password = PasswordField('New Password', validators=[Optional(), Length(min=6)])
-    confirm_password = PasswordField('Confirm New Password', validators=[
-        Optional(), EqualTo('new_password', message='Passwords must match')
-    ])
-
-    submit = SubmitField('Update Profile')
 
 @authentication_bp.route('/logout')
 def logout():

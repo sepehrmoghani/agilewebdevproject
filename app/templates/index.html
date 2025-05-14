@@ -3,8 +3,101 @@
 {% block title %}Home{% endblock %}
 {% block head %}
 {{ super() }}
+<style>
+.feature-icon {
+    font-size: 2rem;
+    color: #0d6efd;
+    margin-bottom: 1rem;
+}
+.footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+</style>
 {% endblock %}
 {% block content %}
-<h1>Home</h1>
+<!-- Hero Section -->
+<div class="container-fluid bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-4">Take Control of Your Finances</h1>
+                <p class="lead">Track expenses, set budgets, and achieve your financial goals with our comprehensive financial management platform.</p>
+                {% if not session.get('user') %}
+                <a href="{{ url_for('authentication.signup') }}" class="btn btn-light btn-lg me-2">Get Started</a>
+                <a href="{{ url_for('authentication.login') }}" class="btn btn-outline-light btn-lg">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Features Section -->
+<div class="container py-5">
+    <h2 class="text-center mb-5">Key Features</h2>
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="text-center">
+                <i class="fas fa-chart-line feature-icon"></i>
+                <h3>Budget Tracking</h3>
+                <p>Set and monitor budgets across different categories to keep your spending in check.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <i class="fas fa-bullseye feature-icon"></i>
+                <h3>Financial Goals</h3>
+                <p>Set personal financial goals and track your progress towards achieving them.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <i class="fas fa-file-import feature-icon"></i>
+                <h3>CSV Import</h3>
+                <p>Easily import your transaction data from CSV files for quick setup.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <i class="fas fa-tachometer-alt feature-icon"></i>
+                <h3>Smart Dashboards</h3>
+                <p>Visualize your financial data with interactive charts and detailed analytics.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer bg-dark text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About Us</h5>
+                <p>We help you manage your finances effectively with our comprehensive tracking and budgeting tools.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('home') }}" class="text-decoration-none">Home</a></li>
+                    {% if session.get('user') %}
+                    <li><a href="{{ url_for('dashboard.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                    <li><a href="{{ url_for('budgeting_and_goals.view_budget') }}" class="text-decoration-none">Budgets</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>Legal</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('privacy') }}" class="text-decoration-none">Privacy Policy</a></li>
+                    <li><a href="#" class="text-decoration-none">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <div class="text-center">
+            <p>&copy; {{ now.year }} Financial Tracker. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
 {% endblock %}

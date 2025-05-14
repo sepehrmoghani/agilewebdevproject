@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g
 from app.authentication import authentication_bp
-from .forms import LoginForm, SignupForm, User, LoginInfo
+from .forms import LoginForm, SignupForm, LoginInfo
+from .models import User
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, Optional, Length, EqualTo
@@ -37,7 +38,7 @@ def login():
                     'email': user.email
                 }
                 flash("Logged in successfully!", "success")
-                return redirect(url_for('authentication.profile'))
+                return redirect(url_for('dashboard.dashboard'))
             elif not user:
                 flash("Email does not match any accounts", "danger")
             else:

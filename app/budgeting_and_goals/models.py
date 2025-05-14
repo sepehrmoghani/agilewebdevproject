@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from app import db
-from app.authentication.forms import User
+from app.authentication.models import User
 
 #@login_manager.user_loader
 def load_user(user_id):

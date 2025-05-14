@@ -1,9 +1,11 @@
 from datetime import datetime
 from flask_login import UserMixin
 from app import db
-from app.authentication.forms import User
+from app.authentication.models import User
 
-#@login_manager.user_loader
+from app import login_manager
+
+@login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 

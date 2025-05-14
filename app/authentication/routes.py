@@ -97,12 +97,14 @@ def edit_profile():
 
 
         # Profile Picture
-        if form.profile_pic.data:
-            pic_file = form.profile_pic.data
+        pic_file = form.profile_pic.data
+        if pic_file:
             filename = secure_filename(pic_file.filename)
             pic_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             pic_file.save(pic_path)
+            print("Saving to:", pic_path)
             user.profile_pic = filename
+            print("Uploaded file:", pic_file, "Filename:", getattr(pic_file, 'filename', 'No filename'))
         
         # Password
         if form.current_password.data:
@@ -125,7 +127,8 @@ def edit_profile():
             'id': user.id,
             'first_name': user.first_name,
             'last_name': user.last_name,
-            'email': user.email
+            'email': user.email,
+            'profile_pic': user.profile_pic
         }
 
         return redirect(url_for('authentication.profile'))

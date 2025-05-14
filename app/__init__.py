@@ -14,7 +14,7 @@ login_manager.login_view = 'authentication.login'
 migrate = Migrate()
 
 MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB limit
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static/uploads')
+UPLOAD_FOLDER = os.path.join('app/static', 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 

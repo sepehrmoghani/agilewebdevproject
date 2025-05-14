@@ -157,9 +157,10 @@ def edit_budget(budget_id):
         db.session.commit()
         flash("Budget updated successfully!", "success")
         return redirect(url_for('budgeting_and_goals.view_budget'))
+    else:
+        print("Form errors:", form.errors)
 
     return render_template('budgeting_and_goals/budget_edit.html', form=form, budget_id=budget_id)
-
 
 @budgeting_and_goals_bp.route('/budget/add', methods=['GET', 'POST'])
 @login_required 
@@ -181,6 +182,8 @@ def add_budget():
 
         flash('Budget added successfully!', 'success') 
         return redirect(url_for('budgeting_and_goals.view_budget'))  # Redirect to view the budget list
+    else:
+        print("Form errors:", form.errors)
 
     return render_template('budgeting_and_goals/budget_add.html', form=form)
 
@@ -264,6 +267,8 @@ def edit_goals(goal_id):
         return redirect(url_for('budgeting_and_goals.view_goals'))
 
     form = GoalForm(obj=goal)  # Pre-fill the form with the current goal values
+    
+    form.original_start_date.data = goal.start_date.strftime("%Y-%m-%d")
 
     if form.validate_on_submit():  # Save the changes when form is submitted
 
@@ -277,6 +282,8 @@ def edit_goals(goal_id):
         db.session.commit()
         flash("Goal updated successfully!", "success")
         return redirect(url_for('budgeting_and_goals.view_goals'))
+    else:
+        print("Form errors:", form.errors)
 
 
     return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=goal_id)
@@ -303,6 +310,8 @@ def add_goal():
 
         flash('Goal added successfully!', 'success')
         return redirect(url_for('budgeting_and_goals.view_goals'))  # Redirect to view the goals list
+    else:
+        print("Form errors:", form.errors)
 
     return render_template('budgeting_and_goals/goals_add.html', form=form)
 

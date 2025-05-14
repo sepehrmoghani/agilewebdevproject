@@ -11,11 +11,18 @@ fetch('/dashboard/api/transactions')
         const sortedData = data.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
         let labels = [];
         let amounts = [];
+        let categories = {};
+        let transactionTypes = { 'Income': 0, 'Expense': 0, 'Transfer': 0 };
 
-        sortedData.forEach(tx => {
-            const dateObj = new Date(tx.date);
-            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            labels.push(formattedDate);
+        // Calculated values
+        let totalIncome = 0;
+        let totalExpenses = 0;
+        let netSavings = 0;
+
+        // Process each transaction
+        data.forEach(tx => {
+            // Chart data
+            labels.push(tx.date);
             amounts.push(tx.amount);
 
             categories[tx.category] = (categories[tx.category] || 0) + tx.amount;

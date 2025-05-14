@@ -10,21 +10,16 @@ fetch('/dashboard/api/transactions')
 
             // Monthly key: YYYY-MM
             const monthKey = tx.date.slice(0, 7);
-            if (!monthlyTotals[monthKey]) monthlyTotals[monthKey] = 0;
-            monthlyTotals[monthKey] += tx.amount;
+            monthlyTotals[monthKey] = (monthlyTotals[monthKey] || 0) + tx.amount;
 
             // Weekly key: YYYY-WW
             const weekNumber = getWeekNumber(dateObj);
             const weekKey = `${year}-W${weekNumber}`;
-            if (!weeklyTotals[weekKey]) weeklyTotals[weekKey] = 0;
-            weeklyTotals[weekKey] += tx.amount;
+            weeklyTotals[weekKey] = (weeklyTotals[weekKey] || 0) + tx.amount;
         });
 
-        // Render Monthly Chart
-        renderChart('monthlyBalanceChart', 'Monthly Transaction Total', monthlyTotals);
-
-        // Render Weekly Chart
-        renderChart('weeklyBalanceChart', 'Weekly Transaction Total', weeklyTotals);
+        renderChart('monthlyBalanceChart', 'Monthly Transaction Total', monthlyTotals, formatMonthLabel);
+        renderChart('weeklyBalanceChart', 'Weekly Transaction Total', weeklyTotals, formatWeekLabel);
     })
     .catch(err => console.error('Error loading analytics data:', err));
 
@@ -38,15 +33,26 @@ function getWeekNumber(d) {
     return String(weekNo).padStart(2, '0');
 }
 
-function renderChart(canvasId, label, dataObj) {
+function formatMonthLabel(key) {
+    const [year, month] = key.split('-');
+    return new Date(`${year}-${month}-01`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+function formatWeekLabel(key) {
+    return key.replace('-W', ' Week ');
+}
+
+function renderChart(canvasId, label, dataObj, labelFormatter) {
     const ctx = document.getElementById(canvasId).getContext('2d');
+    const sortedKeys = Object.keys(dataObj).sort();
+
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Object.keys(dataObj),
+            labels: sortedKeys.map(labelFormatter),
             datasets: [{
                 label: label,
-                data: Object.values(dataObj),
+                data: sortedKeys.map(k => dataObj[k]),
                 borderColor: '#00bcd4',
                 backgroundColor: 'rgba(0, 188, 212, 0.2)',
                 borderWidth: 2,

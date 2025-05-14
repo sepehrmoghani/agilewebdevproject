@@ -10,6 +10,11 @@
 
     <h1 class="mb-4">Welcome, {{ user.first_name }}!</h1>
 
+    <!--Profile Picture-->
+    <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) if user.profile_pic else url_for('static', filename='uploads/default_profile.jpg') }}" 
+         class="img-fluid rounded-circle mb-3" 
+         style="width: 150px; height: 150px; object-fit: cover;">
+
     <p>First Name: {{ user.first_name }}</p>
     <p>Last Name: {{ user.last_name }}</p>
     <p>Email: {{ user.email }}</p>

@@ -4,12 +4,40 @@
 {% block head %}
     {{ super() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Responsive chart container */
+        .chart-container {
+            width: 100%;
+            max-width: 800px; /* Adjust the max-width to your preference */
+            margin: 2rem auto;
+            padding: 1rem;
+            position: relative;
+        }
+
+        /* Dynamically set canvas height to maintain square aspect ratio */
+        canvas {
+            width: 100% !important;
+            height: auto !important; /* Let the height adjust automatically */
+            max-height: 600px; /* Limit the max height if needed */
+        }
+
+        /* Ensure that the chart container keeps the aspect ratio */
+        .chart-container::after {
+            content: "";
+            display: block;
+            padding-bottom: 100%; /* 1:1 aspect ratio (square) */
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-5 pt-5">
     <h1 class="text-center mb-4">Spending Breakdown by Category</h1>
-    <canvas id="categoryPieChart" width="500" height="500" style="max-width: 600px; margin: 0 auto;"></canvas>
+    
+    <!-- Responsive Chart Container -->
+    <div class="chart-container">
+        <canvas id="categoryPieChart"></canvas>
+    </div>
 </div>
 <script src="{{ url_for('static', filename='js/category_analytics.js') }}"></script>
 {% endblock %}

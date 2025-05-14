@@ -27,7 +27,7 @@ fetch('/dashboard/api/transactions')
                 }]
             },
             options: {
-                responsive: true,
+                responsive: true,  // This is crucial for resizing the chart
                 plugins: {
                     title: {
                         display: true,

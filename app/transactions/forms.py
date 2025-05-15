@@ -13,7 +13,7 @@ class TransactionForm(FlaskForm):
     description = StringField('Description', validators=[DataRequired(), Length(max=256)])
     amount = FloatField('Amount', validators=[DataRequired()])
     category = SelectField('Category', choices=[
-        ('Wages and Income','Wages and Income'),
+        ('Salary','Salary'),
         ('Business', 'Business'),
         ('Cash', 'Cash'),
         ('Childcare', 'Childcare'),
@@ -42,5 +42,5 @@ class TransactionForm(FlaskForm):
         ('Utilities', 'Utilities'),
         ('Vehicle & transport', 'Vehicle & transport')
     ], validators=[DataRequired()])
-    transaction_type = SelectField('Type', choices=[('income', 'Income'), ('expense', 'Expense'), ('transfer', 'Transfer')], validators=[DataRequired()])
+    transaction_type = SelectField('Type', choices=[('income', 'Income'), ('expense', 'Expense')], validators=[DataRequired()])
     submit = SubmitField('Add Transaction')

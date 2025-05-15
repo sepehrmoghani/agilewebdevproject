@@ -1,4 +1,3 @@
-
 function copyShareUrl() {
     var copyText = document.getElementById("shareUrl");
     copyText.select();
@@ -28,4 +27,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+});
+
+$(document).ready(function() {
+    // Handle select all checkbox
+    $("#selectAllCategories").change(function() {
+        $(".category-checkbox").prop('checked', $(this).prop('checked'));
+    });
+
+    // Update select all when individual checkboxes change
+    $(".category-checkbox").change(function() {
+        $("#selectAllCategories").prop('checked', $(".category-checkbox:not(:checked)").length === 0);
+    });
 });

@@ -1,53 +1,62 @@
-fetch('/dashboard/api/transactions')
-    .then(response => response.json())
-    .then(data => {
+
+fetch("/dashboard/api/transactions")
+    .then((response) => response.json())
+    .then((data) => {
         const categoryTotals = {};
 
-        data.forEach(tx => {
+        data.forEach((tx) => {
             if (!categoryTotals[tx.category]) categoryTotals[tx.category] = 0;
-            categoryTotals[tx.category] += tx.amount;
+            categoryTotals[tx.category] += Math.abs(tx.amount);
         });
 
-        // Sort categories alphabetically
-        const sortedCategories = Object.entries(categoryTotals).sort((a, b) => a[0].localeCompare(b[0]));
-        const labels = sortedCategories.map(e => e[0]);
-        const values = sortedCategories.map(e => e[1]);
-        const colors = labels.map((_, i) => `hsl(${i * 40 % 360}, 70%, 60%)`);
+        const sortedCategories = Object.entries(categoryTotals)
+            .sort((a, b) => b[1] - a[1]);
+        
+        const labels = sortedCategories.map((e) => e[0]);
+        const values = sortedCategories.map((e) => e[1]);
+        const colors = labels.map((_, i) => `hsl(${(i * 40) % 360}, 70%, 60%)`);
 
-        const ctx = document.getElementById('categoryChart').getContext('2d');
+        const ctx = document.getElementById("categoryChart").getContext("2d");
         new Chart(ctx, {
-            type: 'pie',
+            type: "doughnut",
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Spending Breakdown by Category',
                     data: values,
                     backgroundColor: colors,
-                    hoverOffset: 4,
-                    borderColor: '#fff',
-                    borderWidth: 2
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2,
+                    hoverOffset: 15
                 }]
             },
             options: {
                 responsive: true,
-                aspectRatio: 1,
+                maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: true,
-                        text: 'Spending Breakdown by Category',
-                        font: { size: 20 },
-                        color: '#eee'
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#eee',
+                            font: {
+                                size: 14
+                            },
+                            padding: 20
+                        }
                     },
                     tooltip: {
-                        backgroundColor: '#333',
-                        titleFont: { size: 16, weight: 'bold' },
-                        bodyFont: { size: 14 }
-                    },
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            font: { size: 14, weight: 'bold' },
-                            color: '#eee'
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 16
+                        },
+                        bodyFont: {
+                            size: 14
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return `$${value.toFixed(2)}`;
+                            }
                         }
                     }
                 }

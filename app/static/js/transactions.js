@@ -49,31 +49,21 @@ $(document).ready(function () {
 
     // Handle edit button click
     $(".edit-transaction").click(function () {
-        console.log("Edit button clicked");
         const transactionId = $(this).data("transaction-id");
-        console.log("Transaction ID to edit:", transactionId);
-
         $("#editTransactionId").val(transactionId);
         const row = $(this).closest("tr");
 
-        const date = row.find("td:eq(0)").text().trim();
-        const description = row.find("td:eq(1)").text().trim();
-        const category = row
-            .find("td:eq(2)")
-            .text()
-            .replace("Uncategorized", "")
-            .trim();
-        const type = row.find("td:eq(3) span").text().trim().toLowerCase();
-        const amount = row
-            .find("td:eq(4)")
-            .text()
-            .trim()
-            .replace("$", "")
-            .trim();
+        const date = row.find("td:eq(1)").text().trim();
+        const description = row.find("td:eq(2)").text().trim();
+        const category = row.find("td:eq(3)").text().replace("Uncategorized", "").trim();
+        const type = row.find("td:eq(4) span").text().trim().toLowerCase();
+        const amount = row.find("td:eq(5)").text().trim().replace("$", "").trim();
 
-        console.log({ date, description, category, type, amount });
-
-        $("#editDate").val(date);
+        // Convert date from dd/mm/yyyy to yyyy-mm-dd for input field
+        const [day, month, year] = date.split('/');
+        const formattedDate = `${year}-${month}-${day}`;
+        
+        $("#editDate").val(formattedDate);
         $("#editDescription").val(description);
         $("#editCategory").val(category);
         $("#editType").val(type);
@@ -82,7 +72,6 @@ $(document).ready(function () {
 
     // Handle save changes button click
     $("#saveEditTransaction").click(function () {
-        console.log("Save changes clicked");
         const transactionId = $("#editTransactionId").val();
         const formData = {
             date: $("#editDate").val(),
@@ -90,16 +79,14 @@ $(document).ready(function () {
             amount: $("#editAmount").val(),
             category: $("#editCategory").val(),
             transaction_type: $("#editType").val(),
+            csrf_token: csrf_token
         };
-
-        console.log("Submitting edited data:", formData);
 
         $.ajax({
             url: `/transactions/edit/${transactionId}`,
             method: "POST",
             data: formData,
             success: function (response) {
-                console.log("Edit success:", response);
                 $("#editTransactionModal").modal("hide");
                 location.reload();
             },

@@ -147,12 +147,32 @@
         </div>
     </div>
 
+    <!-- Date Filter -->
+    <div class="date-filter mb-4">
+        <div class="row justify-content-center">
+            <div class="col-md-3">
+                <label for="startDate">From Date:</label>
+                <input type="date" id="startDate" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label for="endDate">To Date:</label>
+                <input type="date" id="endDate" class="form-control">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button onclick="updateCharts()" class="btn btn-primary">Apply Filter</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts -->
     <div class="chart-container">
         <canvas id="transactionLineChart"></canvas>
     </div>
     <div class="chart-container">
-        <canvas id="transactionBarChart"></canvas>
+        <canvas id="expenseBarChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="incomeBarChart"></canvas>
     </div>
 </div>
 

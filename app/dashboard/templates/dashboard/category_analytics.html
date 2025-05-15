@@ -1,60 +1,16 @@
 {% extends "base.html" %}
-
 {% block title %}Category Analytics{% endblock %}
-
 {% block head %}
-    {{ super() }}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: 'Inter', 'Helvetica Neue', sans-serif;
-            color: #eaeaea;
-        }
-
-        h1 {
-            color: #f1f1f1;
-        }
-
-        .chart-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 1rem;
-            background-color: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        canvas {
-            display: block;  /* Makes the canvas behave like a block-level element */
-            width: 100% !important; /* Ensures the canvas stretches to 100% of the container width */
-            height: auto !important; /* Maintain auto height to keep aspect ratio consistent */
-        }
-
-        .btn {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .btn-primary {
-            background-color: #264653;
-            border-color: #264653;
-            color: #ffffff;
-        }
-
-        .btn-primary:hover {
-            background-color: #1f3c44;
-        }
-    </style>
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/category_analytics.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5 pt-5">
-    <h1 class="mb-4 text-center">Spending by Category</h1>
-
-    <div class="text-center mb-4">
-        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-primary">← Back to Dashboard</a>
+<div class="analytics-container">
+    <div class="header-section">
+        <h1>Category Breakdown</h1>
+        <a href="{{ url_for('dashboard.dashboard') }}" class="back-button">← Back to Dashboard</a>
     </div>
 
     <div class="chart-container">

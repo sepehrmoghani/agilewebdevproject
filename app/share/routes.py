@@ -17,7 +17,10 @@ def share_settings():
     user_id = session['user']['id']
     share_settings = ShareSettings.query.filter_by(user_id=user_id).first()
 
-    categories = db.session.query(Transaction.category).distinct().all()
+    categories = db.session.query(Transaction.category)\
+        .filter(Transaction.user_id == user_id)\
+        .distinct()\
+        .all()
     categories = [cat[0] for cat in categories if cat[0]]
 
     if not share_settings:
@@ -84,32 +87,56 @@ def view_shared(share_url):
                          categories=selected_categories,
                          improvements=improvements)
 
+
 def calculate_improvements(user_id, categories):
     improvements = {}
-    now = datetime.now()
-    week_ago = now - timedelta(days=7)
-    two_weeks_ago = now - timedelta(days=14)
+    today = datetime.now().date()
+
+    # Get current week's Monday
+    this_week_start = today - timedelta(days=today.weekday())
+    this_week_end = this_week_start + timedelta(days=7)
+    last_week_start = this_week_start - timedelta(days=7)
+    last_week_end = this_week_start - timedelta(days=1)
+
+    print("today:", today)
+    print("this_week_start:", this_week_start)
+    print("this_week_end:", this_week_end)
+    print("last_week_start:", last_week_start)
+    print("last_week_end:", last_week_end)
+
+    print(Transaction.date)
 
     for category in categories:
+        # Current week = this_week_start to today (or this_week_start + 7)
         current_week = db.session.query(func.sum(Transaction.amount)).filter(
             Transaction.user_id == user_id,
             Transaction.category == category,
-            Transaction.date > week_ago,
+            func.date(Transaction.date) >= this_week_start,
+            func.date(Transaction.date) < this_week_end,
             Transaction.transaction_type == 'expense'
         ).scalar() or 0
 
+
+        print("current_week:", current_week)
+
+        # Previous week = last_week_start to last_week_end
         previous_week = db.session.query(func.sum(Transaction.amount)).filter(
             Transaction.user_id == user_id,
             Transaction.category == category,
-            Transaction.date > two_weeks_ago,
-            Transaction.date <= week_ago,
+            func.date(Transaction.date) >= last_week_start,
+            func.date(Transaction.date) < last_week_end,
             Transaction.transaction_type == 'expense'
         ).scalar() or 0
 
-        if previous_week != 0:
+        print("previous_week:", previous_week)
+
+        if previous_week == 0 and current_week == 0:
+            improvements[category] = 0
+        elif previous_week == 0:
+            improvements[category] = -100
+        else:
             improvement = ((previous_week - current_week) / previous_week) * 100
             improvements[category] = round(improvement)
-        else:
-            improvements[category] = 100 if current_week == 0 else -100
 
     return improvements
+

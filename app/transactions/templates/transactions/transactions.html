@@ -203,7 +203,7 @@ content %}
                                     <input type="checkbox" class="form-check-input transaction-checkbox" data-transaction-id="{{ transaction.id }}"/>
                                 </td>
                                 <td>
-                                    {{ transaction.date.strftime('%Y-%m-%d') }}
+                                    {{ transaction.date.strftime('%d/%m/%Y') }}
                                 </td>
                                 <td>{{ transaction.description }}</td>
                                 <td>
@@ -225,12 +225,14 @@ content %}
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <a
-                                            href="{{ url_for('transactions.edit_transaction', transaction_id=transaction.id) }}"
-                                            class="btn btn-info"
+                                        <button
+                                            class="btn btn-info edit-transaction"
+                                            data-transaction-id="{{ transaction.id }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editTransactionModal"
                                         >
                                             Edit
-                                        </a>
+                                        </button>
                                     </div>
                                     <div class="btn-group">
                                         <form
@@ -330,11 +332,40 @@ content %}
                                                             class="form-label"
                                                             >Category</label
                                                         >
-                                                        <input
-                                                            type="text"
-                                                            class="form-control"
+                                                        <select
+                                                            class="form-select"
                                                             id="editCategory"
-                                                        />
+                                                            required
+                                                        >
+                                                            <option value="Salary">Salary</option>
+                                                            <option value="Business">Business</option>
+                                                            <option value="Cash">Cash</option>
+                                                            <option value="Childcare">Childcare</option>
+                                                            <option value="Eating out & takeaway">Eating out & takeaway</option>
+                                                            <option value="Education">Education</option>
+                                                            <option value="Entertainment">Entertainment</option>
+                                                            <option value="Fees & interest">Fees & interest</option>
+                                                            <option value="Gifts & donations">Gifts & donations</option>
+                                                            <option value="Groceries">Groceries</option>
+                                                            <option value="Health & medical">Health & medical</option>
+                                                            <option value="Home">Home</option>
+                                                            <option value="Home loan">Home loan</option>
+                                                            <option value="Insurance">Insurance</option>
+                                                            <option value="Other investments">Other investments</option>
+                                                            <option value="Personal care">Personal care</option>
+                                                            <option value="Pets">Pets</option>
+                                                            <option value="Professional services">Professional services</option>
+                                                            <option value="Shares">Shares</option>
+                                                            <option value="Shopping">Shopping</option>
+                                                            <option value="Sport & fitness">Sport & fitness</option>
+                                                            <option value="Super contribution">Super contribution</option>
+                                                            <option value="Tax paid">Tax paid</option>
+                                                            <option value="Transfer & payments">Transfer & payments</option>
+                                                            <option value="Travel & holidays">Travel & holidays</option>
+                                                            <option value="Uncategorised">Uncategorised</option>
+                                                            <option value="Utilities">Utilities</option>
+                                                            <option value="Vehicle & transport">Vehicle & transport</option>
+                                                        </select>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label

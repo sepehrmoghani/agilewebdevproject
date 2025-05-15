@@ -65,8 +65,8 @@
                 {% if session.get('user') %}
                     <a href="{{ url_for('authentication.profile') }}" class="profile-link">
                         <div class="profile-circle">
-                            {% if session.user.profile_image %}
-                                <img src="{{ session.user.profile_image }}" alt="Profile" class="profile-image">
+                            {% if session.user.profile_pic %}
+                                <img src="{{ url_for('static', filename='uploads/' + session.user.profile_pic) }}" alt="Profile" class="profile-image">
                             {% else %}
                                 <span class="profile-initials">{{ session.user.first_name[0] }}{{ session.user.last_name[0] }}</span>
                             {% endif %}

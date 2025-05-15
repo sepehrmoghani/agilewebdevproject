@@ -128,7 +128,7 @@ def edit_profile():
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'profile_pic': user.profile_pic
+            'profile_pic': user.profile_pic if user.profile_pic else None
         }
 
         return redirect(url_for('authentication.profile'))

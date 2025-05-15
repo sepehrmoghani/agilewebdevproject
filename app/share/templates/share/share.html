@@ -15,6 +15,12 @@
                 {{ form.csrf_token }}
                 <div class="mb-4">
                     <h5>Select categories to share:</h5>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="selectAllCategories">
+                        <label class="form-check-label" for="selectAllCategories">
+                            Select All
+                        </label>
+                    </div>
                     <div class="row">
                         {% for category in categories %}
                         <div class="col-md-4 mb-2">

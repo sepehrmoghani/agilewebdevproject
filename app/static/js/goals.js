@@ -1,4 +1,4 @@
-/* Progress Bar */
+// Progress Bar
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".progress-bar-container").forEach((container) => {
     const current = parseFloat(container.dataset.current);
@@ -10,11 +10,16 @@ document.addEventListener("DOMContentLoaded", function () {
     bar.style.width = percent.toFixed(1) + "%";
     bar.style.height = "20px"; // <-- Set your desired height here
 
+    // Add class if 100%
+    if (percent >= 100) {
+      bar.classList.add("completed");
+    }
+
     container.nextElementSibling.textContent = percent.toFixed(1) + "%";
   });
 });
 
-/* Time Left */
+// Time Left
 document.addEventListener("DOMContentLoaded", function () {
   const rows = document.querySelectorAll("table tbody tr");
 
@@ -90,3 +95,42 @@ document.addEventListener("DOMContentLoaded", function () {
     timeLeftCell.textContent = display;
   });
 });
+
+// Widget #4 Alternating Completed and Upcoming Goals
+document.addEventListener("DOMContentLoaded", function () {
+  const completed = document.querySelector(".goal-completed");
+  const upcoming = document.querySelector(".goal-upcoming");
+
+  if (completed && upcoming) {
+    // Initially show completed, hide upcoming
+    completed.classList.remove("hidden");
+    upcoming.classList.add("hidden");
+
+    let showingCompleted = true;
+
+    setInterval(() => {
+      // Hide both first (silence period)
+      completed.classList.add("hidden");
+      upcoming.classList.add("hidden");
+
+      // After 250ms, show the other one
+      setTimeout(() => {
+        if (showingCompleted) {
+          upcoming.classList.remove("hidden");
+        } else {
+          completed.classList.remove("hidden");
+        }
+        showingCompleted = !showingCompleted;
+      }, 1000); // silence duration in ms
+    }, 5000); // full interval duration
+  }
+});
+
+// Checkbox
+document.getElementById("showHiddenGoalsCheckbox")
+  .addEventListener("change", function () {
+    const showHidden = this.checked ? "true" : "false";
+    const url = new URL(window.location.href);
+    url.searchParams.set("show_hidden", showHidden);
+    window.location.href = url.toString();
+  });

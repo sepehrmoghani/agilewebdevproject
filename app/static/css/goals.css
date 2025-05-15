@@ -14,9 +14,27 @@
     width: 0%;
     transition: width 0.5s ease-in-out;
   }
+
+  .progress-bar.completed {
+  background-color: gold !important;
+  box-shadow: 0 0 8px gold;
+}
+
   
   .progress-percent {
     font-size: 0.9em;
     margin-top: 4px;
     display: inline-block;
   }
+
+.goal-completed,
+.goal-upcoming {
+  transition: opacity 0.5s ease;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute; /* Prevent layout shift */
+}
+

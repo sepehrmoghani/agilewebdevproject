@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g
-from flask_login import current_user, LoginManager
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from sqlalchemy.exc import SQLAlchemyError
 from app.authentication.utils import login_required
 from .forms import BudgetForm, GoalForm
 from .models import User, Budget, Goal
@@ -217,28 +217,32 @@ def get_transactions_for_goal(user_id, start_date, deadline):
 
     return transactions
 
-# Goals
 @budgeting_and_goals_bp.route('/goals', methods=['GET'])
 @login_required 
 def view_goals():
     form = GoalForm()
     user_id = session['user']['id']
-    user_goals = Goal.query.filter_by(user_id=user_id).all()
+
+    show_hidden = request.args.get('show_hidden', 'false').lower() == 'true'
+
+    if show_hidden:
+        user_goals = Goal.query.filter_by(user_id=user_id).all()  # All goals including hidden
+    else:
+        user_goals = Goal.query.filter_by(user_id=user_id, is_hidden=False).all()  # Only visible goals
+
+    hidden_goals = [g for g in user_goals if g.is_hidden] if show_hidden else []
 
     goal_summaries = []
-    total_goals = len(user_goals)
-    completed_goals = 0
+    all_goals = Goal.query.filter_by(user_id=user_id).all()  # All goals, regardless of hidden
+    total_goals = len(all_goals)
+    completed_goals = len([g for g in all_goals if g.date_completed is not None])
 
     for goal in user_goals:
-        # Get transactions between goal start and deadline
         transactions = get_transactions_for_goal(user_id, goal.start_date, goal.deadline)
         expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
         income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
 
         total_amount = goal.current_amount - expenses_total + income_total
-
-        if total_amount >= goal.target_amount:
-            completed_goals += 1
 
         goal_summaries.append({
             'goal': goal,
@@ -247,11 +251,30 @@ def view_goals():
             'total_amount': total_amount,
             'transactions': transactions
         })
-
+    
     in_progress = total_goals - completed_goals
 
+    # Use all goals (including hidden) to find last completed goal
+    all_goals = Goal.query.filter_by(user_id=user_id).all()
+    completed_goals_with_dates = [g for g in all_goals if g.date_completed is not None]
+    last_completed_goal = max(completed_goals_with_dates, key=lambda g: g.date_completed, default=None)
+
+    in_progress_goals = [
+        {
+            'goal': goal,
+            'total_amount': total_amount,
+            'progress': total_amount / goal.target_amount
+        }
+        for goal, total_amount in [(g['goal'], g['total_amount']) for g in goal_summaries]
+        if total_amount < goal.target_amount and goal.target_amount > 0
+    ]
+
+    closest_to_completion = max(in_progress_goals, key=lambda x: x['progress'], default=None)
+
     return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries, 
-                           total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress)
+                           total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress, 
+                           last_completed_goal=last_completed_goal, closest_to_completion=closest_to_completion, 
+                           hidden_goals=hidden_goals, show_hidden=show_hidden)
 
 @budgeting_and_goals_bp.route('/goals/edit/<int:goal_id>', methods=['GET', 'POST'])
 @login_required 
@@ -322,3 +345,33 @@ def delete_goal(goal_id):
     db.session.commit()
     
     return redirect(url_for('budgeting_and_goals.view_goals', success='goal_deleted'))
+
+@budgeting_and_goals_bp.route('/goal/<int:goal_id>/complete', methods=['POST'])
+@login_required
+def complete_goal(goal_id):
+    user_id = session['user']['id']
+    goal = Goal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
+
+    if not goal.date_completed:
+        goal.date_completed = datetime.now(timezone.utc)
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            return redirect(url_for('budgeting_and_goals.view_goals', error='goal_update_failed'))
+        
+        return redirect(url_for('budgeting_and_goals.view_goals', success='goal_completed'))
+
+    return redirect(url_for('budgeting_and_goals.view_goals', success='goal_already_completed'))
+
+@budgeting_and_goals_bp.route('/goal/<int:goal_id>/toggle_hide', methods=['POST'])
+@login_required
+def toggle_hide_goal(goal_id):
+    user_id = session['user']['id']
+    goal = Goal.query.filter_by(id=goal_id, user_id=user_id).first()
+    
+    goal.is_hidden = not goal.is_hidden
+    db.session.commit()
+
+    action = "hidden" if goal.is_hidden else "visible"
+    return redirect(url_for('budgeting_and_goals.view_goals', success=f'goal_{action}'))

@@ -26,6 +26,8 @@ class Goal(db.Model):
     start_date = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc).date())
     deadline = db.Column(db.Date, nullable=False)
     description = db.Column(db.Text, nullable=True)
+    date_completed = db.Column(db.DateTime, nullable=True)
+    is_hidden = db.Column(db.Boolean, default=False)
 
     user = db.relationship('User', backref=db.backref('goals', lazy=True))
 

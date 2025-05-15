@@ -93,6 +93,47 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+    if (urlParams.get("error") === "goal_update_failed") {
+    createFlashMessage({
+      message: "An error occurred while updating goal completion status.",
+      type: "danger",
+      icon: "exclamation-triangle",
+    });
+  }
+
+    if (urlParams.get("success") === "goal_completed") {
+    createFlashMessage({
+      message: "Goal marked as completed!",
+      type: "warning", 
+      icon: "check-circle",
+    });
+  }
+
+  if (urlParams.get("info") === "goal_already_completed") {
+    createFlashMessage({
+      message: "Goal is already completed.",
+      type: "info",
+      icon: "check-circle",
+    });
+  }
+
+
+  if (urlParams.get("success") === "goal_hidden") {
+    createFlashMessage({
+      message: "Goal is now hidden.",
+      type: "danger", 
+      icon: "eye-slash",
+    });
+  }
+
+  if (urlParams.get("success") === "goal_unhidden") {
+    createFlashMessage({
+      message: "Goal is now visible.",
+      type: "success", 
+      icon: "eye",
+    });
+  }
+
   if (urlParams.get("success") === "budget_deleted") {
     showStandardSuccess("Budget deleted successfully!");
   }

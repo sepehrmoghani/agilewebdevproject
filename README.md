@@ -1,10 +1,10 @@
-Owen: Authentication
+Owen (blobbymcgee): Authentication
 
-Sepehr: Transactions
+Sepehr (sepehrmoghani): Transactions
 
-William: Budgeting and Goals
+William (23722943): Budgeting and Goals
 
-Matthew: Dashboard and Analytics
+Matthew (sangyancs): Dashboard and Analytics
 
 # agilewebdevproject
 CITS3403 Agile Web Development Group Project

@@ -69,21 +69,21 @@
                                 <p class="text-muted small mb-1">Milestone Highlights</p>
 
                                 {% if not last_completed_goal and not closest_to_completion %}
-                                <h6 class="mb-0 text-muted">No milestones yet. Start a goal!</h6>
+                                    <h6 class="mb-0 text-muted">No milestones yet. Start a goal!</h6>
                                 {% else %}
-                                <h6 class="mb-0 goal-completed{% if not last_completed_goal %} empty hidden{% endif %}">
-                                    Last Completed:
-                                    <strong>
-                                        {{ last_completed_goal.title if last_completed_goal else '— None —' }}
-                                    </strong>
-                                </h6>
-                                <h6
-                                    class="mb-0 goal-upcoming{% if not closest_to_completion %} empty hidden{% endif %}">
-                                    Upcoming:
-                                    <strong>
-                                        {{ closest_to_completion.goal.title if closest_to_completion else '— None —' }}
-                                    </strong>
-                                </h6>
+                                    {% if last_completed_goal %}
+                                        <h6 class="mb-0 goal-completed">
+                                            Last Completed:
+                                            <strong>{{ last_completed_goal.title }}</strong>
+                                        </h6>
+                                    {% endif %}
+
+                                    {% if closest_to_completion %}
+                                        <h6 class="mb-0 goal-upcoming">
+                                            Upcoming:
+                                            <strong>{{ closest_to_completion.goal.title }}</strong>
+                                        </h6>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                             <div class="p-2 rounded-3 text-warning">
@@ -106,12 +106,14 @@
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="mb-0">Goals</h5>
 
+                    {% if any_hidden_goals_exist %}
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="showHiddenGoalsCheckbox" {% if show_hidden %}checked{% endif %}>
                         <label class="form-check-label" for="showHiddenGoalsCheckbox">
-                        Show Hidden Goals
+                            Show Hidden Goals
                         </label>
                     </div>
+                    {% endif %}
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">

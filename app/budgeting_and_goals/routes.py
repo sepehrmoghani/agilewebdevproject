@@ -268,13 +268,15 @@ def view_goals():
         for goal, total_amount in [(g['goal'], g['total_amount']) for g in goal_summaries]
         if total_amount < goal.target_amount and goal.target_amount > 0
     ]
+    
+    any_hidden_goals_exist = Goal.query.filter_by(user_id=user_id, is_hidden=True).first() is not None
 
     closest_to_completion = max(in_progress_goals, key=lambda x: x['progress'], default=None)
 
     return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries, 
                            total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress, 
                            last_completed_goal=last_completed_goal, closest_to_completion=closest_to_completion, 
-                           hidden_goals=hidden_goals, show_hidden=show_hidden)
+                           hidden_goals=hidden_goals, show_hidden=show_hidden, any_hidden_goals_exist=any_hidden_goals_exist)
 
 @budgeting_and_goals_bp.route('/goals/edit/<int:goal_id>', methods=['GET', 'POST'])
 @login_required 

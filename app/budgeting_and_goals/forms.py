@@ -5,29 +5,26 @@ from wtforms.validators import InputRequired, Length, ValidationError
 from wtforms.fields import FloatField
 from wtforms import DateField
 
-def is_number(form, field):
-    try:
-        value = float(field.data)
-    except (TypeError, ValueError):
-        raise ValidationError("Value must be a number.") 
-
 def positive_num(form, field):
-    try:
-        value = float(field.data)
-    except (TypeError, ValueError):
-        raise
-
-    if value <= 0:
-        raise ValidationError("Value must be a positive number.")
-
-def two_decimal_places(form, field):
+    if field.data is None:
+        return
     try:
         value = float(field.data)
     except (TypeError, ValueError):
         return
+    if value <= 0:
+        raise ValidationError("Value must be a positive number.")
 
+def two_decimal_places(form, field):
+    if field.data is None:
+        return
+    try:
+        value = float(field.data)
+    except (TypeError, ValueError):
+        raise ValidationError("Value must be a number.")
     if round(value, 2) != value:
         raise ValidationError("Value must have at most 2 decimal places.")
+
 
 class BudgetForm(FlaskForm):
     category = SelectField("Category", 
@@ -64,16 +61,20 @@ class BudgetForm(FlaskForm):
         validators=[InputRequired()],
         coerce=str
     )
-    limit = FloatField("Limit", validators=[InputRequired(), is_number, positive_num, two_decimal_places], render_kw={"placeholder": "e.g. 200.00"})
+    limit = FloatField("Limit", validators=[InputRequired(), positive_num, two_decimal_places], render_kw={"placeholder": "e.g. 200.00"})
     period = SelectField("Period", choices=[('', 'Choose a Period'), ('weekly', 'Weekly'), ('monthly', 'Monthly'), ('yearly', 'Yearly')], validators=[InputRequired()])
     description = TextAreaField("Description (Optional)")
     submit = SubmitField("Save Budget")
 
 def current_limit(form, field):
-    if field.data is None:
+    if field.data is None or form.target_amount.data is None:
+        return 
+    try:
+        current = float(field.data)
+        target = float(form.target_amount.data)
+    except (TypeError, ValueError):
         return
-
-    if field.data > form.target_amount.data:
+    if current > target:
         raise ValidationError("Current amount cannot exceed the target amount.")
 
 def validate_start_date(self, field):
@@ -104,8 +105,8 @@ def validate_deadline(self, field):
 
 class GoalForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired(), Length(max=60)], render_kw={"placeholder": "Untitled"})
-    target_amount = FloatField("Target Amount", validators=[InputRequired(), is_number, positive_num, two_decimal_places], render_kw={"placeholder": "e.g. 1000.00"})
-    current_amount = FloatField("Current Amount", validators=[InputRequired(), is_number, current_limit, two_decimal_places], render_kw={"placeholder": "e.g. 250.00"})
+    target_amount = FloatField("Target Amount", validators=[InputRequired(), positive_num, two_decimal_places], render_kw={"placeholder": "e.g. 1000.00"})
+    current_amount = FloatField("Current Amount", validators=[InputRequired(), current_limit, two_decimal_places], render_kw={"placeholder": "e.g. 250.00"})
     start_date = DateField("Start Date", format='%Y-%m-%d', default=datetime.now(timezone.utc).date(), validators=[InputRequired(), validate_start_date], render_kw={"placeholder": "YYYY-MM-DD"})
     original_start_date = HiddenField()
     deadline = DateField("Deadline", validators=[InputRequired(), validate_deadline], format='%Y-%m-%d', render_kw={"placeholder": "YYYY-MM-DD"})

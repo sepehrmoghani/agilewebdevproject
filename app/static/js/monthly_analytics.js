@@ -8,42 +8,55 @@ fetch('/dashboard/api/transactions')
             const dateObj = new Date(tx.date);
             const year = dateObj.getFullYear();
 
-            const monthKey = tx.date.slice(0, 7);
+            // Monthly key (e.g. Jan 2024)
+            const monthKey = dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' });
             if (!monthlyTotals[monthKey]) monthlyTotals[monthKey] = 0;
             monthlyTotals[monthKey] += tx.amount;
 
+            // Weekly key (e.g. Jan 1, 2024)
             const weekNumber = getWeekNumber(dateObj);
-            const weekKey = `${year}-W${weekNumber}`;
+            const weekKey = getWeekLabel(dateObj);
             if (!weeklyTotals[weekKey]) weeklyTotals[weekKey] = 0;
             weeklyTotals[weekKey] += tx.amount;
         });
 
+        // Sort keys chronologically
+        const sortedMonthly = Object.entries(monthlyTotals).sort((a, b) => new Date(a[0]) - new Date(b[0]));
+        const sortedWeekly = Object.entries(weeklyTotals).sort((a, b) => new Date(a[0]) - new Date(b[0]));
+
         // Render Monthly Chart
-        renderChart('monthlyBalanceChart', 'Monthly Transaction Total', monthlyTotals);
+        renderChart('monthlyBalanceChart', 'Monthly Transaction Total',
+            sortedMonthly.map(e => e[0]), sortedMonthly.map(e => e[1]));
 
         // Render Weekly Chart
-        renderChart('weeklyBalanceChart', 'Weekly Transaction Total', weeklyTotals);
+        renderChart('weeklyBalanceChart', 'Weekly Transaction Total',
+            sortedWeekly.map(e => e[0]), sortedWeekly.map(e => e[1]));
     })
     .catch(err => console.error('Error loading analytics data:', err));
 
+// Utility to get ISO week number
 function getWeekNumber(d) {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    return String(weekNo).padStart(2, '0');
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
-function renderChart(canvasId, label, dataObj) {
+// Format week label as "Jan 1, 2024"
+function getWeekLabel(d) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderChart(canvasId, label, labels, dataValues) {
     const ctx = document.getElementById(canvasId).getContext('2d');
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Object.keys(dataObj),
+            labels: labels,
             datasets: [{
                 label: label,
-                data: Object.values(dataObj),
+                data: dataValues,
                 borderColor: '#00bcd4',
                 backgroundColor: 'rgba(0, 188, 212, 0.2)',
                 borderWidth: 2,

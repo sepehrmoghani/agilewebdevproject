@@ -8,14 +8,22 @@ fetch('/dashboard/api/transactions')
         let categories = {};
         let totalIncome = 0, totalExpenses = 0, netSavings = 0;
 
+        // Sort by date (oldest to newest)
         const sortedData = data.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+        
         let labels = [];
         let amounts = [];
         let transactionTypes = { 'Income': 0, 'Expense': 0, 'Transfer': 0 };
 
+        // Format function for "Jan 1, 2024"
+        const formatDate = (dateStr) => {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateStr).toLocaleDateString('en-US', options);
+        };
+
         // Process each transaction
-        data.forEach(tx => {
-            labels.push(tx.date);
+        sortedData.forEach(tx => {
+            labels.push(formatDate(tx.date));
             amounts.push(tx.amount);
 
             categories[tx.category] = (categories[tx.category] || 0) + tx.amount;
@@ -61,8 +69,14 @@ fetch('/dashboard/api/transactions')
                         }
                     },
                     scales: {
-                        x: { ticks: { color: '#ccc' }, grid: { color: '#444' } },
-                        y: { ticks: { color: '#ccc' }, grid: { color: '#444' } }
+                        x: {
+                            ticks: { color: '#ccc' },
+                            grid: { color: '#444' }
+                        },
+                        y: {
+                            ticks: { color: '#ccc' },
+                            grid: { color: '#444' }
+                        }
                     }
                 }
             });

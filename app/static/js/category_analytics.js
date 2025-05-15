@@ -8,8 +8,10 @@ fetch('/dashboard/api/transactions')
             categoryTotals[tx.category] += tx.amount;
         });
 
-        const labels = Object.keys(categoryTotals);
-        const values = Object.values(categoryTotals);
+        // Sort categories alphabetically
+        const sortedCategories = Object.entries(categoryTotals).sort((a, b) => a[0].localeCompare(b[0]));
+        const labels = sortedCategories.map(e => e[0]);
+        const values = sortedCategories.map(e => e[1]);
         const colors = labels.map((_, i) => `hsl(${i * 40 % 360}, 70%, 60%)`);
 
         const ctx = document.getElementById('categoryChart').getContext('2d');
@@ -28,7 +30,7 @@ fetch('/dashboard/api/transactions')
             },
             options: {
                 responsive: true,
-                aspectRatio: 1,  // Ensure the chart remains circular (aspect ratio of 1:1)
+                aspectRatio: 1,
                 plugins: {
                     title: {
                         display: true,

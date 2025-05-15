@@ -6,15 +6,23 @@ from wtforms.fields import FloatField
 from wtforms import DateField
 
 def positive_number_only(form, field):
-    if field.data is None:
-        return
+    try:
+        value = float(field.data)
+    except (TypeError, ValueError):
+        raise ValidationError("Value must be a number.")
 
-    if field.data <= 0:
+    if value <= 0:
         raise ValidationError("Value must be a positive number.")
 
 def two_decimal_places(form, field):
-    if round(field.data, 2) != field.data:
+    try:
+        value = float(field.data)
+    except (TypeError, ValueError):
+        return
+
+    if round(value, 2) != value:
         raise ValidationError("Value must have at most 2 decimal places.")
+
 
 class BudgetForm(FlaskForm):
     category = SelectField("Category", 

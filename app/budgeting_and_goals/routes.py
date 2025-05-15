@@ -143,8 +143,8 @@ def edit_budget(budget_id):
     budget = Budget.query.get_or_404(budget_id)
 
     if budget.user_id != session['user']['id']:
-        flash("You do not have permission to edit this budget.", "danger")
-        return redirect(url_for('budgeting_and_goals.view_budget'))
+        return redirect(url_for('budgeting_and_goals.view_budget', error='not_authorized_budget'))
+
 
     form = BudgetForm(obj=budget)
 
@@ -155,8 +155,8 @@ def edit_budget(budget_id):
         budget.description = form.description.data
 
         db.session.commit()
-        flash("Budget updated successfully!", "success")
-        return redirect(url_for('budgeting_and_goals.view_budget'))
+        
+        return redirect(url_for('budgeting_and_goals.view_budget', success='budget_edited'))
     else:
         print("Form errors:", form.errors)
 
@@ -180,8 +180,7 @@ def add_budget():
         db.session.add(new_budget)  
         db.session.commit()  
 
-        flash('Budget added successfully!', 'success') 
-        return redirect(url_for('budgeting_and_goals.view_budget'))  # Redirect to view the budget list
+        return redirect(url_for('budgeting_and_goals.view_budget', success='budget_added'))
     else:
         print("Form errors:", form.errors)
 
@@ -194,15 +193,13 @@ def delete_budget(budget_id):
 
     # Only allow deletion if the budget belongs to the current user
     if budget.user_id != session['user']['id']:
-        flash("You are not authorized to delete this budget.", "danger")
-        return redirect(url_for('budgeting_and_goals.view_budget'))
+        return redirect(url_for('budgeting_and_goals.view_budget', error='not_authorized_budget'))
+
 
     db.session.delete(budget)
     db.session.commit()
-    flash("Budget deleted successfully.", "success")
 
-    # Redirect back to the budget overview page after deletion
-    return redirect(url_for('budgeting_and_goals.view_budget'))
+    return redirect(url_for('budgeting_and_goals.view_budget', success='budget_deleted'))
 
 #Goal Helper Functions
 def get_transactions_for_goal(user_id, start_date, deadline):
@@ -263,8 +260,7 @@ def edit_goals(goal_id):
 
     # Ensure the user is the owner of the goal
     if goal.user_id != session['user']['id']:
-        flash("You do not have permission to edit this goal.", "danger")
-        return redirect(url_for('budgeting_and_goals.view_goals'))
+        return redirect(url_for('budgeting_and_goals.view_goals', error='not_authorized_goal'))
 
     form = GoalForm(obj=goal)  # Pre-fill the form with the current goal values
     
@@ -280,8 +276,8 @@ def edit_goals(goal_id):
         goal.description = form.description.data
 
         db.session.commit()
-        flash("Goal updated successfully!", "success")
-        return redirect(url_for('budgeting_and_goals.view_goals'))
+    
+        return redirect(url_for('budgeting_and_goals.view_goals', success='goal_edited'))
     else:
         print("Form errors:", form.errors)
 
@@ -308,8 +304,7 @@ def add_goal():
         db.session.add(new_goal)
         db.session.commit()
 
-        flash('Goal added successfully!', 'success')
-        return redirect(url_for('budgeting_and_goals.view_goals'))  # Redirect to view the goals list
+        return redirect(url_for('budgeting_and_goals.view_goals', success='goal_added'))
     else:
         print("Form errors:", form.errors)
 
@@ -321,10 +316,9 @@ def delete_goal(goal_id):
     goal = Goal.query.get_or_404(goal_id)
 
     if goal.user_id != session['user']['id']:
-        flash("You are not authorized to delete this goal.", "danger")
-        return redirect(url_for('budgeting_and_goals.view_goals'))
+        return redirect(url_for('budgeting_and_goals.view_goals', error='not_authorized_goal'))
 
     db.session.delete(goal)
     db.session.commit()
-    flash("Goal deleted successfully.", "success")
-    return redirect(url_for('budgeting_and_goals.view_goals'))
+    
+    return redirect(url_for('budgeting_and_goals.view_goals', success='goal_deleted'))

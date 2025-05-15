@@ -53,7 +53,19 @@
             <!-- Select Period [weekly, monthly, yearly] -->
             <div class="mb-3">
                 <label for="period" class="form-label">{{ form.period.label }}</label>
-                {{ form.period(class="form-control", aria_label="Select a period") }}
+                <select class="form-select" id="period" name="{{ form.period.name }}" aria-label="Select a period">
+                    {% for value, label in form.period.choices %}
+                        {% if value == '' %}
+                            <option value="" disabled {% if not form.period.data %}selected{% endif %}>{{ label }}</option>
+                        {% else %}
+                            <option value="{{ value }}" {% if form.period.data == value %}selected{% endif %}>{{ label }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
+                {% for error in form.period.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
             </div>
 
             <!-- Optional Description -->

@@ -1,19 +1,38 @@
 .budget-bar-container {
   position: relative;
   height: 24px;
-  background-color: #e0e0e0;
+  background-color: #444;
   overflow: hidden;
   margin: 0 auto;
   width: 100%;
+  border-radius: 6px; /* optional for nicer visuals */
 }
 
-.budget-bar-fill {
+.budget-bar-fill,
+.budget-bar-previous {
   position: absolute;
   top: 0;
   height: 100%;
-  background-color: #4caf50;
+  transition:
+    left 0.4s ease,
+    width 0.4s ease,
+    background-color 0.3s ease;
 }
 
+
+
+/* Layering: previous under current */
+.budget-bar-previous {
+  z-index: 1;
+  background-color: rgba(33, 150, 243, 0.7); /* semi-transparent blue */
+}
+
+.budget-bar-fill {
+  z-index: 2;
+  background-color: rgba(76, 175, 80, 0.7); /* semi-transparent green */
+}
+
+/* Markers */
 .marker {
   position: absolute;
   top: -6px;
@@ -27,26 +46,8 @@
   background-color: black;
 }
 
-.marker-previous {
-  background-color: orange;
-}
-
 .marker-limit {
-  background-color: red;
-}
-
-.budget-bar-previous {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  background-color: #2196F3; /* blue for previous */
-  z-index: 1;
-}
-
-.budget-bar-fill {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  background-color: #4caf50; /* default green */
-  z-index: 2;
+  background-color: rgba(255, 0, 0); /* red with transparency */
+  width: 6px;
+  border-radius: 3px;
 }

@@ -9,68 +9,88 @@ document.addEventListener("DOMContentLoaded", function () {
     const zeroMarker = container.querySelector(".marker-zero");
     const limitMarker = container.querySelector(".marker-limit");
 
-    const maxPct = 105;
-    const totalRange = maxPct * 2;
+    // Compute raw % values relative to the limit
+    let rawCurrentPct = limit > 0 ? (current / limit) * 100 : 0;
+    let rawPrevPct = limit > 0 ? (previous / limit) * 100 : 0;
 
-    let currentPct = limit > 0 ? (current / limit) * 100 : 0;
-    currentPct = Math.max(Math.min(currentPct, maxPct), -maxPct);
+    // Determine the maximum absolute extent from center (symmetric)
+    // Determine the dynamic max (largest absolute % value)
+    const peakPct = Math.max(Math.abs(rawCurrentPct), Math.abs(rawPrevPct), 100);
 
-    let prevPct = limit > 0 ? (previous / limit) * 100 : 0;
-    prevPct = Math.max(Math.min(prevPct, maxPct), -maxPct);
+    // Add a buffer of 5% to each side
+    const buffer = 20;
+    const dynamicMax = peakPct + buffer;
+    const totalRange = dynamicMax * 2;
 
-    // Compute positions for previous bar
-    const prevStart = ((prevPct < 0 ? prevPct : 0) + maxPct) / totalRange * 100;
-    const prevWidth = Math.abs(prevPct) / totalRange * 100;
+    // Scale and clamp for bar calculation
+    let currentPct = Math.max(Math.min(rawCurrentPct, dynamicMax), -dynamicMax);
+    let prevPct = Math.max(Math.min(rawPrevPct, dynamicMax), -dynamicMax);
 
-    previousBar.style.left = prevStart + "%";
-    previousBar.style.width = prevWidth + "%";
-    previousBar.style.backgroundColor = "#2196F3";
-
-    // Compute positions for current bar
-    const currStart = ((currentPct < 0 ? currentPct : 0) + maxPct) / totalRange * 100;
+    // Compute visual positions
+    const currStart = ((currentPct < 0 ? currentPct : 0) + dynamicMax) / totalRange * 100;
     const currWidth = Math.abs(currentPct) / totalRange * 100;
 
-    fill.style.left = currStart + "%";
-    fill.style.width = currWidth + "%";
+    const prevStart = ((prevPct < 0 ? prevPct : 0) + dynamicMax) / totalRange * 100;
+    const prevWidth = Math.abs(prevPct) / totalRange * 100;
 
-    // Determine overlap
-    const currEnd = currStart + currWidth;
-    const prevEnd = prevStart + prevWidth;
-    const isOverlap = !(currEnd <= prevStart || prevEnd <= currStart);
+    // Apply positions
+    // Set initial styles without transition (start point)
+    fill.style.transition = "none";
+    previousBar.style.transition = "none";
 
-    // Determine fill colors
-    const overlapColor = "orange";
-    const currentColor = "#4caf50"; // green
-    const previousColor = "#33adff";
+    fill.style.left = "50%";
+    fill.style.width = "0%";
+    previousBar.style.left = "50%";
+    previousBar.style.width = "0%";
 
-    // Set default colors
-    fill.style.backgroundColor = currentColor;
+    // Force reflow to apply the styles immediately
+    fill.offsetHeight;
+    previousBar.offsetHeight;
+
+    // Animate to final position and size
+    setTimeout(() => {
+      fill.style.transition = "";  // restore CSS transition
+      previousBar.style.transition = "";
+
+      fill.style.left = currStart + "%";
+      fill.style.width = currWidth + "%";
+
+      previousBar.style.left = prevStart + "%";
+      previousBar.style.width = prevWidth + "%";
+    }, 10);
+
+
+
+    // Bar color logic
+    const currentColor = "rgba(76, 175, 80, 0.7)";
+    const previousColor = "rgba(33, 150, 243, 0.7)";
+    const overLimitColor = "rgba(255, 99, 132, 0.7)";
+
+    fill.style.backgroundColor = currentPct > 100 ? overLimitColor : currentColor;
     previousBar.style.backgroundColor = previousColor;
 
-    // Check for overlap
-    if (isOverlap) {
-    if (currWidth > prevWidth) {
-        fill.style.backgroundColor = currentColor;       // current stays green
-        previousBar.style.backgroundColor = overlapColor; // previous turns orange
+    // Z-index based on prominence
+    if (Math.abs(currentPct) > Math.abs(prevPct)) {
+      fill.style.zIndex = "1";
+      previousBar.style.zIndex = "2";
     } else {
-        fill.style.backgroundColor = overlapColor;       // current turns orange
-        previousBar.style.backgroundColor = previousColor; // previous stays blue
-    }
+      fill.style.zIndex = "2";
+      previousBar.style.zIndex = "1";
     }
 
-
-    // Zero marker (0%)
+    // Keep zero marker always centered
     zeroMarker.style.left = "50%";
     zeroMarker.style.backgroundColor = "black";
 
-    // Limit marker (100%)
-    const limitLeft = ((100 + maxPct) / totalRange) * 100;
+    // Recompute limit marker (relative to new dynamic range)
+    const limitLeft = ((100 + dynamicMax) / totalRange) * 100;
     limitMarker.style.left = limitLeft + "%";
-    limitMarker.style.backgroundColor = "red";
-    limitMarker.style.width = "10px";
+    limitMarker.style.backgroundColor = "rgba(255, 0, 0)";
+    limitMarker.style.width = "6px";
+    limitMarker.style.borderRadius = "3px";
   });
 
-  // Initialize tooltips
+  // Bootstrap tooltips
   document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
     new bootstrap.Tooltip(el);
   });

@@ -40,7 +40,8 @@ class TransactionForm(FlaskForm):
         ('Travel & holidays', 'Travel & holidays'),
         ('Uncategorised', 'Uncategorised'),
         ('Utilities', 'Utilities'),
-        ('Vehicle & transport', 'Vehicle & transport')
+        ('Vehicle & transport', 'Vehicle & transport'),
+        ('Wages and Income', 'Wages and Income')
     ], validators=[DataRequired()])
     transaction_type = SelectField('Type', choices=[('income', 'Income'), ('expense', 'Expense')], validators=[DataRequired()])
     submit = SubmitField('Add Transaction')

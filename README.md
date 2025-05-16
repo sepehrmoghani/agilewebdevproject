@@ -121,6 +121,7 @@ https://replit.com/@sepehrmoghani/FinanceTracker?v=1
 
 https://enzostvs-deepsite.hf.space/  
 https://chatgpt.com/share/6826eb2a-3144-8003-bf53-c7147663ee33
+https://chatgpt.com/share/6826ed3b-4c88-8002-8e47-c40b61db69f1
 
 ### Owen - 23924722
 https://chatgpt.com/share/6826e30a-e338-8010-bdf3-d2750405dd03

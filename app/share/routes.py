@@ -1,411 +1,119 @@
-from datetime import datetime, timedelta, timezone
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from sqlalchemy.exc import SQLAlchemyError
-from app.authentication.utils import login_required
-from .forms import BudgetForm, GoalForm
-from .models import User, Budget, Goal
+from flask import render_template, request, jsonify, abort, redirect, url_for, session, flash
+from . import share_bp
+from .models import ShareSettings
+from .forms import ShareForm
 from app.transactions.models import Transaction
+from app.authentication.models import User
 from app import db
-
-budgeting_and_goals_bp = Blueprint(
-    'budgeting_and_goals', __name__, template_folder='templates', static_folder='static'
-)
-
-#Budgeting Helper Functions
-def get_transactions_for_budget(user_id, category, period):
-    now = datetime.now(timezone.utc)
-
-    if period == 'weekly':
-        start_date = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
-    elif period == 'monthly':
-        start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    elif period == 'yearly':
-        start_date = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-    else:
-        start_date = datetime(1, 1, 1, tzinfo=timezone.utc)
-
-    transactions = Transaction.query.filter_by(
-        user_id=user_id,
-        category=category
-    ).filter(
-        Transaction.date >= start_date
-    ).all()
-
-    return transactions
-
-def get_previous_transactions_for_budget(user_id, category, period):
-    now = datetime.now(timezone.utc)
-
-    if period == 'weekly':
-        start = (now - timedelta(days=now.weekday() + 7)).replace(hour=0, minute=0, second=0, microsecond=0)
-        end = start + timedelta(days=7)
-    elif period == 'monthly':
-        this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        last_month_end = this_month_start - timedelta(seconds=1)
-        start = last_month_end.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        end = last_month_end
-    elif period == 'yearly':
-        start = now.replace(year=now.year - 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-        end = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(seconds=1)
-    else:
-        return []
-
-    transactions = Transaction.query.filter_by(
-        user_id=user_id,
-        category=category
-    ).filter(
-        Transaction.date >= start,
-        Transaction.date <= end
-    ).all()
-
-    return transactions
+import uuid
+from datetime import datetime, timedelta
+from sqlalchemy import func
 
 
-# Budgeting
-@budgeting_and_goals_bp.route('/budget', methods=['GET'])
-@login_required
-def view_budget():
-    form = BudgetForm()
+@share_bp.route('/share', methods=['GET', 'POST'])
+def share_settings():
+    if 'user' not in session:
+        return redirect(url_for('authentication.login'))
+
     user_id = session['user']['id']
+    share_settings = ShareSettings.query.filter_by(user_id=user_id).first()
 
-    # Query the budgets created by the currently logged-in user
-    user_budgets = Budget.query.filter_by(user_id=user_id).all()
+    categories = db.session.query(Transaction.category).distinct().all()
+    categories = [cat[0] for cat in categories if cat[0]]
 
-    budget_summaries = []
-
-    most_saved = None
-    most_spent = None
-    max_saved_pct = -1
-    max_spent_pct = -1
-
-    for budget in user_budgets:
-        transactions = get_transactions_for_budget(user_id, budget.category, budget.period)
-        expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
-        income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
-
-        previous_transactions = get_previous_transactions_for_budget(user_id, budget.category, budget.period)
-        previous_expenses = sum(t.amount for t in previous_transactions if t.transaction_type == 'expense')
-        previous_income = sum(t.amount for t in previous_transactions if t.transaction_type == 'income')
-
-        total_spent = expenses_total - income_total
-        previous_total_spent = previous_expenses - previous_income
-
-        # Prevent divide-by-zero
-        if budget.limit and budget.limit > 0:
-            saved_pct = max(0, (budget.limit - total_spent) / budget.limit)
-            spent_pct = total_spent / budget.limit
-
-            if saved_pct > max_saved_pct:
-                max_saved_pct = saved_pct
-                most_saved = budget
-
-            if spent_pct > max_spent_pct:
-                max_spent_pct = spent_pct
-                most_spent = budget
-
-        budget_summaries.append({
-            'budget': budget,
-            'transactions': transactions,
-            'total_spent': total_spent,
-            'previous_total_spent': previous_total_spent,
-        })
-
-
-    # Monthly income/spending
-    now = datetime.now(timezone.utc)
-    current_month = now.month
-    current_year = now.year
-
-    transactions = Transaction.query.filter_by(user_id=user_id).all()
-
-    this_month_income = sum(t.amount for t in transactions if t.transaction_type == 'income' and t.date.month == current_month and t.date.year == current_year)
-    this_month_expense = sum(t.amount for t in transactions if t.transaction_type == 'expense' and t.date.month == current_month and t.date.year == current_year)
-
-    # Previous month (handle January case too)
-    first_day_this_month = now.replace(day=1)
-    last_day_previous_month = first_day_this_month - timedelta(days=1)
-    previous_month = last_day_previous_month.month
-    previous_year = last_day_previous_month.year
-
-    last_month_income = sum(t.amount for t in transactions if t.transaction_type == 'income' and t.date.month == previous_month and t.date.year == previous_year)
-    last_month_expense = sum(t.amount for t in transactions if t.transaction_type == 'expense' and t.date.month == previous_month and t.date.year == previous_year)
-
-    return render_template('budgeting_and_goals/budget.html', form=form, summaries=budget_summaries,
-        most_saved=most_saved, most_saved_pct=round(max_saved_pct * 100, 1) if most_saved else None,
-        most_spent=most_spent, most_spent_pct=round(max_spent_pct * 100, 1) if most_spent else None,
-        this_month_income=this_month_income, last_month_income=last_month_income,
-        this_month_expense=this_month_expense, last_month_expense=last_month_expense)
-
-@budgeting_and_goals_bp.route('/budget/edit/<int:budget_id>', methods=['GET', 'POST'])
-@login_required
-def edit_budget(budget_id):
-    budget = Budget.query.get_or_404(budget_id)
-
-    if budget.user_id != session['user']['id']:
-        return redirect(url_for('budgeting_and_goals.view_budget', error='not_authorized_budget'))
-
-
-    form = BudgetForm(obj=budget)
-
-    if form.validate_on_submit():
-        budget.category = form.category.data
-        budget.limit = form.limit.data
-        budget.period = form.period.data
-        budget.description = form.description.data
-
+    if not share_settings:
+        share_settings = ShareSettings(user_id=user_id,
+                                       share_url=str(uuid.uuid4())[:8],
+                                       is_public=False)
+        db.session.add(share_settings)
         db.session.commit()
 
-        return redirect(url_for('budgeting_and_goals.view_budget', success='budget_edited'))
-    else:
-        print("Form errors:", form.errors)
-
-    return render_template('budgeting_and_goals/budget_edit.html', form=form, budget_id=budget_id)
-
-@budgeting_and_goals_bp.route('/budget/add', methods=['GET', 'POST'])
-@login_required 
-def add_budget():
-    form = BudgetForm()  # Create a new form for adding a budget
-
-    if form.validate_on_submit():  # Validate form data when submitted
-        # Create a new Budget instance with form data
-        new_budget = Budget(
-            category=form.category.data,
-            limit=form.limit.data,
-            period=form.period.data,
-            description=form.description.data,
-            user_id=session['user']['id']
-        )
-
-        db.session.add(new_budget)  
-        db.session.commit()  
-
-        return redirect(url_for('budgeting_and_goals.view_budget', success='budget_added'))
-    else:
-        print("Form errors:", form.errors)
-
-    return render_template('budgeting_and_goals/budget_add.html', form=form)
-
-@budgeting_and_goals_bp.route('/budget/delete/<int:budget_id>', methods=['POST'])
-@login_required
-def delete_budget(budget_id):
-    budget = Budget.query.get_or_404(budget_id)
-
-    # Only allow deletion if the budget belongs to the current user
-    if budget.user_id != session['user']['id']:
-        return redirect(url_for('budgeting_and_goals.view_budget', error='not_authorized_budget'))
-
-
-    db.session.delete(budget)
-    db.session.commit()
-
-    return redirect(url_for('budgeting_and_goals.view_budget', success='budget_deleted'))
-
-#Goal Helper Functions
-from sqlalchemy import and_
-from datetime import datetime, time
-
-def get_transactions_for_goal(user_id, start_date, deadline):
-    """
-    Calculates goal progress using percentage of income and expenses
-    ONLY within the goal's date range. Ignores any earlier transactions.
-    """
-    goal = Goal.query.filter_by(
-        user_id=user_id,
-        start_date=start_date,
-        deadline=deadline,
-        date_completed=None
-    ).first()
-
-    if not goal:
-        return [], 0
-
-    # Combine dates with full-day range (start: 00:00, end: 23:59:59)
-    start_datetime = datetime.combine(start_date, time.min).astimezone()
-    end_datetime = datetime.combine(deadline, time.max).astimezone()
-
-    transactions = Transaction.query.filter(
-        and_(
-            Transaction.user_id == user_id,
-            Transaction.date >= start_datetime,
-            Transaction.date <= end_datetime
-        )
-    ).all()
-
-    transactions.sort(key=lambda t: t.date)
-
-    pct = (goal.salary_percentage or 0) / 100
-    total = goal.current_amount or 0
-
-    for t in transactions:
-        print(f"{t.date} | {t.transaction_type} | ${t.amount}")
-        print(f"Goal start: {start_date} | Goal end: {deadline}")
-        print(f"Start datetime: {start_datetime} | End datetime: {end_datetime}")
-
-        if t.transaction_type == 'income':
-            total += t.amount * pct
-        elif t.transaction_type == 'expense':
-            total -= t.amount * pct
-
-    return transactions, round(total, 2)
-
-
-
-
-
-@budgeting_and_goals_bp.route('/goals', methods=['GET'])
-@login_required 
-def view_goals():
-    form = GoalForm()
-    user_id = session['user']['id']
-
-    show_hidden = request.args.get('show_hidden', 'false').lower() == 'true'
-
-    if show_hidden:
-        user_goals = Goal.query.filter_by(user_id=user_id).all()  # All goals including hidden
-    else:
-        user_goals = Goal.query.filter_by(user_id=user_id, is_hidden=False).all()  # Only visible goals
-
-    hidden_goals = [g for g in user_goals if g.is_hidden] if show_hidden else []
-
-    goal_summaries = []
-    all_goals = Goal.query.filter_by(user_id=user_id).all()  # All goals, regardless of hidden
-    total_goals = len(all_goals)
-    completed_goals = len([g for g in all_goals if g.date_completed is not None])
-
-    for goal in user_goals:
-        transactions, total_amount = get_transactions_for_goal(user_id, goal.start_date, goal.deadline)
-
-        goal_summaries.append({
-            'goal': goal,
-            'transactions': transactions,
-            'total_amount': total_amount,
-            'expenses_total': sum(t.amount for t in transactions if t.transaction_type == 'expense'),
-            'income_total': sum(t.amount for t in transactions if t.transaction_type == 'income'),
-        })
-
-
-    in_progress = total_goals - completed_goals
-
-    # Use all goals (including hidden) to find last completed goal
-    all_goals = Goal.query.filter_by(user_id=user_id).all()
-    completed_goals_with_dates = [g for g in all_goals if g.date_completed is not None]
-    last_completed_goal = max(completed_goals_with_dates, key=lambda g: g.date_completed, default=None)
-
-    in_progress_goals = [
-        {
-            'goal': goal,
-            'total_amount': total_amount,
-            'progress': total_amount / goal.target_amount
-        }
-        for goal, total_amount in [(g['goal'], g['total_amount']) for g in goal_summaries]
-        if total_amount < goal.target_amount and goal.target_amount > 0
-    ]
-
-    any_hidden_goals_exist = Goal.query.filter_by(user_id=user_id, is_hidden=True).first() is not None
-
-    closest_to_completion = max(in_progress_goals, key=lambda x: x['progress'], default=None)
-
-    return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries, 
-                            total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress, 
-                            last_completed_goal=last_completed_goal, closest_to_completion=closest_to_completion, 
-                            hidden_goals=hidden_goals, show_hidden=show_hidden, any_hidden_goals_exist=any_hidden_goals_exist)
-
-@budgeting_and_goals_bp.route('/goals/edit/<int:goal_id>', methods=['GET', 'POST'])
-@login_required 
-def edit_goals(goal_id):
-    goal = Goal.query.get_or_404(goal_id)
-
-    # Ensure the user is the owner of the goal
-    if goal.user_id != session['user']['id']:
-        return redirect(url_for('budgeting_and_goals.view_goals', error='not_authorized_goal'))
+    selected_categories = share_settings.selected_categories.split(
+        ',') if share_settings.selected_categories else []
 
     if request.method == 'POST':
-        goal.title = request.form.get('title')
-        goal.target_amount = float(request.form.get('target_amount'))
-        goal.current_amount = float(request.form.get('current_amount'))
-        goal.start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
-        goal.deadline = datetime.strptime(request.form.get('deadline'), '%Y-%m-%d').date()
-        goal.description = request.form.get('description')
-
-        try:
-            db.session.commit()
-            return redirect(url_for('budgeting_and_goals.view_goals', success='goal_edited'))
-        except:
-            db.session.rollback()
-            return redirect(url_for('budgeting_and_goals.view_goals', error='goal_edit_failed'))
-
-    return redirect(url_for('budgeting_and_goals.view_goals'))
-
-@budgeting_and_goals_bp.route('/goals/add', methods=['GET', 'POST'])
-@login_required
-def add_goal():
-    form = GoalForm()  # Create a new form for adding a goal
-
-    if form.validate_on_submit():  # Validate form data when submitted
-
-        new_goal = Goal(
-            title=form.title.data,
-            target_amount=form.target_amount.data,
-            current_amount=form.current_amount.data,
-            salary_percentage=form.salary_percentage.data,
-            start_date=form.start_date.data,
-            deadline=form.deadline.data,
-            description=form.description.data,
-            user_id=session['user']['id']
-        )
-
-        db.session.add(new_goal)
+        selected = request.form.getlist('categories')
+        share_settings.selected_categories = ','.join(selected)
         db.session.commit()
+        flash('Share settings updated!', 'success')
+        return redirect(url_for('share.share_settings'))
 
-        return redirect(url_for('budgeting_and_goals.view_goals', success='goal_added'))
-    else:
-        print("Form errors:", form.errors)
-
-    return render_template('budgeting_and_goals/goals_add.html', form=form)
-
-@budgeting_and_goals_bp.route('/goals/delete/<int:goal_id>', methods=['POST'])
-@login_required
-def delete_goal(goal_id):
-    goal = db.session.get(Goal, goal_id)
-
-    if not goal:
-        return redirect(url_for('budgeting_and_goals.view_goals', error='goal_not_found'))
-
-    if goal.user_id != session['user']['id']:
-        return redirect(url_for('budgeting_and_goals.view_goals', error='not_authorized_goal'))
-
-    db.session.delete(goal)
-    db.session.commit()
-
-    return redirect(url_for('budgeting_and_goals.view_goals', success='goal_deleted'))
+    form = ShareForm()
+    return render_template('share/share.html',
+                           form=form,
+                           categories=categories,
+                           share_settings=share_settings,
+                           selected_categories=selected_categories)
 
 
-@budgeting_and_goals_bp.route('/goal/<int:goal_id>/complete', methods=['POST'])
-@login_required
-def complete_goal(goal_id):
+@share_bp.route('/toggle_share', methods=['POST'])
+def toggle_share():
+    if 'user' not in session:
+        return jsonify({'success': False}), 401
+
+    data = request.get_json()
     user_id = session['user']['id']
-    goal = Goal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
+    share_settings = ShareSettings.query.filter_by(user_id=user_id).first()
 
-    if not goal.date_completed:
-        goal.date_completed = datetime.now(timezone.utc)
-        try:
-            db.session.commit()
-        except SQLAlchemyError:
-            db.session.rollback()
-            return redirect(url_for('budgeting_and_goals.view_goals', error='goal_update_failed'))
+    if share_settings:
+        share_settings.is_public = data.get('is_public', False)
+        db.session.commit()
+        return jsonify({
+            'success': True,
+            'is_public': share_settings.is_public
+        })
 
-        return redirect(url_for('budgeting_and_goals.view_goals', success='goal_completed'))
+    return jsonify({'success': False}), 404
 
-    return redirect(url_for('budgeting_and_goals.view_goals', success='goal_already_completed'))
 
-@budgeting_and_goals_bp.route('/goal/<int:goal_id>/toggle_hide', methods=['POST'])
-@login_required
-def toggle_hide_goal(goal_id):
-    user_id = session['user']['id']
-    goal = Goal.query.filter_by(id=goal_id, user_id=user_id).first()
+@share_bp.route('/shared/<share_url>')
+def view_shared(share_url):
+    share_settings = ShareSettings.query.filter_by(share_url=share_url).first()
 
-    goal.is_hidden = not goal.is_hidden
-    db.session.commit()
+    if not share_settings:
+        abort(404)
 
-    action = "hidden" if goal.is_hidden else "visible"
-    return redirect(url_for('budgeting_and_goals.view_goals', success=f'goal_{action}'))
+    user = User.query.get(share_settings.user_id)
+
+    if not share_settings.is_public:
+        return render_template('share/shared_view.html',
+                               is_private=True,
+                               username=f"{user.first_name} {user.last_name}")
+
+    selected_categories = share_settings.selected_categories.split(
+        ',') if share_settings.selected_categories else []
+    improvements = calculate_improvements(share_settings.user_id,
+                                          selected_categories)
+
+    return render_template('share/shared_view.html',
+                           is_private=False,
+                           username=f"{user.first_name} {user.last_name}",
+                           categories=selected_categories,
+                           improvements=improvements)
+
+
+def calculate_improvements(user_id, categories):
+    improvements = {}
+    now = datetime.now()
+    week_ago = now - timedelta(days=7)
+    two_weeks_ago = now - timedelta(days=14)
+
+    for category in categories:
+        current_week = db.session.query(func.sum(Transaction.amount)).filter(
+            Transaction.user_id == user_id, Transaction.category == category,
+            Transaction.date > week_ago, Transaction.transaction_type
+            == 'expense').scalar() or 0
+
+        previous_week = db.session.query(func.sum(Transaction.amount)).filter(
+            Transaction.user_id == user_id, Transaction.category == category,
+            Transaction.date > two_weeks_ago, Transaction.date <= week_ago,
+            Transaction.transaction_type == 'expense').scalar() or 0
+
+        if previous_week != 0:
+            improvement = (
+                (previous_week - current_week) / previous_week) * 100
+            improvements[category] = round(improvement)
+        else:
+            improvements[category] = 100 if current_week == 0 else -100
+
+    return improvements

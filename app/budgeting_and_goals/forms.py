@@ -59,6 +59,21 @@ class BudgetForm(FlaskForm):
     description = TextAreaField("Description (Optional)")
     submit = SubmitField("Save Budget")
 
+def validate_start_date(form, field):
+    if field.data > date.today():
+        raise ValidationError("Start date cannot be in the future.")
+
+def current_limit(form, field):
+    if field.data is None:
+        return
+    try:
+        target = float(form.target_amount.data)
+        current = float(field.data)
+        if current > target:
+            raise ValidationError("Current amount cannot exceed target amount.")
+    except (TypeError, ValueError):
+        return
+
 def validate_deadline(self, field):
     if field.data <= date.today():
         raise ValidationError("Deadline must be a future date.")

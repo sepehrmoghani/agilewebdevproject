@@ -4,87 +4,88 @@ document.addEventListener("DOMContentLoaded", function () {
     const limit = parseFloat(container.dataset.limit);
     const previous = parseFloat(container.dataset.previous);
 
+    if (!(current >= 0 && previous >= 0)) return; // Only handle both-positive values
+
     const fill = container.querySelector(".budget-bar-fill");
     const previousBar = container.querySelector(".budget-bar-previous");
     const zeroMarker = container.querySelector(".marker-zero");
     const limitMarker = container.querySelector(".marker-limit");
 
-    // Compute raw % values relative to the limit
-    let rawCurrentPct = limit > 0 ? (current / limit) * 100 : 0;
-    let rawPrevPct = limit > 0 ? (previous / limit) * 100 : 0;
-
-    // Determine the maximum absolute extent from center (symmetric)
-    // Determine the dynamic max (largest absolute % value)
-    const peakPct = Math.max(Math.abs(rawCurrentPct), Math.abs(rawPrevPct), 100);
-
-    // Add a buffer of 5% to each side
-    const buffer = 20;
-    const dynamicMax = peakPct + buffer;
-    const totalRange = dynamicMax * 2;
-
-    // Scale and clamp for bar calculation
-    let currentPct = Math.max(Math.min(rawCurrentPct, dynamicMax), -dynamicMax);
-    let prevPct = Math.max(Math.min(rawPrevPct, dynamicMax), -dynamicMax);
-
-    // Compute visual positions
-    const currStart = ((currentPct < 0 ? currentPct : 0) + dynamicMax) / totalRange * 100;
-    const currWidth = Math.abs(currentPct) / totalRange * 100;
-
-    const prevStart = ((prevPct < 0 ? prevPct : 0) + dynamicMax) / totalRange * 100;
-    const prevWidth = Math.abs(prevPct) / totalRange * 100;
-
-    // Apply positions
-    // Set initial styles without transition (start point)
-    fill.style.transition = "none";
-    previousBar.style.transition = "none";
-
-    fill.style.left = "50%";
-    fill.style.width = "0%";
-    previousBar.style.left = "50%";
-    previousBar.style.width = "0%";
-
-    // Force reflow to apply the styles immediately
-    fill.offsetHeight;
-    previousBar.offsetHeight;
-
-    // Animate to final position and size
-    setTimeout(() => {
-      fill.style.transition = "";  // restore CSS transition
-      previousBar.style.transition = "";
-
-      fill.style.left = currStart + "%";
-      fill.style.width = currWidth + "%";
-
-      previousBar.style.left = prevStart + "%";
-      previousBar.style.width = prevWidth + "%";
-    }, 10);
-
-
-
-    // Bar color logic
-    const currentColor = "rgba(76, 175, 80, 0.7)";
-    const previousColor = "rgba(33, 150, 243, 0.7)";
-    const overLimitColor = "rgba(255, 99, 132, 0.7)";
-
-    fill.style.backgroundColor = currentPct > 100 ? overLimitColor : currentColor;
-    previousBar.style.backgroundColor = previousColor;
-
-    // Z-index based on prominence
-    if (Math.abs(currentPct) > Math.abs(prevPct)) {
-      fill.style.zIndex = "1";
-      previousBar.style.zIndex = "2";
-    } else {
-      fill.style.zIndex = "2";
-      previousBar.style.zIndex = "1";
+    let overflowBar = container.querySelector(".budget-bar-overfill");
+    if (!overflowBar) {
+      overflowBar = document.createElement("div");
+      overflowBar.className = "budget-bar-overfill";
+      overflowBar.style.position = "absolute";
+      overflowBar.style.height = "100%";
+      overflowBar.style.top = "0";
+      overflowBar.style.backgroundColor = "rgba(255, 99, 132, 0.7)";
+      overflowBar.style.transition = "none";
+      container.appendChild(overflowBar);
     }
 
-    // Keep zero marker always centered
-    zeroMarker.style.left = "50%";
+    const fullScale = 105; // Extend bar container to 105%
+
+    const rawCurrentPct = limit > 0 ? (current / limit) * 100 : 0;
+    const rawPreviousPct = limit > 0 ? (previous / limit) * 100 : 0;
+    const overflowPct = rawCurrentPct > 100 ? Math.min(rawCurrentPct - 100, 5) : 0;
+
+    const currentPct = Math.min(rawCurrentPct, 100);
+    const previousPct = Math.min(rawPreviousPct, 100);
+
+    // Normalize widths to 105% range
+    const scaledCurrentPct = (currentPct / fullScale) * 100;
+    const scaledPreviousPct = (previousPct / fullScale) * 100;
+    const scaledOverflowPct = (overflowPct / fullScale) * 100;
+
+    // Reset transitions and positions
+    fill.style.transition = "none";
+    previousBar.style.transition = "none";
+    overflowBar.style.transition = "none";
+
+    fill.style.left = "0%";
+    fill.style.width = "0%";
+    previousBar.style.left = "0%";
+    previousBar.style.width = "0%";
+    overflowBar.style.left = "100%";
+    overflowBar.style.width = "0%";
+
+    // Force reflow
+    fill.offsetHeight;
+    previousBar.offsetHeight;
+    overflowBar.offsetHeight;
+
+    // Animate bars
+    setTimeout(() => {
+      fill.style.transition = "";
+      previousBar.style.transition = "";
+      overflowBar.style.transition = "";
+
+      fill.style.width = scaledCurrentPct + "%";
+      previousBar.style.width = scaledPreviousPct + "%";
+      overflowBar.style.width = scaledOverflowPct + "%";
+      overflowBar.style.left = ((100 / fullScale) * 100) + "%"; // Place right after 100%
+    }, 10);
+
+    // Bar colors
+    const currentColor = "rgba(76, 175, 80, 0.7)";
+    const previousColor = "rgba(33, 150, 243, 0.7)";
+
+    fill.style.backgroundColor = currentColor;
+    previousBar.style.backgroundColor = previousColor;
+    overflowBar.style.backgroundColor = "rgba(255, 99, 132, 0.7)";
+
+    // Z-index logic
+    fill.style.zIndex = current > previous ? "1" : "2";
+    previousBar.style.zIndex = current > previous ? "2" : "1";
+    overflowBar.style.zIndex = "3";
+
+    // Zero marker (far left)
+    zeroMarker.style.left = "0%";
     zeroMarker.style.backgroundColor = "black";
 
-    // Recompute limit marker (relative to new dynamic range)
-    const limitLeft = ((100 + dynamicMax) / totalRange) * 100;
-    limitMarker.style.left = limitLeft + "%";
+    // Limit marker (now at ~95.2% to match 100% in new scale)
+    const limitPos = (100 / fullScale) * 100;
+    limitMarker.style.left = limitPos + "%";
     limitMarker.style.backgroundColor = "rgba(255, 0, 0)";
     limitMarker.style.width = "6px";
     limitMarker.style.borderRadius = "3px";

@@ -2,14 +2,15 @@
   position: relative;
   height: 24px;
   background-color: #444;
-  overflow: hidden;
+  overflow: visible; /* allow overflow to show */
   margin: 0 auto;
   width: 100%;
-  border-radius: 6px; /* optional for nicer visuals */
 }
 
+/* Common bar styles */
 .budget-bar-fill,
-.budget-bar-previous {
+.budget-bar-previous,
+.budget-bar-overfill {
   position: absolute;
   top: 0;
   height: 100%;
@@ -19,35 +20,39 @@
     background-color 0.3s ease;
 }
 
-
-
-/* Layering: previous under current */
+/* Past budget bar (blue) under current */
 .budget-bar-previous {
   z-index: 1;
-  background-color: rgba(33, 150, 243, 0.7); /* semi-transparent blue */
+  background-color: rgba(33, 150, 243, 0.7);
 }
 
+/* Current budget bar (green or red) */
 .budget-bar-fill {
   z-index: 2;
-  background-color: rgba(76, 175, 80, 0.7); /* semi-transparent green */
+  background-color: rgba(76, 175, 80, 0.7);
+}
+
+/* Overflow (red) beyond limit */
+.budget-bar-overfill {
+  z-index: 3;
+  background-color: rgba(255, 99, 132, 0.7);
 }
 
 /* Markers */
 .marker {
   position: absolute;
   top: -6px;
-  width: 2px;
   height: 36px;
-  background-color: black;
   z-index: 10;
 }
 
 .marker-zero {
+  left: 0%;
   background-color: black;
+  width: 2px;
 }
 
 .marker-limit {
-  background-color: rgba(255, 0, 0); /* red with transparency */
+  background-color: rgba(255, 0, 0, 1); /* solid red */
   width: 6px;
-  border-radius: 3px;
 }

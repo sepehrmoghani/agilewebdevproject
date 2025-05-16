@@ -61,6 +61,7 @@ def get_previous_transactions_for_budget(user_id, category, period):
 
     return transactions
 
+
 # Budgeting
 @budgeting_and_goals_bp.route('/budget', methods=['GET'])
 @login_required
@@ -82,14 +83,14 @@ def view_budget():
         transactions = get_transactions_for_budget(user_id, budget.category, budget.period)
         expenses_total = sum(t.amount for t in transactions if t.transaction_type == 'expense')
         income_total = sum(t.amount for t in transactions if t.transaction_type == 'income')
-        
+
         previous_transactions = get_previous_transactions_for_budget(user_id, budget.category, budget.period)
         previous_expenses = sum(t.amount for t in previous_transactions if t.transaction_type == 'expense')
         previous_income = sum(t.amount for t in previous_transactions if t.transaction_type == 'income')
-        
+
         total_spent = expenses_total - income_total
         previous_total_spent = previous_expenses - previous_income
-        
+
         # Prevent divide-by-zero
         if budget.limit and budget.limit > 0:
             saved_pct = max(0, (budget.limit - total_spent) / budget.limit)
@@ -117,7 +118,7 @@ def view_budget():
     current_year = now.year
 
     transactions = Transaction.query.filter_by(user_id=user_id).all()
-    
+
     this_month_income = sum(t.amount for t in transactions if t.transaction_type == 'income' and t.date.month == current_month and t.date.year == current_year)
     this_month_expense = sum(t.amount for t in transactions if t.transaction_type == 'expense' and t.date.month == current_month and t.date.year == current_year)
 
@@ -126,10 +127,10 @@ def view_budget():
     last_day_previous_month = first_day_this_month - timedelta(days=1)
     previous_month = last_day_previous_month.month
     previous_year = last_day_previous_month.year
-    
+
     last_month_income = sum(t.amount for t in transactions if t.transaction_type == 'income' and t.date.month == previous_month and t.date.year == previous_year)
     last_month_expense = sum(t.amount for t in transactions if t.transaction_type == 'expense' and t.date.month == previous_month and t.date.year == previous_year)
-        
+
     return render_template('budgeting_and_goals/budget.html', form=form, summaries=budget_summaries,
         most_saved=most_saved, most_saved_pct=round(max_saved_pct * 100, 1) if most_saved else None,
         most_spent=most_spent, most_spent_pct=round(max_spent_pct * 100, 1) if most_spent else None,
@@ -154,7 +155,7 @@ def edit_budget(budget_id):
         budget.description = form.description.data
 
         db.session.commit()
-        
+
         return redirect(url_for('budgeting_and_goals.view_budget', success='budget_edited'))
     else:
         print("Form errors:", form.errors)
@@ -200,7 +201,58 @@ def delete_budget(budget_id):
 
     return redirect(url_for('budgeting_and_goals.view_budget', success='budget_deleted'))
 
-# Goals
+#Goal Helper Functions
+from sqlalchemy import and_
+from datetime import datetime, time
+
+def get_transactions_for_goal(user_id, start_date, deadline):
+    """
+    Calculates goal progress using percentage of income and expenses
+    ONLY within the goal's date range. Ignores any earlier transactions.
+    """
+    goal = Goal.query.filter_by(
+        user_id=user_id,
+        start_date=start_date,
+        deadline=deadline,
+        date_completed=None
+    ).first()
+
+    if not goal:
+        return [], 0
+
+    # Combine dates with full-day range (start: 00:00, end: 23:59:59)
+    start_datetime = datetime.combine(start_date, time.min).astimezone()
+    end_datetime = datetime.combine(deadline, time.max).astimezone()
+
+    transactions = Transaction.query.filter(
+        and_(
+            Transaction.user_id == user_id,
+            Transaction.date >= start_datetime,
+            Transaction.date <= end_datetime
+        )
+    ).all()
+
+    transactions.sort(key=lambda t: t.date)
+
+    pct = (goal.salary_percentage or 0) / 100
+    total = goal.current_amount or 0
+
+    for t in transactions:
+        print(f"{t.date} | {t.transaction_type} | ${t.amount}")
+        print(f"Goal start: {start_date} | Goal end: {deadline}")
+        print(f"Start datetime: {start_datetime} | End datetime: {end_datetime}")
+
+        if t.transaction_type == 'income':
+            total += t.amount * pct
+        elif t.transaction_type == 'expense':
+            total -= t.amount * pct
+
+    return transactions, round(total, 2)
+
+
+
+
+
 @budgeting_and_goals_bp.route('/goals', methods=['GET'])
 @login_required 
 def view_goals():
@@ -210,57 +262,44 @@ def view_goals():
     show_hidden = request.args.get('show_hidden', 'false').lower() == 'true'
 
     if show_hidden:
-        user_goals = Goal.query.filter_by(user_id=user_id).all()
+        user_goals = Goal.query.filter_by(user_id=user_id).all()  # All goals including hidden
     else:
-        user_goals = Goal.query.filter_by(user_id=user_id, is_hidden=False).all()
+        user_goals = Goal.query.filter_by(user_id=user_id, is_hidden=False).all()  # Only visible goals
 
     hidden_goals = [g for g in user_goals if g.is_hidden] if show_hidden else []
 
-    # Get all user transactions up to now or deadline (optional)
-    all_transactions = Transaction.query.filter_by(user_id=user_id).order_by(Transaction.date.asc()).all()
-
-    def calculate_balance(transactions):
-        total = 0
-        for transaction in transactions:
-            if transaction.transaction_type == 'income':
-                total += transaction.amount
-            else:
-                total -= transaction.amount
-        return total
-
     goal_summaries = []
-    all_goals = Goal.query.filter_by(user_id=user_id).all()
+    all_goals = Goal.query.filter_by(user_id=user_id).all()  # All goals, regardless of hidden
     total_goals = len(all_goals)
     completed_goals = len([g for g in all_goals if g.date_completed is not None])
 
     for goal in user_goals:
-        # Filter transactions up to goal.deadline (optional)
-        transactions_up_to_deadline = [t for t in all_transactions if t.date.date() <= goal.deadline]
-
-        # Calculate balance based on transactions up to deadline
-        current_balance = calculate_balance(transactions_up_to_deadline)
-
-        # Use current_balance as current_amount replacement
-        total_amount = current_balance
+        transactions, total_amount = get_transactions_for_goal(user_id, goal.start_date, goal.deadline)
 
         goal_summaries.append({
             'goal': goal,
+            'transactions': transactions,
             'total_amount': total_amount,
-            'transactions': transactions_up_to_deadline
+            'expenses_total': sum(t.amount for t in transactions if t.transaction_type == 'expense'),
+            'income_total': sum(t.amount for t in transactions if t.transaction_type == 'income'),
         })
+
 
     in_progress = total_goals - completed_goals
 
+    # Use all goals (including hidden) to find last completed goal
+    all_goals = Goal.query.filter_by(user_id=user_id).all()
     completed_goals_with_dates = [g for g in all_goals if g.date_completed is not None]
     last_completed_goal = max(completed_goals_with_dates, key=lambda g: g.date_completed, default=None)
 
     in_progress_goals = [
         {
-            'goal': gs['goal'],
-            'total_amount': gs['total_amount'],
-            'progress': gs['total_amount'] / gs['goal'].target_amount if gs['goal'].target_amount > 0 else 0
+            'goal': goal,
+            'total_amount': total_amount,
+            'progress': total_amount / goal.target_amount
         }
-        for gs in goal_summaries if gs['total_amount'] < gs['goal'].target_amount and gs['goal'].target_amount > 0
+        for goal, total_amount in [(g['goal'], g['total_amount']) for g in goal_summaries]
+        if total_amount < goal.target_amount and goal.target_amount > 0
     ]
 
     any_hidden_goals_exist = Goal.query.filter_by(user_id=user_id, is_hidden=True).first() is not None
@@ -268,10 +307,9 @@ def view_goals():
     closest_to_completion = max(in_progress_goals, key=lambda x: x['progress'], default=None)
 
     return render_template('budgeting_and_goals/goals.html', form=form, summaries=goal_summaries, 
-                           total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress, 
-                           last_completed_goal=last_completed_goal, closest_to_completion=closest_to_completion, 
-                           hidden_goals=hidden_goals, show_hidden=show_hidden, any_hidden_goals_exist=any_hidden_goals_exist)
-
+                            total_goals=total_goals, completed_goals=completed_goals, in_progress=in_progress, 
+                            last_completed_goal=last_completed_goal, closest_to_completion=closest_to_completion, 
+                            hidden_goals=hidden_goals, show_hidden=show_hidden, any_hidden_goals_exist=any_hidden_goals_exist)
 
 @budgeting_and_goals_bp.route('/goals/edit/<int:goal_id>', methods=['GET', 'POST'])
 @login_required 
@@ -282,25 +320,22 @@ def edit_goals(goal_id):
     if goal.user_id != session['user']['id']:
         return redirect(url_for('budgeting_and_goals.view_goals', error='not_authorized_goal'))
 
-    form = GoalForm(obj=goal)  # Pre-fill the form with the current goal values
-    
-    form.original_start_date.data = goal.start_date.strftime("%Y-%m-%d")
+    if request.method == 'POST':
+        goal.title = request.form.get('title')
+        goal.target_amount = float(request.form.get('target_amount'))
+        goal.current_amount = float(request.form.get('current_amount'))
+        goal.start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
+        goal.deadline = datetime.strptime(request.form.get('deadline'), '%Y-%m-%d').date()
+        goal.description = request.form.get('description')
 
-    if form.validate_on_submit():  # Save the changes when form is submitted
+        try:
+            db.session.commit()
+            return redirect(url_for('budgeting_and_goals.view_goals', success='goal_edited'))
+        except:
+            db.session.rollback()
+            return redirect(url_for('budgeting_and_goals.view_goals', error='goal_edit_failed'))
 
-        goal.title = form.title.data
-        goal.target_amount = form.target_amount.data
-        goal.deadline = form.deadline.data
-        goal.description = form.description.data
-
-        db.session.commit()
-    
-        return redirect(url_for('budgeting_and_goals.view_goals', success='goal_edited'))
-    else:
-        print("Form errors:", form.errors)
-
-
-    return render_template('budgeting_and_goals/goals_edit.html', form=form, goal_id=goal_id)
+    return redirect(url_for('budgeting_and_goals.view_goals'))
 
 @budgeting_and_goals_bp.route('/goals/add', methods=['GET', 'POST'])
 @login_required
@@ -312,6 +347,9 @@ def add_goal():
         new_goal = Goal(
             title=form.title.data,
             target_amount=form.target_amount.data,
+            current_amount=form.current_amount.data,
+            salary_percentage=form.salary_percentage.data,
+            start_date=form.start_date.data,
             deadline=form.deadline.data,
             description=form.description.data,
             user_id=session['user']['id']
@@ -329,15 +367,19 @@ def add_goal():
 @budgeting_and_goals_bp.route('/goals/delete/<int:goal_id>', methods=['POST'])
 @login_required
 def delete_goal(goal_id):
-    goal = Goal.query.get_or_404(goal_id)
+    goal = db.session.get(Goal, goal_id)
+
+    if not goal:
+        return redirect(url_for('budgeting_and_goals.view_goals', error='goal_not_found'))
 
     if goal.user_id != session['user']['id']:
         return redirect(url_for('budgeting_and_goals.view_goals', error='not_authorized_goal'))
 
     db.session.delete(goal)
     db.session.commit()
-    
+
     return redirect(url_for('budgeting_and_goals.view_goals', success='goal_deleted'))
+
 
 @budgeting_and_goals_bp.route('/goal/<int:goal_id>/complete', methods=['POST'])
 @login_required
@@ -352,7 +394,7 @@ def complete_goal(goal_id):
         except SQLAlchemyError:
             db.session.rollback()
             return redirect(url_for('budgeting_and_goals.view_goals', error='goal_update_failed'))
-        
+
         return redirect(url_for('budgeting_and_goals.view_goals', success='goal_completed'))
 
     return redirect(url_for('budgeting_and_goals.view_goals', success='goal_already_completed'))
@@ -362,7 +404,7 @@ def complete_goal(goal_id):
 def toggle_hide_goal(goal_id):
     user_id = session['user']['id']
     goal = Goal.query.filter_by(id=goal_id, user_id=user_id).first()
-    
+
     goal.is_hidden = not goal.is_hidden
     db.session.commit()
 

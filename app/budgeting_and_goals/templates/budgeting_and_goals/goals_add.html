@@ -5,59 +5,91 @@
 {% endblock %}
 {% block content %}
 
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <nav class="mb-4" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals.view_goals') }}">Goals</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Add Goal</li>
+        </ol>
+      </nav>
 
-<div class="container min-vh-100 d-flex justify-content-center align-items-center">
-    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
-        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url_for('budgeting_and_goals.view_goals') }}">Goals</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Add Goal</li>
-            </ol>
-        </nav>
+      <div class="card shadow-sm rounded-4">
+        <div class="card-body p-4">
+          <h2 class="mb-4 text-center">Set a New Financial Goal</h2>
 
-        <h1 class="mb-4 text-center">Add a Goal</h1>
-
-        <form method="POST" action="{{ url_for('budgeting_and_goals.add_goal') }}">
+          <form method="POST" action="{{ url_for('budgeting_and_goals.add_goal') }}">
             {{ form.hidden_tag() }}
 
-            <!-- Enter Goal Title -->
+            <!-- Goal Info -->
+            <h5 class="mb-3">Goal Information</h5>
             <div class="mb-3">
-                <label for="title" class="form-label">{{ form.title.label }}</label>
-                {{ form.title(class="form-control", aria_label="Goal title input") }}
+              {{ form.title.label(class="form-label") }}
+              {{ form.title(class="form-control", id="title") }}
+            </div>
+            <div class="mb-3">
+              {{ form.description.label(class="form-label") }}
+              {{ form.description(class="form-control", rows="3", id="description") }}
             </div>
 
-            <!-- Enter Target Amount (2d.p. Max) -->
-            <div class="mb-3">
-                <label for="target_amount" class="form-label">{{ form.target_amount.label }}</label>
-                {{ form.target_amount(class="form-control", aria_label="Target amount input") }}
-
-                {% for error in form.target_amount.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
+            <!-- Amount Info -->
+            <h5 class="mb-3">Financial Details</h5>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                {{ form.target_amount.label(class="form-label") }}
+                {{ form.target_amount(class="form-control", id="target_amount") }}
+              </div>
+              <div class="col-md-6">
+                {{ form.current_amount.label(class="form-label") }}
+                {{ form.current_amount(class="form-control", id="current_amount") }}
+              </div>
             </div>
 
-            <!-- Select Deadline (dd/mm/yyyy) -->
-            <div class="mb-3">
-                <label for="deadline" class="form-label">{{ form.deadline.label }}</label>
-                {{ form.deadline(class="form-control", aria_label="Deadline input") }}
-
-                {% for error in form.deadline.errors %}
-                    <div class="text-danger">{{ error }}</div>
-                {% endfor %}
+            <div class="row mb-3">
+              <div class="col-md-6">
+                {{ form.salary_amount.label(class="form-label") }}
+                {{ form.salary_amount(class="form-control", id="salary_amount") }}
+              </div>
+              <div class="col-md-6">
+                {{ form.salary_frequency.label(class="form-label") }}
+                {{ form.salary_frequency(class="form-control", id="salary_frequency") }}
+              </div>
             </div>
 
-            <!-- Optional Description -->
-            <div class="mb-3">
-                <label for="description" class="form-label">{{ form.description.label }}</label>
-                {{ form.description(class="form-control", rows="3", aria_label="Optional description") }}
+            <!-- Timeline -->
+            <h5 class="mb-3">Timeline</h5>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                {{ form.start_date.label(class="form-label") }}
+                {{ form.start_date(class="form-control", id="start_date") }}
+              </div>
+              <div class="col-md-6">
+                {{ form.deadline.label(class="form-label") }}
+                {{ form.deadline(class="form-control", id="deadline") }}
+              </div>
             </div>
 
-            <!-- Save Button -->
+            <!-- Auto-Calculated Output -->
+            <div class="mb-3">
+              {{ form.salary_percentage.label(class="form-label") }}
+              {{ form.salary_percentage(class="form-control", id="salary_percentage", readonly=True) }}
+              <small class="text-muted">Required percentage of income to achieve this goal (automatically calculated)</small>
+              <!--<p id="salary_plan_output" class="text-info fw-bold mt-2"></p>-->
+            </div>
+
+            <!-- Submit -->
             <div class="d-grid">
-                {{ form.submit(class="btn btn-primary") }}
+              {{ form.submit(class="btn btn-primary btn-lg") }}
             </div>
-        </form>
+
+            <!-- JavaScript should go after form -->
+            <script src="{{ url_for('static', filename='js/goals.js') }}"></script>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 {% endblock %}

@@ -66,6 +66,19 @@ def validate_deadline(self, field):
 class GoalForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired(), Length(max=60)], render_kw={"placeholder": "Untitled"})
     target_amount = FloatField("Target Amount", validators=[InputRequired(), positive_num, two_decimal_places], render_kw={"placeholder": "e.g. 1000.00"})
+    current_amount = FloatField("Current Amount", validators=[InputRequired(), current_limit, two_decimal_places], render_kw={"placeholder": "e.g. 250.00"})
+    salary_amount = FloatField("Salary Amount", validators=[InputRequired(), positive_num, two_decimal_places], render_kw={"placeholder": "e.g. 2000.00"})
+    salary_frequency = SelectField("Salary Frequency", 
+        choices=[
+            ('weekly', 'Weekly'),
+            ('fortnightly', 'Fortnightly'),
+            ('monthly', 'Monthly'),
+            ('annually', 'Annually')
+        ],
+        validators=[InputRequired()]
+    )
+    salary_percentage = FloatField("Salary Percentage", render_kw={"readonly": True})
+    start_date = DateField("Start Date", format='%Y-%m-%d', default=datetime.now(timezone.utc).date(), validators=[InputRequired(), validate_start_date], render_kw={"placeholder": "YYYY-MM-DD"})
     original_start_date = HiddenField()
     deadline = DateField("Deadline", validators=[InputRequired(), validate_deadline], format='%Y-%m-%d', render_kw={"placeholder": "YYYY-MM-DD"})
     description = TextAreaField("Description (Optional)")

@@ -37,6 +37,39 @@
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
+            
+            <!-- Current Amount (2d.p. Max) -->
+            <div class="mb-3">
+                <label for="current_amount" class="form-label">{{ form.current_amount.label }}</label>
+                {{ form.current_amount(class="form-control",
+                aria_label="Current amount input") }}
+
+                {% for error in form.current_amount.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Salary Percentage -->
+            <div class="mb-3">
+                <label for="salary_percentage" class="form-label">{{ form.salary_percentage.label }}</label>
+                {{ form.salary_percentage(class="form-control", aria_label="Salary percentage input") }}
+                <small class="text-muted">Percentage of income to save for this goal</small>
+
+                {% for error in form.salary_percentage.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Start (dd/mm/yyyy) -->
+            {{ form.original_start_date }}
+            <div class="mb-3">
+                <label for="start_date" class="form-label">{{ form.start_date.label }}</label>
+                {{ form.start_date(class="form-control", aria_label="Start input") }}
+
+                {% for error in form.start_date.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
 
             <!-- Deadline (dd/mm/yyyy) -->
             <div class="mb-3">

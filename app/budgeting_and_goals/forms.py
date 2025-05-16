@@ -63,6 +63,21 @@ def validate_deadline(self, field):
     if field.data <= date.today():
         raise ValidationError("Deadline must be a future date.")
 
+def validate_start_date(form, field):
+    if field.data > date.today():
+        raise ValidationError("Start date cannot be in the future.")
+
+def current_limit(form, field):
+    if field.data is None:
+        return
+    try:
+        target = float(form.target_amount.data)
+        current = float(field.data)
+        if current > target:
+            raise ValidationError("Current amount cannot exceed target amount.")
+    except (TypeError, ValueError):
+        return
+
 class GoalForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired(), Length(max=60)], render_kw={"placeholder": "Untitled"})
     target_amount = FloatField("Target Amount", validators=[InputRequired(), positive_num, two_decimal_places], render_kw={"placeholder": "e.g. 1000.00"})

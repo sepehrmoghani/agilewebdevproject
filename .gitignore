@@ -20,3 +20,4 @@ __pycache__/
 
 # Database
 instance/database.db
+database.db

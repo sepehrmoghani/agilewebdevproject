@@ -98,4 +98,28 @@ python -m pytest
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## AI References
+
+### Matthew - 24313338
+https://chatgpt.com/share/68256805-52f0-8012-a0ec-b868d747394a
+
+### Sepehr - 23642415
+https://chatgpt.com/share/6826e05a-d97c-8000-9b71-8679082a639e
+https://chatgpt.com/share/6826e07a-4d68-8000-8bdd-844aa798dcb1
+https://chatgpt.com/share/6826e097-eb08-8000-be02-0941ee22eeeb
+https://chatgpt.com/share/6826e0c7-595c-8000-be7d-37143feb773b
+https://chatgpt.com/share/6826e126-376c-8000-9643-6276073d499f
+https://chatgpt.com/share/6826e14a-fa94-8000-bf5a-b3e38c994d60
+https://chatgpt.com/share/6826e167-e070-8000-9ab4-eb23634bbce9
+
+https://replit.com/@sepehrmoghani/agilewebdevproject?v=1
+https://replit.com/@sepehrmoghani/agilewebdevproject-1?v=1
+https://replit.com/@sepehrmoghani/agilewebdevproject-1?v=1
+https://replit.com/@sepehrmoghani/FinanceTracker?v=1
+
+### William - 23722943
+
+### Owen - 23924722
+https://chatgpt.com/share/6826e30a-e338-8010-bdf3-d2750405dd03
+
 
